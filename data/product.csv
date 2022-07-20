@@ -1,0 +1,35 @@
+Molecule Name:,44npnb,,,,
+Number of atoms:,26,,,,
+Atom number 1 coordinate-radius-mass,-2.0505278456,0.7233636485,8.8909238211,1.52,15.999
+Atom number 2 coordinate-radius-mass,-4.5223278456,0.7134636485,7.4414238211,1.52,15.999
+Atom number 3 coordinate-radius-mass,4.6299721544,0.6095636485,6.5838238211,1.52,15.999
+Atom number 4 coordinate-radius-mass,4.3879721544,-1.3255363515,7.5917238211,1.52,15.999
+Atom number 5 coordinate-radius-mass,3.9097721544,-0.2622363515,7.1277238211,1.55,14.007
+Atom number 6 coordinate-radius-mass,-1.7068278456,0.6384636485,7.5076238211,1.7,12.011
+Atom number 7 coordinate-radius-mass,-0.2172278456,0.3993636485,7.4061238211,1.7,12.011
+Atom number 8 coordinate-radius-mass,-2.5063278456,-0.4859363515,6.8394238211,1.7,12.011
+Atom number 9 coordinate-radius-mass,0.5825721544,1.3571636485,6.8063238211,1.7,12.011
+Atom number 10 coordinate-radius-mass,0.3160721544,-0.7723363515,7.9158238211,1.7,12.011
+Atom number 11 coordinate-radius-mass,-4.0111278456,-0.2730363515,6.9139238211,1.7,12.011
+Atom number 12 coordinate-radius-mass,1.9567721544,1.1366636485,6.7132238211,1.7,12.011
+Atom number 13 coordinate-radius-mass,1.6903721544,-0.9929363515,7.8228238211,1.7,12.011
+Atom number 14 coordinate-radius-mass,2.5107721544,-0.0383363515,7.2216238211,1.7,12.011
+Atom number 15 coordinate-radius-mass,-4.8637278456,-1.3564363515,6.3055238211,1.7,12.011
+Atom number 16 coordinate-radius-mass,-1.9785278456,1.5982636485,7.0518238211,1.2,1.001
+Atom number 17 coordinate-radius-mass,-2.2276278456,-0.5740363515,5.7830238211,1.2,1.001
+Atom number 18 coordinate-radius-mass,-2.3185278456,-1.4464363515,7.3330238211,1.2,1.001
+Atom number 19 coordinate-radius-mass,0.1624721544,2.2757636485,6.4073238211,1.2,1.001
+Atom number 20 coordinate-radius-mass,-0.3035278456,-1.5204363515,8.4007238211,1.2,1.001
+Atom number 21 coordinate-radius-mass,2.5650721544,1.9023636485,6.2385238211,1.2,1.001
+Atom number 22 coordinate-radius-mass,2.0873721544,-1.9180363515,8.2328238211,1.2,1.001
+Atom number 23 coordinate-radius-mass,-1.4421278456,1.3523636485,9.3154238211,1.2,1.001
+Atom number 24 coordinate-radius-mass,-4.6893278456,-2.2985363515,6.8310238211,1.2,1.001
+Atom number 25 coordinate-radius-mass,-4.6185278456,-1.4637363515,5.2460238211,1.2,1.001
+Atom number 26 coordinate-radius-mass,-5.9203278456,-1.0899363515,6.3974238211,1.2,1.001
+"Diffusion Tensor D={{Dtt;Dtr^T},{Dtr;Drr}} in the center of diffusion:",,,,,
+1.24,0,0,0,0,0
+0,0.88,0,0,0,0
+0,0,0.0058,0,0,0
+0,0,0,23.6,0,0
+0,0,0,0,0.000536,0
+0,0,0,0,0,0.000536
