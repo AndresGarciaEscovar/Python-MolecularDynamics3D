@@ -6,9 +6,9 @@
 # Imports
 # ##############################################################################
 import copy
+import numpy
 import os
 
-import numpy
 
 # ##############################################################################
 # Classes
@@ -53,7 +53,11 @@ class Molecule:
         self.bounding_radius = 0.5
         self.coordinates = numpy.array([[0.0 for _ in range(3)]], dtype=dtype)
         self.masses = numpy.array([1.0 for _ in range(1)], dtype=dtype)
-        self.radius = numpy.array([0.5 for _ in range(1)], dtype=dtype)
+        self.radii = numpy.array([0.5 for _ in range(1)], dtype=dtype)
+
+        # Validate masses and radii.
+        self._validate_masses()
+        self._validate_radii()
 
         # Load the molecule from the given file.
         if filename is not None:
@@ -125,7 +129,7 @@ class Molecule:
         # Set the coordinates, masses and radii.
         self.coordinates = numpy.array(coordinates, dtype=numpy.float64)
         self.masses = numpy.array(masses, dtype=numpy.float64)
-        self.radius = numpy.array(radii, dtype=numpy.float64)
+        self.radii = numpy.array(radii, dtype=numpy.float64)
 
     # --------------------------------------------------------------------------
     # Translate Methods
@@ -211,7 +215,7 @@ class Molecule:
         self.translate_to(-translation)
 
         # Get the maximum bounding radius.
-        for c, r in zip(self.coordinates, self.radius):
+        for c, r in zip(self.coordinates, self.radii):
             bradius = max(bradius, numpy.linalg.norm(c) + r)
 
         # Translate back to the original center of mass.
@@ -227,7 +231,7 @@ class Molecule:
         """
 
         # Get the radius and mass generator.
-        generator = zip(self.coordinates, self.radius)
+        generator = zip(self.coordinates, self.radii)
 
         maximum = numpy.array(
             [position + radius for position, radius in generator],
@@ -240,7 +244,7 @@ class Molecule:
         )
 
         # Get the radius and mass generator.
-        generator = zip(self.coordinates, self.radius)
+        generator = zip(self.coordinates, self.radii)
 
         minimum = numpy.array(
             [position - radius for position, radius in generator],
@@ -296,8 +300,43 @@ class Molecule:
         self.center_of_geometry -= self.center_of_mass
         self.center_of_mass -= self.center_of_mass
 
+    # --------------------------------------------------------------------------
+    # Validate Methods
+    # --------------------------------------------------------------------------
+
+    def _validate_masses(self):
+        """
+            Validates that the given masses are all definite positive, i.e., are
+            all greater than zero.
+
+            :raise ValueError: If there is a mass that is less than, or equal
+            to, zero.
+        """
+
+        # Check if there are negative masses.
+        if any(map(lambda x: x <= numpy.float64(0.0), self.masses)):
+            raise ValueError(
+                "There is a negative, or zero, mass present. All masses must "
+                "be positive definite."
+            )
+
+    def _validate_radii(self):
+        """
+            Validates that the given radii are all definite positive, i.e., are
+            all greater than zero.
+
+            :raise ValueError: If there is a radius that is less than, or equal
+            to, zero.
+        """
+
+        # Check if there are negative masses.
+        if any(map(lambda x: x <= numpy.float64(0.0), self.radii)):
+            raise ValueError(
+                "There is a negative, or zero, radius present. All radii must "
+                "be positive definite."
+            )
+
 
 if __name__ == "__main__":
-    print(os.getcwd())
     file_location = "../../data/product.csv"
     mol = Molecule(file_location)
