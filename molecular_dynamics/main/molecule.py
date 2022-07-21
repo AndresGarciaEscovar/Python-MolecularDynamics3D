@@ -5,10 +5,13 @@
 # ##############################################################################
 # Imports
 # ##############################################################################
+
+# General.
 import copy
 import numpy
-import os
 
+# User defined.
+import molecular_dynamics.main.diffusion_tensor as dt
 
 # ##############################################################################
 # Classes
@@ -55,20 +58,28 @@ class Molecule:
         self.masses = numpy.array([1.0 for _ in range(1)], dtype=dtype)
         self.radii = numpy.array([0.5 for _ in range(1)], dtype=dtype)
 
-        # Validate masses and radii.
-        self._validate_masses()
-        self._validate_radii()
-
         # Load the molecule from the given file.
         if filename is not None:
             self.load(filename)
 
-        # Get the center of mass and the center of geometry.
+        # Validate masses and radii.
+        self._validate_masses()
+        self._validate_radii()
+
+        # Get the center of diffusion, center of mass and center of geometry.
+        self.center_of_diffusion = numpy.array(
+            [0.0 for _ in range(3)], dtype=dtype
+        )
         self.center_of_mass = self._get_center_of_mass()
         self.center_of_geometry = self._get_center_of_geometry()
 
         # Translate to the center of mass.
         self._translate_to_center_of_mass()
+
+        # Get the diffusion tensor and center of diffusion.
+        dtens = dt.DiffusionTensor.get_diffusion_tensor
+        self.dtensor = dtens(self.coordinates, self.radii)
+        self.center_of_diffusion = self._get_center_of_diffusion()
 
         # Get the bounding radius.
         self.bounding_radius = self._get_bounding_radius()
@@ -76,6 +87,64 @@ class Molecule:
     # ##########################################################################
     # Dunder Methods
     # ##########################################################################
+
+    def __repr__(self):
+        """
+            Returns a string with a quick represenation of the molecule, i.e.,
+            the current coordinate, radius and mass of each atom.
+        """
+
+        # Extract the variables.
+        c = list(map(tuple, self.coordinates))
+        m = self.masses
+        r = self.radii
+
+        # Create a string with the atom number, coordinate, radius and mass.
+        string = [("Atom Number", "Coordinate (x, y, z)", "Radius", "Mass")]
+        for i, e in enumerate(zip(c, r, m)):
+            string.append(tuple([i + 1, *e]))
+
+        # Create a string.
+        string = "\n".join(map(str, string))
+
+        return string
+
+    def __str__(self):
+        """
+            Returns a more sophisticated string representation of the molecule
+            to include a better looking table and more information such as the
+            center of diffusion, center of geometry, center of mass and
+            diffusion tensor; the latter with respect to the center of mass.
+        """
+
+        # //////////////////////////////////////////////////////////////////////
+        # Auxiliary Functions
+        # //////////////////////////////////////////////////////////////////////
+
+        # ------------------------- Format Functions ------------------------- #
+
+        def format_table_0() -> str:
+            """"""
+            pass
+
+        # //////////////////////////////////////////////////////////////////////
+        # Implementation
+        # //////////////////////////////////////////////////////////////////////
+
+        # Extract the variables.
+        c = list(map(tuple, self.coordinates))
+        m = self.masses
+        r = self.radii
+
+        # Create a string with the atom number, coordinate, radius and mass.
+        string = [("Atom Number", "Coordinate (x, y, z)", "Radius", "Mass")]
+        for i, e in enumerate(zip(c, r, m)):
+            string.append(tuple([i + 1, *e]))
+
+        # Create a string.
+        string = "\n".join(map(str, string))
+
+        return string
 
     # ##########################################################################
     # Methods
@@ -223,6 +292,37 @@ class Molecule:
 
         return numpy.float64(bradius)
 
+    def _get_center_of_diffusion(self) -> numpy.ndarray:
+        """
+            From the masses and the positions, gets the center of mass.
+
+            :return: The center of mass of the molecule.
+        """
+
+        # Get the appropriate tensors.
+        rr = self.dtensor[3:, 3:]
+        tr = self.dtensor[3:, :3]
+
+        # Matrix with rotation-rotation coupling.
+        matrix = numpy.linalg.inv(numpy.array(
+             [
+                 [rr[1, 1] + rr[2, 2], -rr[0, 1], -rr[0, 2]],
+                 [-rr[0, 1], rr[0, 0] + rr[2, 2], -rr[1, 2]],
+                 [-rr[0, 2], -rr[1, 2], rr[0, 0] + rr[1, 1]]
+             ], dtype=numpy.float64
+        ))
+
+        # The vector with the assymetric translation-rotation entries.
+        vector = numpy.array(
+            [
+                [tr[1, 2] - tr[2, 1]],
+                [tr[2, 0] - tr[0, 2]],
+                [tr[0, 1] - tr[1, 0]]
+            ], dtype=numpy.float64
+        )
+
+        return numpy.transpose(numpy.matmul(matrix, vector))[0]
+
     def _get_center_of_geometry(self) -> numpy.ndarray:
         """
             From the radii and the positions, gets the center of geometry.
@@ -274,17 +374,32 @@ class Molecule:
     # Translate Methods
     # --------------------------------------------------------------------------
 
+    def _translate_to_center_of_diffusion(self) -> None:
+        """
+            Translates the molecule to the center of diffusion.
+        """
+
+        # Translate the coordinates to the center of diffusion.
+        for i, _ in enumerate(self.coordinates):
+            self.coordinates[i] -= self.center_of_diffusion
+
+        # Now, the center of geometry, center of mass and center of diffusion.
+        self.center_of_mass -= self.center_of_diffusion
+        self.center_of_geometry -= self.center_of_diffusion
+        self.center_of_diffusion -= self.center_of_diffusion
+
     def _translate_to_center_of_geometry(self) -> None:
         """
             Translates the molecule to the center of geometry.
         """
 
-        # Translate the coordinates to the center of mass.
+        # Translate the coordinates to the center of geomery.
         for i, _ in enumerate(self.coordinates):
             self.coordinates[i] -= self.center_of_geometry
 
-        # Translate the center of geometry and center of mass.
+        # Now, the center of geometry, center of mass and center of diffusion.
         self.center_of_mass -= self.center_of_geometry
+        self.center_of_diffusion -= self.center_of_geometry
         self.center_of_geometry -= self.center_of_geometry
 
     def _translate_to_center_of_mass(self) -> None:
@@ -296,8 +411,9 @@ class Molecule:
         for i, _ in enumerate(self.coordinates):
             self.coordinates[i] -= self.center_of_mass
 
-        # Translate the center of geometry and center of mass.
+        # Now, the center of geometry, center of mass and center of diffusion.
         self.center_of_geometry -= self.center_of_mass
+        self.center_of_diffusion -= self.center_of_mass
         self.center_of_mass -= self.center_of_mass
 
     # --------------------------------------------------------------------------
@@ -340,3 +456,5 @@ class Molecule:
 if __name__ == "__main__":
     file_location = "../../data/product.csv"
     mol = Molecule(file_location)
+
+    print(repr(mol))
