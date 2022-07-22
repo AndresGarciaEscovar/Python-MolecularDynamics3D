@@ -121,11 +121,105 @@ class Molecule:
         # Auxiliary Functions
         # //////////////////////////////////////////////////////////////////////
 
+        # --------------------------- Get Functions -------------------------- #
+
+        def get_diffusion_tensor_0() -> str:
+            """
+
+            :return:
+            """
+            # TODO: CONTINUE HERE.
+
+        def get_table_string_0() -> str:
+            """
+                Gets the string that represents the table.
+
+                :return: The string that represents the table.
+            """
+
+            # Start with an empty string.
+            string_0 = ""
+
+            # Write to the file.
+            for i_0, entry_0 in enumerate(string):
+                string_0 += "   ".join(entry_0) + "\n"
+
+            return string_0
+
+        def get_widths_0() -> tuple:
+            """
+                Gets a tuple with the widths of the column.
+
+                :return: A tuple with the maximum width of the columns.
+            """
+
+            # The list that contains the widths.
+            widths_0 = []
+
+            # Go through each row.
+            for i_0, strng_0 in enumerate(string):
+                # Get the width of the rows.
+                if i_0 == 0:
+                    widths_0 = list(map(lambda x_0: len(f"{x_0}"), strng_0))
+                    continue
+
+                # Get the widths.
+                widths_0 = list(
+                    map(
+                        lambda x_0, y_0: max(len(f"{x_0}"), y_0),
+                        strng_0, widths_0
+                    )
+                )
+
+            return tuple(widths_0)
+
         # ------------------------- Format Functions ------------------------- #
 
-        def format_table_0() -> str:
-            """"""
-            pass
+        def format_entries_0() -> None:
+            """
+                Formats the coordinates to reflect a reasonable value.
+
+                :return: Formats coordinates, so they all show, at most, 7
+                 significant figures.
+            """
+
+            # For each entry.
+            for i_0, element_0 in enumerate(string):
+                # Ignore the first element
+                if i_0 == 0:
+                    continue
+
+                # Format the atom number.
+                string[i_0][0] = f"{int(string[i_0][0])}"
+
+                # Format the coordinates.
+                coords_0 = str(tuple(f"{x_0:+.8e}" for x_0 in element_0[1]))
+                string[i_0][1] = coords_0
+
+                # Format the radii.
+                string[i_0][2] = f"{string[i_0][2]:.8e}"
+
+                # # Format the masses.
+                string[i_0][3] = f"{string[i_0][3]:.8e}"
+
+        def format_entries_fix_0() -> None:
+            """
+                Formats the strings so that they have a fixed length.
+
+                :return: Fix the strings for them to have the proper length.
+            """
+
+            # Fix the entries.
+            for i_0, entry0 in enumerate(string):
+                if i_0 == 0:
+                    string[i_0] = [
+                        f"{x_0:^{y_0}}" for x_0, y_0 in zip(entry0, widths)
+                    ]
+                    continue
+
+                string[i_0] = [
+                    f"{x_0:<{y_0}}" for x_0, y_0 in zip(entry0, widths)
+                ]
 
         # //////////////////////////////////////////////////////////////////////
         # Implementation
@@ -137,14 +231,24 @@ class Molecule:
         r = self.radii
 
         # Create a string with the atom number, coordinate, radius and mass.
-        string = [("Atom Number", "Coordinate (x, y, z)", "Radius", "Mass")]
+        string = [
+            (
+                "#",
+                "Coordinate (x, y, z) (Angstrom)", "Radius (Angstroms)",
+                "Mass (AMUs)"
+            )
+        ]
         for i, e in enumerate(zip(c, r, m)):
-            string.append(tuple([i + 1, *e]))
+            string.append(list([i + 1, *e]))
 
-        # Create a string.
-        string = "\n".join(map(str, string))
+        # Format the entries as strings.
+        format_entries_0()
+        widths = list(get_widths_0())
 
-        return string
+        # Fix the strings.
+        format_entries_fix_0()
+
+        return get_table_string_0()
 
     # ##########################################################################
     # Methods
@@ -457,4 +561,4 @@ if __name__ == "__main__":
     file_location = "../../data/product.csv"
     mol = Molecule(file_location)
 
-    print(repr(mol))
+    print(str(mol))
