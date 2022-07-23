@@ -540,26 +540,3 @@ class Molecule:
                 "There is a negative, or zero, radius present. All radii must "
                 "be positive definite."
             )
-
-
-if __name__ == "__main__":
-    file_location = "../../data/product.csv"
-    mol = Molecule(file_location)
-
-    basis = numpy.array([
-        [1, 1, 1],
-        [0, 2, 0],
-        [0, 0, 7],
-    ], dtype=float64)
-
-    new_basis = uv.orthogonalize(basis, normal=True)
-
-    print("Basis :\n", basis)
-    print("\tBasis[0].Basis[1]", numpy.dot(basis[0], basis[1]))
-    print("\tBasis[0].Basis[2]", numpy.dot(basis[0], basis[2]))
-    print("\tBasis[1].Basis[2]", numpy.dot(basis[1], basis[2]))
-
-    print("New Basis :\n", new_basis)
-    print("\tNewBasis[0].NewBasis[1]: ", numpy.dot(new_basis[0], new_basis[1]))
-    print("\tNewBasis[0].NewBasis[2]: ", numpy.dot(new_basis[0], new_basis[2]))
-    print("\tNewBasis[1].NewBasis[2]: ", numpy.dot(new_basis[1], new_basis[2]))
