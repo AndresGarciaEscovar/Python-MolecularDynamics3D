@@ -206,31 +206,7 @@ class Molecule:
              measurement is supported.
         """
 
-        # Get a copy of the angle.
-        cangle = float64(angle) if rads else float64(angle * numpy.pi / 180.0)
-
-        # Rotate rotate the coordinates.
-        for i, coordinate in enumerate(self.coordinates):
-            self.coordinates[i] = uv.rotate_about(
-                coordinate, axis, self.cod, cangle
-            )
-
-        # Rotate the center of diffusion and geometry.
-        self.cog = uv.rotate_about(self.cog, axis, self.cod, cangle)
-        self.com = uv.rotate_about(self.com, axis, self.cod, cangle)
-
-        # Rotate orientation vectors.
-        for i, vector in enumerate(self.orientation):
-            temp = self.cod
-            self.orientation[i] = uv.rotate_about(
-                self.orientation[i], axis, temp, cangle
-            )
-            print(numpy.linalg.norm(self.orientation[i]))
-
-        print(numpy.dot(self.orientation[0], self.orientation[1]))
-        print(numpy.dot(self.orientation[0], self.orientation[2]))
-        print(numpy.dot(self.orientation[1], self.orientation[2]))
-
+        # TODO: WRITE THIS FUNCTION, ROTATIONS TO ORIENTATION FIRST.
 
     def rotate_wr_com(
             self, axis: ndarray, angle: float64, rads: bool = True
