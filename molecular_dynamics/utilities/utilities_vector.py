@@ -55,7 +55,7 @@ def orthogonalize(basis: ndarray, normal: bool = False) -> ndarray:
 
         # Orthogonalize.
         for j, v1 in enumerate(new_basis):
-            norm = numpy.linalg.norm(v1) * numpy.linalg.norm(v2)
+            norm = numpy.linalg.norm(v1) ** 2
             new_v -= v1 * numpy.dot(v2, v1) / norm
 
         # Normalize.
