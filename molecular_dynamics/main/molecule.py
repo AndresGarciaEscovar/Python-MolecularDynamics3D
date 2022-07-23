@@ -557,10 +557,10 @@ if __name__ == "__main__":
 
     print("Basis :\n", basis)
     print("\tBasis[0].Basis[1]", numpy.dot(basis[0], basis[1]))
-    print("\tBasis[0].Basis[1]", numpy.dot(basis[0], basis[2]))
-    print("\tBasis[0].Basis[1]", numpy.dot(basis[1], basis[2]))
+    print("\tBasis[0].Basis[2]", numpy.dot(basis[0], basis[2]))
+    print("\tBasis[1].Basis[2]", numpy.dot(basis[1], basis[2]))
 
     print("New Basis :\n", new_basis)
     print("\tNewBasis[0].NewBasis[1]: ", numpy.dot(new_basis[0], new_basis[1]))
-    print("\tNewBasis[0].NewBasis[1]: ", numpy.dot(new_basis[0], new_basis[2]))
-    print("\tNewBasis[0].NewBasis[1]: ", numpy.dot(new_basis[1], new_basis[2]))
+    print("\tNewBasis[0].NewBasis[2]: ", numpy.dot(new_basis[0], new_basis[2]))
+    print("\tNewBasis[1].NewBasis[2]: ", numpy.dot(new_basis[1], new_basis[2]))
