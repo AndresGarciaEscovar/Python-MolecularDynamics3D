@@ -16,6 +16,8 @@ from numpy import ndarray, float64
 import molecular_dynamics.main.diffusion_tensor as dt
 import molecular_dynamics.utilities.utilities_molecule as um
 import molecular_dynamics.utilities.utilities_strings as us
+import molecular_dynamics.utilities.utilities_vector as uv
+
 
 # ##############################################################################
 # Classes
@@ -79,7 +81,7 @@ class Molecule:
         # Get the diffusion tensor and center of diffusion.
         dtens = dt.DiffusionTensor.get_diffusion_tensor
         self.dtensor = dtens(self.coordinates, self.radii)
-        self.cod = self._get_cod()
+        self.cod = um.get_center_of_diffusion(self.dtensor)
 
         # Get the bounding radius.
         self.boundingr = self._get_boundingr()
@@ -183,6 +185,74 @@ class Molecule:
         self.radii = numpy.array(radii, dtype=float64)
 
     # --------------------------------------------------------------------------
+    # Rotate Methods
+    # --------------------------------------------------------------------------
+
+    def rotate_wr_cod(
+            self, axis: ndarray, angle: float64, rads: bool = True
+    ) -> None:
+        """
+            Rotates the molecule, with respect to the center of geometry, about
+            the given axis, the given angle; where the default measure for
+            the angle is in radians.
+
+            :param axis: The axis about which the molecule should be rotated.
+
+            :param angle: The angle about which the molecule will be rotated.
+
+            :param rads: Boolean flag that indicates the units in which the
+             angle is given. True, if the angle is given in radians; False,
+             if the angle is given in degrees. No other unit of angle
+             measurement is supported.
+        """
+
+        # Get a copy of the angle.
+        cangle = float64(angle) if rads else float64(angle * numpy.pi / 180.0)
+
+        # Rotate rotate the coordinates.
+        for i, coordinate in enumerate(self.coordinates):
+            self.coordinates[i] = uv.rotate_about(
+                coordinate, axis, self.cod, cangle
+            )
+
+        # Rotate the center of diffusion and geometry.
+        self.cog = uv.rotate_about(self.cog, axis, self.cod, cangle)
+        self.com = uv.rotate_about(self.com, axis, self.cod, cangle)
+
+        # Rotate orientation vectors.
+        for i, vector in enumerate(self.orientation):
+            temp = self.cod
+            self.orientation[i] = uv.rotate_about(
+                self.orientation[i], axis, temp, cangle
+            )
+            print(numpy.linalg.norm(self.orientation[i]))
+
+        print(numpy.dot(self.orientation[0], self.orientation[1]))
+        print(numpy.dot(self.orientation[0], self.orientation[2]))
+        print(numpy.dot(self.orientation[1], self.orientation[2]))
+
+
+    def rotate_wr_com(
+            self, axis: ndarray, angle: float64, rads: bool = True
+    ) -> None:
+        """
+            Rotates the molecule, with respect to the center of mass, about
+            the given axis, the given angle; where the default measure for
+            the angle is in radians.
+
+            :param axis: The axis about which the molecule should be rotated.
+
+            :param angle: The angle about which the molecule will be rotated.
+
+            :param rads: Boolean flag that indicates the units in which the
+             angle is given. True, if the angle is given in radians; False,
+             if the angle is given in degrees. No other unit of angle
+             measurement is supported.
+        """
+
+        # TODO: WRITE THIS FUNCTION, CONSIDERING ROTATIONS TO ORIENTATION.
+
+    # --------------------------------------------------------------------------
     # Translate Methods
     # --------------------------------------------------------------------------
 
@@ -233,7 +303,7 @@ class Molecule:
         """
 
         # Auxiliary variables.
-        bradius = 0.0
+        bradius = float64(0.0)
 
         # Translate the molecule, temporarily, to the center of mass.
         translation = copy.deepcopy(self.com)
@@ -241,43 +311,12 @@ class Molecule:
 
         # Get the maximum bounding radius.
         for c, r in zip(self.coordinates, self.radii):
-            bradius = max(bradius, numpy.linalg.norm(c) + r)
+            bradius = float64(max(bradius, numpy.linalg.norm(c) + r))
 
         # Translate back to the original center of mass.
         self.translate_to(translation)
 
         return float64(bradius)
-
-    def _get_cod(self) -> ndarray:
-        """
-            From the masses and the positions, gets the center of mass.
-
-            :return: The center of mass of the molecule.
-        """
-
-        # Get the appropriate tensors.
-        rr = self.dtensor[3:, 3:]
-        tr = self.dtensor[3:, :3]
-
-        # Matrix with rotation-rotation coupling.
-        matrix = numpy.linalg.inv(numpy.array(
-             [
-                 [rr[1, 1] + rr[2, 2], -rr[0, 1], -rr[0, 2]],
-                 [-rr[0, 1], rr[0, 0] + rr[2, 2], -rr[1, 2]],
-                 [-rr[0, 2], -rr[1, 2], rr[0, 0] + rr[1, 1]]
-             ], dtype=float64
-        ))
-
-        # The vector with the assymetric translation-rotation entries.
-        vector = numpy.array(
-            [
-                [tr[1, 2] - tr[2, 1]],
-                [tr[2, 0] - tr[0, 2]],
-                [tr[0, 1] - tr[1, 0]]
-            ], dtype=float64
-        )
-
-        return numpy.transpose(numpy.matmul(matrix, vector))[0]
 
     # --------------------------------------------------------------------------
     # Translate Methods
@@ -366,4 +405,9 @@ if __name__ == "__main__":
     file_location = "../../data/product.csv"
     mol = Molecule(file_location)
 
-    print(str(mol))
+    xs = numpy.array([0, 0, 1], dtype=float64)
+    ng = numpy.pi * 0.5
+
+    # print(str(mol))
+    mol.rotate_wr_com(xs, ng)
+    # print(str(mol))

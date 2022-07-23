@@ -22,6 +22,41 @@ from typing import Any
 # ------------------------------------------------------------------------------
 
 
+def get_center_of_diffusion(dtensor: ndarray) -> ndarray:
+    """
+        From the 6x6 diffusion tensor, gets the location of the center of
+        diffusion.
+
+        :param dtensor: The 6x6 diffusion tensor.
+
+        :return: The 3D array that represents the center of diffusion.
+    """
+
+    # Get the appropriate tensors.
+    rr = dtensor[3:, 3:]
+    tr = dtensor[3:, :3]
+
+    # Matrix with rotation-rotation coupling.
+    matrix = numpy.linalg.inv(numpy.array(
+         [
+             [rr[1, 1] + rr[2, 2], -rr[0, 1], -rr[0, 2]],
+             [-rr[0, 1], rr[0, 0] + rr[2, 2], -rr[1, 2]],
+             [-rr[0, 2], -rr[1, 2], rr[0, 0] + rr[1, 1]]
+         ], dtype=float64
+    ))
+
+    # The vector with the assymetric translation-rotation entries.
+    vector = numpy.array(
+        [
+            [tr[1, 2] - tr[2, 1]],
+            [tr[2, 0] - tr[0, 2]],
+            [tr[0, 1] - tr[1, 0]]
+        ], dtype=float64
+    )
+
+    return numpy.transpose(numpy.matmul(matrix, vector))[0]
+
+
 def get_center_of_geometry(coordinates: ndarray, radii: ndarray) -> ndarray:
     """
         From the given set of coordinates and the radius array, gets the center
