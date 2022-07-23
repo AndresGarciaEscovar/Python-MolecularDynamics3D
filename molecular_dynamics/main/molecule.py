@@ -205,7 +205,6 @@ class Molecule:
              if the angle is given in degrees. No other unit of angle
              measurement is supported.
         """
-
         # TODO: WRITE THIS FUNCTION, ROTATIONS TO ORIENTATION FIRST.
 
     def rotate_wr_com(
@@ -225,7 +224,6 @@ class Molecule:
              if the angle is given in degrees. No other unit of angle
              measurement is supported.
         """
-
         # TODO: WRITE THIS FUNCTION, CONSIDERING ROTATIONS TO ORIENTATION.
 
     # --------------------------------------------------------------------------
