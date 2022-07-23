@@ -102,7 +102,31 @@ class Molecule:
             center of diffusion, center of geometry, center of mass and
             diffusion tensor; the latter with respect to the center of mass.
         """
-        return us.get_string_molecule(self.coordinates, self.radii, self.masses)
+
+        # Name of the molecule.
+        mname = "Molecule name: " + self.name + "\n"
+
+        # Get the atom information.
+        minf = us.get_string_molecule(self.coordinates, self.radii, self.masses)
+        minf += "\n"
+
+        # Get the center information.
+        ci = f"Center of mass (x,y,z): {us.get_string_array(self.com)}\n"
+        ci += f"Center of geometry (x,y,z): {us.get_string_array(self.cog)}\n"
+        ci += f"Center of diffusion (x,y,z): {us.get_string_array(self.cod)}\n"
+
+        # Get the diffusion tensor.
+        dtensor = "Diffusion tensor in the center of mass along, the body-fixed"
+        dtensor += " axes, x', y' and z':\n"
+        dtensor += us.get_string_matrix(self.dtensor) + "\n"
+
+        # Get the orientation.
+        orientation = "Orientation of the x', y', z' axes:\n"
+        orientation += f"\tx': {us.get_string_array(self.orientation[0])}\n"
+        orientation += f"\ty': {us.get_string_array(self.orientation[1])}\n"
+        orientation += f"\tz': {us.get_string_array(self.orientation[2])}\n"
+
+        return mname + minf + ci + dtensor + orientation
 
     # ##########################################################################
     # Methods
@@ -342,4 +366,4 @@ if __name__ == "__main__":
     file_location = "../../data/product.csv"
     mol = Molecule(file_location)
 
-    print(repr(mol))
+    print(str(mol))
