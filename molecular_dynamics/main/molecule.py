@@ -18,7 +18,6 @@ import molecular_dynamics.utilities.utilities_molecule as um
 import molecular_dynamics.utilities.utilities_strings as us
 import molecular_dynamics.utilities.utilities_vector as uv
 
-
 # ##############################################################################
 # Classes
 # ##############################################################################
@@ -548,9 +547,9 @@ if __name__ == "__main__":
     mol = Molecule(file_location)
 
     basis = numpy.array([
-        [1, 1, 0],
-        [0, 1, 0],
-        [0, 0, 1],
+        [1, 1, 1],
+        [0, 2, 0],
+        [0, 0, 7],
     ], dtype=float64)
 
     new_basis = uv.orthogonalize(basis, normal=True)
