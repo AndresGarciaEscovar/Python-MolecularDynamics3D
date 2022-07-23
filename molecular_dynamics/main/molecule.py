@@ -192,6 +192,57 @@ class Molecule:
             self, axis: ndarray, angle: float64, rads: bool = True
     ) -> None:
         """
+            Rotates the molecule, with respect to the center of diffusion, about
+            the given axis, the given angle; where the default measure for
+            the angle is in radians.
+
+            :param axis: The axis about which the molecule should be rotated.
+
+            :param angle: The angle about which the molecule will be rotated.
+
+            :param rads: Boolean flag that indicates the units in which the
+             angle is given. True, if the angle is given in radians; False,
+             if the angle is given in degrees. No other unit of angle
+             measurement is supported.
+        """
+
+        # Turn the angle into radians.
+        ang = float64(angle) if rads else float64(angle * numpy.pi / 180.0)
+
+        # ------------------------ Rotate Orientation ------------------------ #
+
+        # Get a temporary zero vector.
+        tpos = numpy.zeros((1, 3), dtype=float64)[0]
+
+        # Old and new COM position relative to the COD.
+        old_com = self.com - self.cod
+        new_com = uv.rotate_about(self.com - self.cod, axis, tpos, ang)
+
+        # Rotate and normalize (due to small errors).
+        for i, orientation in enumerate(self.orientation):
+            rel_com = uv.rotate_about(orientation + old_com, axis, tpos, ang)
+            self.orientation[i] = rel_com - new_com
+            self.orientation[i] /= numpy.linalg.norm(self.orientation[i])
+
+        # Orthonormalize.
+        self.orientation = uv.orthogonalize(self.orientation, normal=True)
+
+        # ------------------------ Rotate Coordinates ------------------------ #
+
+        for i, coordinate in enumerate(self.coordinates):
+            self.coordinates[i] = uv.rotate_about(
+                coordinate, axis, self.cod, ang
+            )
+
+        # ------------------------ Rotate COM and COG ------------------------ #
+
+        self.com = uv.rotate_about(self.com, axis, self.cod, ang)
+        self.cog = uv.rotate_about(self.cog, axis, self.cod, ang)
+
+    def rotate_wr_cog(
+            self, axis: ndarray, angle: float64, rads: bool = True
+    ) -> None:
+        """
             Rotates the molecule, with respect to the center of geometry, about
             the given axis, the given angle; where the default measure for
             the angle is in radians.
@@ -205,7 +256,39 @@ class Molecule:
              if the angle is given in degrees. No other unit of angle
              measurement is supported.
         """
-        # TODO: WRITE THIS FUNCTION, ROTATIONS TO ORIENTATION FIRST.
+
+        # Turn the angle into radians.
+        ang = float64(angle) if rads else float64(angle * numpy.pi / 180.0)
+
+        # ------------------------ Rotate Orientation ------------------------ #
+
+        # Get a temporary zero vector.
+        tpos = numpy.zeros((1, 3), dtype=float64)[0]
+
+        # Old and new COM position relative to the COG.
+        old_com = self.com - self.cog
+        new_com = uv.rotate_about(self.com - self.cog, axis, tpos, ang)
+
+        # Rotate and normalize (due to small errors).
+        for i, orientation in enumerate(self.orientation):
+            rel_com = uv.rotate_about(orientation + old_com, axis, tpos, ang)
+            self.orientation[i] = rel_com - new_com
+            self.orientation[i] /= numpy.linalg.norm(self.orientation[i])
+
+        # Orthonormalize.
+        self.orientation = uv.orthogonalize(self.orientation, normal=True)
+
+        # ------------------------ Rotate Coordinates ------------------------ #
+
+        for i, coordinate in enumerate(self.coordinates):
+            self.coordinates[i] = uv.rotate_about(
+                coordinate, axis, self.cog, ang
+            )
+
+        # ------------------------ Rotate COD and COM ------------------------ #
+
+        self.cod = uv.rotate_about(self.cod, axis, self.cog, ang)
+        self.com = uv.rotate_about(self.com, axis, self.cog, ang)
 
     def rotate_wr_com(
             self, axis: ndarray, angle: float64, rads: bool = True
@@ -224,7 +307,92 @@ class Molecule:
              if the angle is given in degrees. No other unit of angle
              measurement is supported.
         """
-        # TODO: WRITE THIS FUNCTION, CONSIDERING ROTATIONS TO ORIENTATION.
+
+        # Turn the angle into radians.
+        ang = float64(angle) if rads else float64(angle * numpy.pi / 180.0)
+
+        # ------------------------ Rotate Orientation ------------------------ #
+
+        # Get a temporary zero vector.
+        tpos = numpy.zeros((1, 3), dtype=float64)[0]
+
+        # Rotate and normalize (due to small errors).
+        for i, orientation in enumerate(self.orientation):
+            self.orientation[i] = uv.rotate_about(
+                self.orientation[i], axis, tpos, ang
+            )
+            self.orientation[i] /= numpy.linalg.norm(self.orientation[i])
+
+        # Orthonormalize.
+        self.orientation = uv.orthogonalize(self.orientation, normal=True)
+
+        # ------------------------ Rotate Coordinates ------------------------ #
+
+        for i, coordinate in enumerate(self.coordinates):
+            self.coordinates[i] = uv.rotate_about(
+                coordinate, axis, self.com, ang
+            )
+
+        # ------------------------ Rotate COD and COG ------------------------ #
+
+        self.cod = uv.rotate_about(self.cod, axis, self.com, ang)
+        self.cog = uv.rotate_about(self.cog, axis, self.com, ang)
+
+    def rotate_wr_pnt(
+            self, point: ndarray, axis: ndarray,  angle: float64,
+            rads: bool = True
+    ) -> None:
+        """
+            Rotates the molecule, with respect to the given point, about
+            the given axis, the given angle; where the default measure for
+            the angle is in radians.
+
+            :param point: The point relative to which the molecule must be
+             rotated.
+
+            :param axis: The axis about which the molecule should be rotated.
+
+            :param angle: The angle about which the molecule will be rotated.
+
+            :param rads: Boolean flag that indicates the units in which the
+             angle is given. True, if the angle is given in radians; False,
+             if the angle is given in degrees. No other unit of angle
+             measurement is supported.
+        """
+
+        # Turn the angle into radians.
+        ang = float64(angle) if rads else float64(angle * numpy.pi / 180.0)
+
+        # ------------------------ Rotate Orientation ------------------------ #
+
+        # Get a temporary zero vector.
+        tpos = numpy.zeros((1, 3), dtype=float64)[0]
+
+        # Old and new COM position relative to the point.
+        old_com = self.com - point
+        new_com = uv.rotate_about(self.com - point, axis, tpos, ang)
+
+        # Rotate and normalize (due to small errors).
+        for i, orientation in enumerate(self.orientation):
+            rel_com = uv.rotate_about(orientation + old_com, axis, tpos, ang)
+            self.orientation[i] = rel_com - new_com
+            self.orientation[i] /= numpy.linalg.norm(self.orientation[i])
+
+        # Orthonormalize.
+        self.orientation = uv.orthogonalize(self.orientation, normal=True)
+
+        # ------------------------ Rotate Coordinates ------------------------ #
+
+        for i, coordinate in enumerate(self.coordinates):
+            self.coordinates[i] = uv.rotate_about(
+                coordinate, axis, point, ang
+            )
+
+        # ---------------------- Rotate COD, COG and COM --------------------- #
+
+        self.cod = uv.rotate_about(self.cod, axis, point, ang)
+        self.cog = uv.rotate_about(self.cog, axis, point, ang)
+        self.com = uv.rotate_about(self.com, axis, point, ang)
 
     # --------------------------------------------------------------------------
     # Translate Methods
@@ -379,9 +547,20 @@ if __name__ == "__main__":
     file_location = "../../data/product.csv"
     mol = Molecule(file_location)
 
-    xs = numpy.array([0, 0, 1], dtype=float64)
-    ng = numpy.pi * 0.5
+    basis = numpy.array([
+        [1, 1, 0],
+        [0, 1, 0],
+        [0, 0, 1],
+    ], dtype=float64)
 
-    # print(str(mol))
-    mol.rotate_wr_com(xs, ng)
-    # print(str(mol))
+    new_basis = uv.orthogonalize(basis, normal=True)
+
+    print("Basis :\n", basis)
+    print("\tBasis[0].Basis[1]", numpy.dot(basis[0], basis[1]))
+    print("\tBasis[0].Basis[1]", numpy.dot(basis[0], basis[2]))
+    print("\tBasis[0].Basis[1]", numpy.dot(basis[1], basis[2]))
+
+    print("New Basis :\n", new_basis)
+    print("\tNewBasis[0].NewBasis[1]: ", numpy.dot(new_basis[0], new_basis[1]))
+    print("\tNewBasis[0].NewBasis[1]: ", numpy.dot(new_basis[0], new_basis[2]))
+    print("\tNewBasis[0].NewBasis[1]: ", numpy.dot(new_basis[1], new_basis[2]))

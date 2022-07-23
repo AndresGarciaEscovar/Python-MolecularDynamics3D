@@ -10,8 +10,6 @@
 import copy
 import numpy
 
-import timeit
-
 from numpy import ndarray, float64
 
 # User defined.
@@ -20,6 +18,53 @@ import molecular_dynamics.utilities.utilities_molecule as um
 # ##############################################################################
 # Functions
 # ##############################################################################
+
+
+# ------------------------------------------------------------------------------
+# Orthogonal Functions
+# ------------------------------------------------------------------------------
+
+
+def orthogonalize(basis: ndarray, normal: bool = False) -> ndarray:
+    """
+        Orthogonalizes the given basis.
+
+        :param basis: The vectors to be orthogonalized.
+
+        :param normal: Boolean flag that indicates if the resultant vectors
+         should be normalized. True, if the resultant vectors should be
+         normalized; False, otherwise. False, by default.
+
+        :return: The new orthogonalized basis.
+    """
+
+    # Stores the new basis.
+    new_basis = []
+
+    for i, v0 in enumerate(basis):
+        # Use the first vector as the basis vector.
+        if i == 0:
+            # Normalize.
+            v0 /= numpy.linalg.norm(v0) if normal else float64(1.0)
+            new_basis.append(v0)
+            continue
+
+        # Get the next vector.
+        v2 = copy.deepcopy(v0)
+        new_v = copy.deepcopy(v0)
+
+        # Orthogonalize.
+        for j, v1 in enumerate(new_basis):
+            norm = numpy.linalg.norm(v1) * numpy.linalg.norm(v2)
+            new_v -= v1 * numpy.dot(v2, v1) / norm
+
+        # Normalize.
+        new_v /= numpy.linalg.norm(new_v) if normal else float64(1.0)
+
+        # Add the new vector to the basis.
+        new_basis.append(new_v)
+
+    return numpy.array(new_basis, dtype=float64)
 
 
 # ------------------------------------------------------------------------------
@@ -118,18 +163,4 @@ def rotate_about(
 
 
 if __name__ == "__main__":
-
-    crdnt = numpy.array([1, 0, 9], dtype=float64)
-    pnt = numpy.array([0., 0, 0], dtype=float64)
-    xs = numpy.array([0, 1, 0], dtype=float64)
-    ngl = float64(numpy.pi)
-
-
-    # get the start time
-    numbers = 1000_000
-    result = timeit.timeit(
-        stmt='rotate_about(crdnt, xs, pnt, ngl)', globals=globals(),
-        number=numbers
-    )
-
-    print(result/numbers)
+    pass
