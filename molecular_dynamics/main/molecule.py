@@ -93,21 +93,7 @@ class Molecule:
             Returns a string with a quick represenation of the molecule, i.e.,
             the current coordinate, radius and mass of each atom.
         """
-
-        # Extract the variables.
-        c = list(map(tuple, self.coordinates))
-        m = self.masses
-        r = self.radii
-
-        # Create a string with the atom number, coordinate, radius and mass.
-        string = [("Atom Number", "Coordinate (x, y, z)", "Radius", "Mass")]
-        for i, e in enumerate(zip(c, r, m)):
-            string.append(tuple([i + 1, *e]))
-
-        # Create a string.
-        string = "\n".join(map(str, string))
-
-        return string
+        return us.get_string_molecule(self.coordinates, self.radii, self.masses)
 
     def __str__(self):
         """
@@ -356,4 +342,4 @@ if __name__ == "__main__":
     file_location = "../../data/product.csv"
     mol = Molecule(file_location)
 
-    print(str(mol))
+    print(repr(mol))
