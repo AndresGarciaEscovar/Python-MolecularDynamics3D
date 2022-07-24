@@ -22,6 +22,59 @@ from typing import Any
 # ------------------------------------------------------------------------------
 
 
+def get_ls_axes(
+        coordinates: ndarray, radii: ndarray, step: float64 = 1e-3
+) -> tuple:
+    """
+        Gets the longest and shortest axes of a molecule in the given
+        coordinate system.
+
+        :param coordinates: The coordinates of the atoms in the molecule.
+
+        :param radii: The radii of the atoms in the molecule.
+
+        :param step: The resolution of the angle increment.
+
+        :return: A 2-tuple that contains vectors that point along the longest
+         and shortest axes, respectively.
+    """
+
+    # Define the angle arrays.
+    s = step
+    aphi = numpy.array(numpy.arange(0.0, numpy.pi / 2 + s, s), dtype=float64)
+    atheta = numpy.array(numpy.arange(0.0, numpy.pi + s, s), dtype=float64)
+
+    # The length of the vectors.
+    lphi = len(aphi)
+    ltheta = len(atheta)
+
+    # Trigonometric functions.
+    cos_theta = numpy.cos(atheta)
+    sin_theta = numpy.sin(atheta)
+
+    cos_phi = numpy.cos(aphi)
+    sin_phi = numpy.sin(aphi)
+
+    # Remove the angles.
+    del aphi
+    del atheta
+
+    # Define the unit 3D vectors.
+    for i in range(ltheta):
+        # The z component is always the same.
+        z = cos_theta[i]
+
+        # For the radial component.
+        for j in range(lphi):
+            x = sin_theta[i] * cos_phi[j]
+            y = sin_theta[i] * sin_phi[j]
+
+            # Radial vector, i.e., normal to the plane.
+            vradial = numpy.array([x, y, z], dtype=float64)
+
+    return 1, 2
+
+
 def get_center_of_diffusion(dtensor: ndarray) -> ndarray:
     """
         From the 6x6 diffusion tensor, gets the location of the center of
@@ -161,3 +214,11 @@ def validate_array(array: Any, dims: int = 3, exception: bool = False) -> bool:
         )
 
     return valid
+
+
+if __name__ == "__main__":
+
+    cords = numpy.array([[1, 2, 3], [1, 2, 4], [1, 2, 5]], dtype=float64)
+    radiu = numpy.array([0.5, 0.5, 0.5])
+
+    la, sa = get_ls_axes(cords, radiu)
