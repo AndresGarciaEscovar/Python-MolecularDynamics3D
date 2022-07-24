@@ -88,11 +88,7 @@ def rotate_about(
         
         :param angle: The angle, in radians, for the coordinate to be rotated,
          anti-clowise; i.e., following the 'right-hand' rule for cross products.
-        
-        :param check: Boolean flag that indicates if the arrays must be checked
-         for the proper dimensionality. True, if the arrays must be checked for
-         the proper dimensionality; False, otherwise.
-        
+
         :return: The rotated vector about the given axis, with respect to the
          given point.
         
