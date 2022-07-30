@@ -3,6 +3,7 @@
 # ##############################################################################
 # Imports
 # ##############################################################################
+import os
 
 import molecular_dynamics.main.molecule as molecule
 
@@ -15,9 +16,12 @@ def main() -> None:
     """
         Runs the main program.
     """
-    pnb = molecule.Molecule()
+    filename = os.getcwd() + "/data/product.csv"
+    pnb = molecule.Molecule(filename)
 
-    print(str(pnb))
+    print(pnb.shortest)
+    print(pnb.longest)
+
 
 # ##############################################################################
 # Main Program
