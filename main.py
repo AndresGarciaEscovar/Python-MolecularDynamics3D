@@ -19,9 +19,6 @@ def main() -> None:
     filename = os.getcwd() + "/data/product.csv"
     pnb = molecule.Molecule(filename)
 
-    print(pnb.shortest)
-    print(pnb.longest)
-
 
 # ##############################################################################
 # Main Program
