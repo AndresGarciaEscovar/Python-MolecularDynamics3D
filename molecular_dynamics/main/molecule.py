@@ -85,6 +85,11 @@ class Molecule:
         # Get the bounding radius.
         self.boundingr = self._get_boundingr()
 
+        # Get the longest and shortest axis.
+        self.longest, self.shortest = um.get_ls_axes(
+            self.coordinates, self.radii, step=float64(1e-2)
+        )
+
     # ##########################################################################
     # Dunder Methods
     # ##########################################################################
