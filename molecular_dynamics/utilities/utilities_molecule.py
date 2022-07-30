@@ -8,6 +8,9 @@
 # ##############################################################################
 
 # General.
+import copy
+import sys
+
 import numpy
 
 from numpy import ndarray, float64
@@ -41,38 +44,91 @@ def get_ls_axes(
 
     # Define the angle arrays.
     s = step
-    aphi = numpy.array(numpy.arange(0.0, numpy.pi / 2 + s, s), dtype=float64)
-    atheta = numpy.array(numpy.arange(0.0, numpy.pi + s, s), dtype=float64)
+    aphi = numpy.array(numpy.arange(0.0, 2.0 * numpy.pi + s, s), dtype=float64)
+    athe = numpy.array(numpy.arange(0.0, 0.5 * numpy.pi + s, s), dtype=float64)
 
     # The length of the vectors.
     lphi = len(aphi)
-    ltheta = len(atheta)
+    ltheta = len(athe)
 
     # Trigonometric functions.
-    cos_theta = numpy.cos(atheta)
-    sin_theta = numpy.sin(atheta)
+    cos_theta = numpy.cos(athe)
+    sin_theta = numpy.sin(athe)
 
     cos_phi = numpy.cos(aphi)
     sin_phi = numpy.sin(aphi)
 
     # Remove the angles.
     del aphi
-    del atheta
+    del athe
+
+    #  Length parameters.
+    maxlen = float64(0.0)
+    maxaxis = numpy.zeros(0, dtype=float64)
+
+    minlen = float64(0.0)
+    minaxis = numpy.zeros(0, dtype=float64)
 
     # Define the unit 3D vectors.
     for i in range(ltheta):
         # The z component is always the same.
         z = cos_theta[i]
 
+        # Always make a copy of the coordinates.
+        tcoords = copy.deepcopy(coordinates)
+
         # For the radial component.
         for j in range(lphi):
+            # Get the x and y component.
             x = sin_theta[i] * cos_phi[j]
             y = sin_theta[i] * sin_phi[j]
 
-            # Radial vector, i.e., normal to the plane.
+            # Get the unit radial vector.
             vradial = numpy.array([x, y, z], dtype=float64)
 
-    return 1, 2
+            # Temporary storage units.
+            minc = float64(0.0)
+            maxc = float64(0.0)
+
+            # Project along the radial vector.
+            for k, coord in enumerate(tcoords):
+                # Project along the radial vector.
+                proj = numpy.dot(coord, vradial)
+
+                # Set the initial values.
+                if k == 0:
+                    maxc = float64(proj + radii[k])
+                    minc = float64(proj - radii[k])
+                    continue
+
+                # Set minimum and maximum values.
+                if maxc < float64(proj + radii[k]):
+                    maxc = float64(proj + radii[k])
+
+                if minc > float64(proj - radii[k]):
+                    minc = float64(proj - radii[k])
+
+            # Firts time.
+            if i == 0 and j == 0:
+                maxlen = float64(maxc - minc)
+                maxaxis = copy.deepcopy(vradial)
+
+                minlen = float64(maxc - minc)
+                minaxis = copy.deepcopy(vradial)
+
+                continue
+
+            # Get maximum axis.
+            if maxlen < float64(maxc - minc):
+                maxlen = float64(maxc - minc)
+                maxaxis = copy.deepcopy(vradial)
+
+            # Get minimum axis.
+            if minlen > float64(maxc - minc):
+                minlen = float64(maxc - minc)
+                minaxis = copy.deepcopy(vradial)
+
+    return [maxlen, maxaxis], [minlen, minaxis]
 
 
 def get_center_of_diffusion(dtensor: ndarray) -> ndarray:
@@ -217,8 +273,4 @@ def validate_array(array: Any, dims: int = 3, exception: bool = False) -> bool:
 
 
 if __name__ == "__main__":
-
-    cords = numpy.array([[1, 2, 3], [1, 2, 4], [1, 2, 5]], dtype=float64)
-    radiu = numpy.array([0.5, 0.5, 0.5])
-
-    la, sa = get_ls_axes(cords, radiu)
+    pass
