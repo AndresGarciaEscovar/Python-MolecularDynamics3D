@@ -39,7 +39,7 @@ def get_ls_axes(
         :param step: The resolution of the angle increment.
 
         :return: A 2-tuple that contains vectors that point along the longest
-         and shortest axes, respectively.
+         and shortest axes, respectively, along with their lengths.
     """
 
     # Define the angle arrays.
