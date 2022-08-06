@@ -19,6 +19,12 @@ def main() -> None:
     filename = os.getcwd() + "/data/product.csv"
     pnb = molecule.Molecule(filename)
 
+    filename = os.getcwd() + "/data/reactant.csv"
+    pnb44 = molecule.Molecule(filename)
+
+    print(pnb)
+    print(pnb44)
+
 
 # ##############################################################################
 # Main Program

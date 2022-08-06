@@ -42,21 +42,40 @@ def get_ls_axes(
          and shortest axes, respectively, along with their lengths.
     """
 
+    # //////////////////////////////////////////////////////////////////////////
+    # Auxiliary Functions
+    # //////////////////////////////////////////////////////////////////////////
+
+    def get_angles_0() -> tuple:
+        """
+            Returns the azimuthal and polar angles to be examined.
+
+            :return: A 2-tuple with the numpy arrays that contain the azimuthal
+             and polar angles to be examined.
+        """
+
+        # Auxiliary function.
+        atype_0 = numpy.array
+
+        # Create the angles.
+        aphi_0 = numpy.arange(0, 2 * numpy.pi + step, step)
+        athe_0 = numpy.arange(0, 0.5 * numpy.pi + step, step)
+
+        return atype_0(aphi_0, dtype=float64), atype_0(athe_0, dtype=float64)
+
+    # //////////////////////////////////////////////////////////////////////////
+    # Implementation
+    # //////////////////////////////////////////////////////////////////////////
+
     # Define the angle arrays.
-    s = step
-    aphi = numpy.array(numpy.arange(0.0, 2.0 * numpy.pi + s, s), dtype=float64)
-    athe = numpy.array(numpy.arange(0.0, 0.5 * numpy.pi + s, s), dtype=float64)
+    aphi, athe = get_angles_0()
 
     # The length of the vectors.
-    lphi = len(aphi)
-    ltheta = len(athe)
+    lphi, ltheta = len(aphi), len(athe)
 
     # Trigonometric functions.
-    cos_theta = numpy.cos(athe)
-    sin_theta = numpy.sin(athe)
-
-    cos_phi = numpy.cos(aphi)
-    sin_phi = numpy.sin(aphi)
+    cos_theta, sin_theta = numpy.cos(athe), numpy.sin(athe)
+    cos_phi, sin_phi = numpy.cos(aphi), numpy.sin(aphi)
 
     # Remove the angles.
     del aphi
@@ -87,8 +106,7 @@ def get_ls_axes(
             vradial = numpy.array([x, y, z], dtype=float64)
 
             # Temporary storage units.
-            minc = float64(0.0)
-            maxc = float64(0.0)
+            minc, maxc = float64(0.0), float64(0.0)
 
             # Project along the radial vector.
             for k, coord in enumerate(tcoords):
