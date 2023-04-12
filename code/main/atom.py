@@ -4,8 +4,6 @@
 
 # General.
 import copy
-import warnings
-
 import mendeleev
 import numpy as np
 
@@ -270,7 +268,7 @@ class Atom:
 
     def __init__(
         self, radius: float, mass: float, coordinates: np.ndarray,
-        atype: str = "H", aname: str = "<>"
+        atype: str = None, aname: str = None
     ):
         """
             Constructs a new instance of an atom. Once created, the mass and the
@@ -290,9 +288,9 @@ class Atom:
             :param aname: The type of the atom, can be set at any point.
         """
 
-        # Set the atom.
-        self.aname = f"{aname}"
-        self.atype = f"{atype}"
+        # Set the atom names and type.
+        self.aname = "---" if aname is None else f"{aname}"
+        self.atype = "---" if atype is None else f"{atype}"
 
         # Set the other parameters.
         self.coordinates = coordinates
@@ -322,17 +320,17 @@ class Atom:
             :return: A string with a quick representation of the atom.
         """
 
-        # Get the coordinates string.
+        # Format the coordinates string.
         crds = self.coordinates
         crds = [tuple(['+' if x >= 0 else '-', abs(x)]) for x in crds]
         crds = "(" + ",".join([f"{x[0]}{x[1]:.7e}" for x in crds]) + ")"
 
-        # Mass and radius string.
+        # Format mass and radius string.
         mass = f"{self.mass:.7e}"
         radius = f"{self.radius:.7e}"
 
         # Set the values of the string.
-        string = [self.aname, crds, radius, mass]
+        string = [self.aname, self.atype, crds, radius, mass]
 
         return "    ".join(string)
 
@@ -343,18 +341,19 @@ class Atom:
             :return: A string with a detailed representation of the atom.
         """
 
-        # Get the coordinates string.
+        # Format the coordinates string.
         crds = self.coordinates
         crds = [tuple(['+' if x >= 0 else '-', abs(x)]) for x in crds]
         crds = "(" + ", ".join([f"{x[0]}{x[1]:.7e}" for x in crds]) + ")"
 
-        # Mass and radius string.
+        # Format the mass and radius string.
         mass = f"{self.mass:.7e}"
         radius = f"{self.radius:.7e}"
 
         # Set the values of the string.
         string = [
             f"Name: {self.aname}",
+            f"Type: {self.atype}",
             f"Coordinates: {crds} \u212B",
             f"Radius: {radius} \u212B",
             f"Mass: {mass} AMU"
