@@ -5,7 +5,7 @@
 # ##############################################################################
 import os
 
-import molecular_dynamics.main.molecule as molecule
+import code.main.molecule as molecule
 
 # ##############################################################################
 # Main Function

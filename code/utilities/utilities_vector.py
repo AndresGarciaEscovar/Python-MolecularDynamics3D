@@ -13,7 +13,7 @@ import numpy
 from numpy import ndarray, float64
 
 # User defined.
-import molecular_dynamics.utilities.utilities_molecule as um
+import code.molecular_dynamics.utilities.utilities_molecule as um
 
 # ##############################################################################
 # Functions

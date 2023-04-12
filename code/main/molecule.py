@@ -7,7 +7,6 @@
 # ##############################################################################
 
 # General.
-import copy
 import os
 import pathlib
 
@@ -16,9 +15,8 @@ import numpy
 from typing import Any
 
 # User defined.
-import molecular_dynamics.main.atom as atom
+import code.molecular_dynamics.main.atom as atom
 # import molecular_dynamics.main.diffusion_tensor as dt
-import molecular_dynamics.utilities.utilities_molecule as um
 # import molecular_dynamics.utilities.utilities_strings as us
 # import molecular_dynamics.utilities.utilities_vector as uv
 
@@ -316,7 +314,7 @@ class Molecule:
 
 if __name__ == "__main__":
     molecule_file = pathlib.Path(
-        os.getcwd(), "..", "..", "data", "product.csv"
+        os.getcwd(), "../molecular_dynamics", "..", "data", "product.csv"
     )
 
     molecule_object = Molecule(3, f"{molecule_file}")

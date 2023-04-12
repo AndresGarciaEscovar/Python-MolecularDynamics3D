@@ -11,7 +11,7 @@
 import numpy
 
 # User defined.
-import molecular_dynamics.main.atom as atom
+import code.molecular_dynamics.main.atom as atom
 
 # ##############################################################################
 # Functions
