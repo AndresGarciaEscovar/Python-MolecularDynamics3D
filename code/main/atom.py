@@ -4,7 +4,14 @@
 
 # General.
 import copy
-import numpy
+import warnings
+
+import mendeleev
+import numpy as np
+
+from sqlalchemy.orm.exc import NoResultFound
+from typing import Any
+from warnings import warn
 
 # ##############################################################################
 # Classes
@@ -42,7 +49,67 @@ class Atom:
     # //////////////////////////////////////////////////////////////////////////
 
     @property
-    def coordinates(self) -> numpy.ndarray:
+    def aname(self) -> str:
+        """
+            Returns the string representation of the name of the atom.
+
+            :return: Returns a copy of the name of the atom.
+        """
+        return copy.deepcopy(self.__aname)
+
+    @aname.setter
+    def aname(self, aname: Any) -> None:
+        """
+            Sets the name of the atom, that is the string representation of the
+            given object.
+        """
+
+        # Must not be None or an empty string.
+        if aname is None or f"{aname}".strip() == "":
+            raise ValueError(
+                f"To set the name of the atom, the string representation of "
+                f"the object must not be an empty string, or the string must "
+                f"not be 'None'"
+                f"{'; requested atom name is None' if aname is None else ''}."
+            )
+
+        # Set the name.
+        self.__aname = f"{aname}"
+
+    # ------------------------------------------------------------------------ #
+
+    @property
+    def atype(self) -> str:
+        """
+            Returns the string representation of the type of the atom.
+
+            :return: Returns a copy of the type of the atom.
+        """
+        return copy.deepcopy(self.__atype)
+
+    @atype.setter
+    def atype(self, atype: Any) -> None:
+        """
+            Sets the type of the atom, that is the string representation of the
+            given object.
+        """
+
+        # Must not be None or an empty string.
+        if atype is None or f"{atype}".strip() == "":
+            raise ValueError(
+                f"To set the type of the atom, the string representation of "
+                f"the object must not be an empty string, or the string must "
+                f"not be 'None'"
+                f"{'; requested atom name is None' if atype is None else ''}."
+            )
+
+        # Set the name.
+        self.__atype = f"{atype}"
+
+    # ------------------------------------------------------------------------ #
+
+    @property
+    def coordinates(self) -> np.ndarray:
         """
             Returns a copy of the coordinates of the atom.
 
@@ -51,20 +118,32 @@ class Atom:
         return copy.deepcopy(self.__coordinates)
 
     @coordinates.setter
-    def coordinates(self, coordinates: numpy.ndarray) -> None:
+    def coordinates(self, coordinates: np.ndarray) -> None:
         """
             Sets the coordinates of the atom.
         """
 
-        # Set for the first time.
-        if "_Atom__coordinates" in self.__dict__:
+        # Validate the coordinates.
+        if not isinstance(coordinates, np.ndarray):
+            raise TypeError(
+                f"The coordinates must be a numpy array of 3 entries. Type: "
+                f"{type(coordinates)}."
+            )
+
+        elif len(coordinates) != 3:
             raise ValueError(
-                "The coordinates have already been set. If they must be "
-                "changed, they must be changed as an attribute."
+                f"The coordinates must be a numpy array of 3 entries. Length: "
+                f"{len(coordinates)}."
+            )
+
+        elif not all(map(lambda x: isinstance(x, float), coordinates)):
+            raise TypeError(
+                f"The coordinates must be a numpy array of 3 entries of type "
+                f"numpy float. Entry types: {[type(x) for x in coordinates]}."
             )
 
         # Set the coordinates.
-        self.__coordinates = numpy.array(coordinates, dtype=float)
+        self.__coordinates = coordinates
 
     # ------------------------------------------------------------------------ #
 
@@ -101,17 +180,14 @@ class Atom:
              the atom.
         """
 
-        if "_Atom__mass" in self.__dict__:
+        # Validate the mass.
+        if not isinstance(mass, float) or mass <= 0.0:
             raise ValueError(
-                "The mass exists, once the value is set it cannot be changed."
-            )
-        elif mass <= 0.0:
-            raise ValueError(
-                f"The requested mass to be set has a negative, or zero, value. "
-                f"The mass is a positive, non-zero, value. Requested: {mass}"
+                f"The requested mass must be a floating point number greater "
+                f"than zero. Type: {type(mass)}, value: {mass}."
             )
 
-        self.__mass = float(f"{mass}")
+        self.__mass = mass
 
     # ------------------------------------------------------------------------ #
 
@@ -135,24 +211,67 @@ class Atom:
              radius of the atom.
         """
 
-        if "_Atom__radius" in self.__dict__:
+        # Validate the radius
+        if not isinstance(radius, float) or radius <= 0.0:
             raise ValueError(
-                "The radius exists, once the value is set it cannot be changed."
-            )
-        elif radius <= 0.0:
-            raise ValueError(
-                f"The requested radius to be set has a negative, or zero, "
-                f"value. The radius is a positive, non-zero, value. Requested: "
-                f"{radius}"
+                f"The requested radius must be a floating point number greater "
+                f"than zero. Type: {type(radius)}, value: {radius}."
             )
 
-        self.__radius = float(f"{radius}")
+        self.__radius = radius
+
+    # //////////////////////////////////////////////////////////////////////////
+    # Methods
+    # //////////////////////////////////////////////////////////////////////////
+
+    # --------------------------------------------------------------------------
+    # Set Methods
+    # --------------------------------------------------------------------------
+
+    def set_from_elements(self) -> None:
+        """
+            Attempts to set the mass and radius parameters from the parameters
+            in the periodic table by using the atom type. If the name is not in
+            the periodic table it leaves the values untouched.
+
+            :raises ElementWarning: If the user attempts to setup an atom from
+             the periodic table that does not exist.
+        """
+
+        # Try to get the element.
+        try:
+            element = mendeleev.element(self.atype)
+        except NoResultFound:
+            warn(
+                f"Setting up an atom's mass and radius according to the "
+                f"periodic table does not work since the atom type, "
+                f"{self.atype} does not exist. The request will be ignored."
+            )
+            return
+
+        # If the mass and/or radius do not exist.
+        if element.vdw_radius is None or element.mass is None:
+            warn(
+                f"Setting up an atom's mass and radius according to the "
+                f"periodic table does not work since the atom type, "
+                f"{self.atype} does not have a valid mass ({element.mass}) "
+                f"or van der Waal radius ({element.vdw_radius}). The request "
+                f"will be ignored."
+            )
+            return
+
+        # Setup the values.
+        self.radius = element.mass
+        self.radius = element.vdw_radius / 100.0
 
     # //////////////////////////////////////////////////////////////////////////
     # Constructor
     # //////////////////////////////////////////////////////////////////////////
 
-    def __init__(self, radius: float, mass: float, coordinates: numpy.ndarray):
+    def __init__(
+        self, radius: float, mass: float, coordinates: np.ndarray,
+        atype: str = "H", aname: str = "<>"
+    ):
         """
             Constructs a new instance of an atom. Once created, the mass and the
             radius of the atom cannot be changed.
@@ -165,10 +284,15 @@ class Atom:
 
             :param coordinates: A 1D numpy array of n-entries that represents
              the position of the sphere in n-dimensional space.
+
+            :param atype: The type of the atom, can be set at any point.
+
+            :param aname: The type of the atom, can be set at any point.
         """
 
         # Set the atom.
-        self.name = "<unnamed>"
+        self.aname = f"{aname}"
+        self.atype = f"{atype}"
 
         # Set the other parameters.
         self.coordinates = coordinates
@@ -208,7 +332,7 @@ class Atom:
         radius = f"{self.radius:.7e}"
 
         # Set the values of the string.
-        string = [self.name, crds, radius, mass]
+        string = [self.aname, crds, radius, mass]
 
         return "    ".join(string)
 
@@ -230,7 +354,7 @@ class Atom:
 
         # Set the values of the string.
         string = [
-            f"Name: {self.name}",
+            f"Name: {self.aname}",
             f"Coordinates: {crds} \u212B",
             f"Radius: {radius} \u212B",
             f"Mass: {mass} AMU"
