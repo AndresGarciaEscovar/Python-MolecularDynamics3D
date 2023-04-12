@@ -25,25 +25,17 @@ class SetCWD:
         __________
 
         self.newpath: str
-            The new path to be set as the current working directory.
+         The new path to be set as the current working directory.
 
         self.oldpath: str
-            The current working directory path.
+         The current working directory path.
     """
 
-    def __init__(self, newpath: str):
-        """
-            Create the variables.
+    # //////////////////////////////////////////////////////////////////////////
+    # Dunder Methods
+    # //////////////////////////////////////////////////////////////////////////
 
-            :param newpath: The new path to be set as the current working
-             directory.
-        """
-
-        # Save the new and old path.
-        self.newpath = newpath
-        self.oldpath = copy.deepcopy(os.getcwd())
-
-    def __enter__(self):
+    def __enter__(self) -> str:
         """
             Sets the path to the desired path.
 
@@ -54,7 +46,7 @@ class SetCWD:
 
         return self.newpath
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         """
             Exits the context manager, restoring the old path.
 
@@ -67,3 +59,19 @@ class SetCWD:
 
         # Set the old path back.
         os.chdir(self.oldpath)
+
+    # //////////////////////////////////////////////////////////////////////////
+    # Constructor
+    # //////////////////////////////////////////////////////////////////////////
+
+    def __init__(self, newpath: str):
+        """
+            Create the variables.
+
+            :param newpath: The new path to be set as the current working
+             directory.
+        """
+
+        # Save the new and old path.
+        self.newpath = newpath
+        self.oldpath = copy.deepcopy(os.getcwd())
