@@ -17,7 +17,7 @@ import copy
 # ##############################################################################
 
 
-class SetCWD:
+class SetWD:
     """
         The context manager to setup the working directory.
 
