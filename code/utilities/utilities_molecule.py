@@ -8,7 +8,6 @@
 # ##############################################################################
 
 # General.
-import numpy
 import numpy as np
 
 # User defined.
@@ -24,13 +23,14 @@ import code.main.atom
 # ------------------------------------------------------------------------------
 
 
-def load_from_file(path: str) -> list:
+def load(path: str) -> tuple:
     """
-        Loads the molecule atoms from a file.
+        Loads the molecule's atoms from a file.
 
         :param path: The path from where the molecule will be loaded.
 
-        :return: Returns a list with the atoms loaded.
+        :return: Returns a list with the atoms loaded and the name of the
+         molecule.
     """
 
 
@@ -40,7 +40,7 @@ def load_from_file(path: str) -> list:
 # ------------------------------------------------------------------------------
 
 
-def get_center_of_geometry(atoms: list) -> numpy.ndarray:
+def get_center_of_geometry(atoms: list) -> np.ndarray:
     """
         From the given set of coordinates and the radius array, gets the center
         of geometry of the molecule.
@@ -50,10 +50,10 @@ def get_center_of_geometry(atoms: list) -> numpy.ndarray:
         :return: The average of the maximum and minimum coordinates in the
          system.
     """
-    return numpy.array([0.0], dtype=float)
+    return np.array([0.0], dtype=float)
 
 
-def get_center_of_mass(atoms: list) -> numpy.ndarray:
+def get_center_of_mass(atoms: list) -> np.ndarray:
     """
         From the given set of coordinates and the radius array, gets the center
         of mass of the molecule.
@@ -63,7 +63,7 @@ def get_center_of_mass(atoms: list) -> numpy.ndarray:
         :return: The average of the maximum and minimum coordinates in the
          system.
     """
-    return numpy.array([0.0], dtype=float)
+    return np.array([0.0], dtype=float)
 
 
 def get_bounding_radius(atoms: list, shift: np.ndarray = None) -> float:
@@ -78,12 +78,7 @@ def get_bounding_radius(atoms: list, shift: np.ndarray = None) -> float:
 
         :return: The minimum radius of the sphere that encloses the atom.
     """
-
-
-
-
-
-
+    return 0.0
 
 
 # ------------------------------------------------------------------------------
