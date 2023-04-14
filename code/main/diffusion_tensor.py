@@ -63,7 +63,7 @@ class DiffusionTensor:
         function = DiffusionTensor._math_matrix_symmetrize
         dtensor = function(np.linalg.inv(ft), passes=2)
 
-        return dtensor
+        return np.array(dtensor, dtype=float)
 
     # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     # Private Interface
@@ -77,7 +77,7 @@ class DiffusionTensor:
     # Correction Methods.
     # --------------------------------------------------------------------------
 
-    @ staticmethod
+    @staticmethod
     def _correction_rr(rr_tensor: ndarray, radii: ndarray) -> ndarray:
         """
             Gets the corrected rotation-rotation coupling tensor by adding the
@@ -196,7 +196,7 @@ class DiffusionTensor:
 
         # Create the big matrix and identity matrix.
         dim = 3 * len(coordinates)
-        matrix = np.zeros((dim, dim), dtype=float)
+        matrix = np.zeros((dim, dim), dtype=float64)
 
         # Loop through the pairs.
         for i, (crd0, r0) in enumerate(zip(coordinates, radii)):
