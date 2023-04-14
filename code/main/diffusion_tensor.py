@@ -284,9 +284,9 @@ class DiffusionTensor:
             """
             return np.array(
                 [
-                    [0, -vector_0[2], vector_0[1]],
-                    [vector_0[2], 0, -vector_0[0]],
-                    [-vector_0[1], vector_0[0], 0]
+                    [0.0, -vector_0[2], vector_0[1]],
+                    [vector_0[2], 0.0, -vector_0[0]],
+                    [-vector_0[1], vector_0[0], 0.0]
                 ], dtype=float64
             )
 
@@ -340,9 +340,9 @@ class DiffusionTensor:
             """
             return np.array(
                 [
-                    [0, -vector_0[2], vector_0[1]],
-                    [vector_0[2], 0, -vector_0[0]],
-                    [-vector_0[1], vector_0[0], 0]
+                    [0.0, -vector_0[2], vector_0[1]],
+                    [vector_0[2], 0.0, -vector_0[0]],
+                    [-vector_0[1], vector_0[0], 0.0]
                 ], dtype=float64
             )
 
@@ -444,6 +444,11 @@ class DiffusionTensor:
             # The last pass is to symmetrize and assign.
             for i in range(len(mat)):
                 for j in range(len(mat)):
+                    # Don't symmetrize diagonals.
+                    if i == j:
+                        continue
+
+                    # Symmetrize as needed.
                     if i < j or (k < (passes - 1) and i != j):
                         mat[i, j] = (mat[i, j] + mat[j, i]) * 0.5
                         continue
