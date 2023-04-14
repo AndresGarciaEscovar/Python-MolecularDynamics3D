@@ -8,14 +8,14 @@
 
 # General.
 import os
-import pathlib
-
 import numpy
 
+from pathlib import Path
 from typing import Any
 
 # User defined.
-import code.molecular_dynamics.main.atom as atom
+import code.main.atom as atom
+
 # import molecular_dynamics.main.diffusion_tensor as dt
 # import molecular_dynamics.utilities.utilities_strings as us
 # import molecular_dynamics.utilities.utilities_vector as uv
@@ -61,9 +61,8 @@ class Molecule:
         if "_Molecule__atoms" in self.__dict__:
             raise AttributeError(
                 "The atoms can only be initialized once. If atoms must be "
-                "changed, they need to be changed by invoking the list. If "
-                "atoms must be added or removed, it must be done through the "
-                "add_atom or remove_atom functions."
+                "added/removed/edited, it must be done through the add_atom or "
+                "remove_atom functions."
             )
 
         self.__atoms = atoms
@@ -112,7 +111,14 @@ class Molecule:
             :param name: The object or string whose string representation is the
              name of the molecule.
         """
-        self.__name = str(name)
+
+        # The molecule must have a name.
+        if name is None or f"{name}".strip() == "":
+            raise ValueError(
+                "A non-empty name must be provided to the molecule."
+            )
+
+        self.__name = f"{name}"
 
     # ------------------------------------------------------------------------ #
 
@@ -142,7 +148,7 @@ class Molecule:
     # Constructor
     # ##########################################################################
 
-    def __init__(self, dimensions: int, filename: str = None):
+    def __init__(self, filename: str = None):
         """
             Constructs a new instance of the a molecule. If the name of the file
             is not provided, it will create a single-sphere molecule with a
@@ -153,16 +159,11 @@ class Molecule:
         """
 
         # Set the file name.
-        self.filename = f"{pathlib.Path(filename).resolve()}"
+        self.filename = f"{Path(filename).resolve()}"
         self.name = "<Unnamed molecule>"
 
         # Create the basic quantities.
-        coordinates = numpy.array([0.0 for _ in range(dimensions)], dtype=float)
-        self.atoms = [atom.Atom(radius=1.0, mass=1.0, coordinates=coordinates)]
-
-        # Load the molecule from the given file.
-        if filename is not None:
-            self.load(dimensions, filename)
+        self.atoms = list()
 
         # Get the center of mass.
         # self.com = um.get_com(self.atoms)
@@ -312,11 +313,14 @@ class Molecule:
     # Validate Methods
     # --------------------------------------------------------------------------
 
+
+# ##############################################################################
+#
+# ##############################################################################
+
 if __name__ == "__main__":
-    molecule_file = pathlib.Path(
-        os.getcwd(), "../molecular_dynamics", "..", "data", "product.csv"
-    )
+    # Get the absolute path.
+    mpath = f"{Path(os.getcwd(), '..', '..', 'data', 'product.txt').resolve()}"
 
-    molecule_object = Molecule(3, f"{molecule_file}")
-
-    print(molecule_object)
+    # Get the absolute path.
+    molecule = Molecule(mpath)
