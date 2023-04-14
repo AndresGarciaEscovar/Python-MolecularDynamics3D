@@ -22,16 +22,23 @@ class Atom:
 
         Parameters:
         ___________
+        self.aname: str
+         A string that represents the name of the atom. It can be changed at
+         any time.
+
+        self.aname: str
+         A string that represents the type of the atom. It can be changed at
+         any time.
+
         self.coordinates: numpy.ndarray
          A 1D numpy array of n-entries that represents the position of the
          sphere in n-dimensional space.
 
+        self.dimensions: int
+         The number of dimensions, i.e., the length of the coordinates array.
+
         self.mass: float
          A positive floating point number that represents the mass of the atom.
-
-        self.name: str
-         A string that represents the name of the atom. It can be changed at
-         any time.
 
         self.radius: float
          A positive floating point number that represents the radius of the
@@ -60,6 +67,8 @@ class Atom:
         """
             Sets the name of the atom, that is the string representation of the
             given object.
+
+            :param aname: The new name of the atom.
         """
 
         # Must not be None or an empty string.
@@ -90,6 +99,8 @@ class Atom:
         """
             Sets the type of the atom, that is the string representation of the
             given object.
+
+            :param atype: The new type of the atom.
         """
 
         # Must not be None or an empty string.
@@ -119,26 +130,46 @@ class Atom:
     def coordinates(self, coordinates: np.ndarray) -> None:
         """
             Sets the coordinates of the atom.
+
+            :param coordinates: The new coordinates of the atom. Must be a
+             1-dimensional numpy array of floats.
         """
 
-        # Validate the coordinates.
-        if not isinstance(coordinates, np.ndarray):
-            raise TypeError(
-                f"The coordinates must be a numpy array of 3 entries. Type: "
-                f"{type(coordinates)}."
-            )
+        # Try to validate setting up the coordinates.
+        try:
+            # Validate the coordinates.
+            if not isinstance(coordinates, np.ndarray):
+                raise TypeError(
+                    f"The coordinates must be a numpy array of 3 entries. "
+                    f"Type: {type(coordinates)}."
+                )
 
-        elif len(coordinates) != 3:
-            raise ValueError(
-                f"The coordinates must be a numpy array of 3 entries. Length: "
-                f"{len(coordinates)}."
-            )
+            elif len(coordinates) != self.dimensions:
+                raise ValueError(
+                    f"The coordinates must be as long as the pre-existing "
+                    f"array. Length: {len(coordinates)}."
+                )
 
-        elif not all(map(lambda x: isinstance(x, float), coordinates)):
-            raise TypeError(
-                f"The coordinates must be a numpy array of 3 entries of type "
-                f"numpy float. Entry types: {[type(x) for x in coordinates]}."
-            )
+            elif not all(map(lambda x: isinstance(x, float), coordinates)):
+                raise TypeError(
+                    f"The coordinates must be a numpy array of 3 entries of "
+                    f"type numpy float. Entry types: "
+                    f"{[type(x) for x in coordinates]}."
+                )
+
+        except AttributeError:
+            """
+                Only gets here if self.dimensions is not yet set; i.e., array is
+                set for the first time.
+            """
+
+            # Check if all the coordinates are floating point numbers.
+            if not all(map(lambda x: isinstance(x, float), coordinates)):
+                raise TypeError(
+                    f"The coordinates must be a numpy array of 3 entries of "
+                    f"type numpy float. Entry types: "
+                    f"{[type(x) for x in coordinates]}."
+                )
 
         # Set the coordinates.
         self.__coordinates = coordinates
@@ -179,13 +210,13 @@ class Atom:
         """
 
         # Validate the mass.
-        if not isinstance(mass, float) or mass <= 0.0:
+        if not isinstance(mass, (int, float)) or mass <= 0.0:
             raise ValueError(
                 f"The requested mass must be a floating point number greater "
                 f"than zero. Type: {type(mass)}, value: {mass}."
             )
 
-        self.__mass = mass
+        self.__mass = float(mass)
 
     # ------------------------------------------------------------------------ #
 
@@ -210,7 +241,7 @@ class Atom:
         """
 
         # Validate the radius
-        if not isinstance(radius, float) or radius <= 0.0:
+        if not isinstance(radius, (int, float)) or radius <= 0.0:
             raise ValueError(
                 f"The requested radius must be a floating point number greater "
                 f"than zero. Type: {type(radius)}, value: {radius}."
@@ -259,7 +290,7 @@ class Atom:
             return
 
         # Setup the values.
-        self.radius = element.mass
+        self.mass = element.mass
         self.radius = element.vdw_radius / 100.0
 
     # //////////////////////////////////////////////////////////////////////////
@@ -314,8 +345,8 @@ class Atom:
     def __repr__(self) -> str:
         """
             Returns a string with a quick representation of the atom, i.e.,
-            the name of the atom, the coordinates, the radius and mass; in that
-            specific order.
+            the name of the atom, the type of the atom, the coordinates, the
+            radius and mass; in that specific order.
 
             :return: A string with a quick representation of the atom.
         """
@@ -323,11 +354,11 @@ class Atom:
         # Format the coordinates string.
         crds = self.coordinates
         crds = [tuple(['+' if x >= 0 else '-', abs(x)]) for x in crds]
-        crds = "(" + ",".join([f"{x[0]}{x[1]:.7e}" for x in crds]) + ")"
+        crds = "(" + ",".join([f"{x[0]}{x[1]:.7e}" for x in crds]) + ") \u212B"
 
         # Format mass and radius string.
-        mass = f"{self.mass:.7e}"
-        radius = f"{self.radius:.7e}"
+        mass = f"{self.mass:.7e} AMU"
+        radius = f"{self.radius:.7e} \u212B"
 
         # Set the values of the string.
         string = [self.aname, self.atype, crds, radius, mass]
