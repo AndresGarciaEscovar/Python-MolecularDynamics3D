@@ -11,6 +11,9 @@ from sqlalchemy.orm.exc import NoResultFound
 from typing import Any
 from warnings import warn
 
+# User defined.
+import code.utilities.utilities_strings as sutils
+
 # ##############################################################################
 # Classes
 # ##############################################################################
@@ -350,20 +353,13 @@ class Atom:
 
             :return: A string with a quick representation of the atom.
         """
-
-        # Format the coordinates string.
-        crds = self.coordinates
-        crds = [tuple(['+' if x >= 0 else '-', abs(x)]) for x in crds]
-        crds = "(" + ",".join([f"{x[0]}{x[1]:.7e}" for x in crds]) + ") \u212B"
-
-        # Format mass and radius string.
-        mass = f"{self.mass:.7e} AMU"
-        radius = f"{self.radius:.7e} \u212B"
-
-        # Set the values of the string.
-        string = [self.aname, self.atype, crds, radius, mass]
-
-        return "    ".join(string)
+        return "    ".join([
+            self.aname,
+            self.atype,
+            f"{sutils.get_string_array(self.coordinates)} \u212B",
+            f"{self.radius:.7e} \u212B",
+            f"{self.mass:.7e} AMU"
+        ])
 
     def __str__(self) -> str:
         """
@@ -371,23 +367,10 @@ class Atom:
 
             :return: A string with a detailed representation of the atom.
         """
-
-        # Format the coordinates string.
-        crds = self.coordinates
-        crds = [tuple(['+' if x >= 0 else '-', abs(x)]) for x in crds]
-        crds = "(" + ", ".join([f"{x[0]}{x[1]:.7e}" for x in crds]) + ")"
-
-        # Format the mass and radius string.
-        mass = f"{self.mass:.7e}"
-        radius = f"{self.radius:.7e}"
-
-        # Set the values of the string.
-        string = [
+        return "\n".join([
             f"Name: {self.aname}",
             f"Type: {self.atype}",
-            f"Coordinates: {crds} \u212B",
-            f"Radius: {radius} \u212B",
-            f"Mass: {mass} AMU"
-        ]
-
-        return "\n".join(string)
+            f"Coordinates: {sutils.get_string_array(self.coordinates)} \u212B",
+            f"Radius: {self.radius:.7e} \u212B",
+            f"Mass: {self.mass:.7e} AMU"
+        ])
