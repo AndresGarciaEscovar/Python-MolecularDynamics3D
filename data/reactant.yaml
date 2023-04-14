@@ -1,6 +1,6 @@
 # Coordinates are in Angstrom
 # Mass is in AMU.
-# Radius is in angstrom
+# Radius is in Angstrom.
 # Atom type (atype) is not a mandatory field; set to '---' by default.
 molecule_name: pnb
 atoms:
