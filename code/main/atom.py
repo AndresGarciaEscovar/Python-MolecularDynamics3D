@@ -84,7 +84,7 @@ class Atom:
             )
 
         # Set the name.
-        self.__aname = f"{aname}"
+        self.__aname = f"{aname}".strip()
 
     # ------------------------------------------------------------------------ #
 
@@ -116,7 +116,7 @@ class Atom:
             )
 
         # Set the name.
-        self.__atype = f"{atype}"
+        self.__atype = f"{atype}".strip()
 
     # ------------------------------------------------------------------------ #
 
