@@ -55,9 +55,15 @@ class DiffusionTensor:
         tr = DiffusionTensor._get_tensor_tr(matrix, coordinates)
         rr = DiffusionTensor._get_tensor_rr(matrix, coordinates)
 
+        # Free memory.
+        del matrix
+
         # Get the volume correction and the friction tensor.
         rr = DiffusionTensor._correction_rr(rr, radii)
         ft = DiffusionTensor._get_ftensor(tt, tr, rr)
+
+        # Free memory.
+        del rr
 
         # Diffusion tensor is related to the inverse of the friction tensor.
         function = DiffusionTensor._math_matrix_symmetrize
