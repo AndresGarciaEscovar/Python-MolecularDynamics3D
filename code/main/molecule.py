@@ -68,6 +68,18 @@ class Molecule:
     # ------------------------------------------------------------------------ #
 
     @property
+    def coordinates(self) -> np.ndarray:
+        """
+            Returns the coordinates of all the atoms in the molecule.
+
+            :return: The numpy array of the coordinates of the atoms in the
+             molecule, in the order in which the atoms are stored.
+        """
+        return np.array([x.coordinates for x in self.atoms], dtype=float)
+
+    # ------------------------------------------------------------------------ #
+
+    @property
     def dimensions(self) -> int:
         """
             The number of coordinates used to described the position of a
@@ -197,7 +209,7 @@ class Molecule:
         if index < 0 or index >= len(self):
             raise ValueError(
                 "The index of the given atom is out of range; i.e., must be a "
-                f"number between 0 and {len(self)}. Requested index: {index}"
+                f"number between 0 and {len(self)}. Requested index: {index}."
             )
 
         del self.atoms[index]
@@ -219,9 +231,7 @@ class Molecule:
 
     def load(self) -> None:
         """
-            Loads the given values.
-
-            :param filename: The name of the file where the data is stored.
+            Loads the molecule from the self.filename variable.
         """
 
         # Remove all the atoms.
@@ -311,7 +321,8 @@ class Molecule:
         """
             Constructs a new instance of the a molecule. If the name of the file
             is not provided, it will create a single-sphere molecule with a
-            radius of 1.0 \u212B and mass of 1.0 AMU.
+            radius of 1.0 Angstom (\u212B) and mass of 1.0 Atomic Mass Units
+            AMU.
 
             :param filename: The name of the file from where the molecule must
              be loaded.
@@ -326,6 +337,12 @@ class Molecule:
 
         # Load the molecule.
         self.load()
+
+        # Get the center of mass of the molecule.
+        self.cog = umolecule.get_cog(self.coordinates, self.radii)
+        self.com = umolecule.get_com(self.coordinates, self.masses)
+
+        self.dtensor = umolecule.get_dtensor(self.coordinates, self.masses)
 
     # ##########################################################################
     # Dunder Methods
@@ -354,7 +371,6 @@ class Molecule:
             center of diffusion, center of geometry, center of mass and
             diffusion tensor; the latter with respect to the center of mass.
         """
-
         return ""
 
 
@@ -363,17 +379,14 @@ class Molecule:
 # ##############################################################################
 
 if __name__ == "__main__":
-    # Get the absolute path.
+    # Path from where the molecules are loaded.
     mp0 = f"{Path(os.getcwd(), '..', '..', 'data', 'product.yaml').resolve()}"
     mp1 = f"{Path(os.getcwd(), '..', '..', 'data', 'reactant.yaml').resolve()}"
 
+    # Path to where the molecules are saved.
     mp2 = f"{Path(os.getcwd(), '..', '..', 'data', 'product_1.yaml').resolve()}"
     mp3 = f"{Path(os.getcwd(), '..', '..', 'data', 'reactant_1.yaml').resolve()}"
 
-    tcoordinates = np.array([0, 0, 0], dtype=float)
-
     # Load using the absolute path.
     molecule0 = Molecule(mp0)
-    molecule0.save(mp2)
-
-    molecule1 = Molecule(mp1)
+    # molecule1 = Molecule(mp1)
