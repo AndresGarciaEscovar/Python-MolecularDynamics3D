@@ -8,10 +8,13 @@
 # ##############################################################################
 
 # General.
-import numpy as np
+
+from numpy import array, dot, ndarray
+from numpy import append as nappend
+from numpy import sum as nsum
 
 # User defined.
-import code.main.atom
+import code.utilities.utilities_diffusion_tensor as udtensor
 
 # ##############################################################################
 # Functions
@@ -19,54 +22,11 @@ import code.main.atom
 
 
 # ------------------------------------------------------------------------------
-# Load Functions
-# ------------------------------------------------------------------------------
-
-
-def load(path: str) -> tuple:
-    """
-        Loads the molecule's atoms from a file.
-
-        :param path: The path from where the molecule will be loaded.
-
-        :return: Returns a list with the atoms loaded and the name of the
-         molecule.
-    """
-
-
-
-# ------------------------------------------------------------------------------
 # Get Functions
 # ------------------------------------------------------------------------------
 
 
-def get_center_of_geometry(atoms: list) -> np.ndarray:
-    """
-        From the given set of coordinates and the radius array, gets the center
-        of geometry of the molecule.
-
-        :param atoms: A list of "atom" objects.
-
-        :return: The average of the maximum and minimum coordinates in the
-         system.
-    """
-    return np.array([0.0], dtype=float)
-
-
-def get_center_of_mass(atoms: list) -> np.ndarray:
-    """
-        From the given set of coordinates and the radius array, gets the center
-        of mass of the molecule.
-
-        :param atoms: A list of "atom" objects.
-
-        :return: The average of the maximum and minimum coordinates in the
-         system.
-    """
-    return np.array([0.0], dtype=float)
-
-
-def get_bounding_radius(atoms: list, shift: np.ndarray = None) -> float:
+def get_bounding_radius(atoms: list, shift: ndarray = None) -> float:
     """
         From the given set of atoms, in the given coordinate system,
         gets the minimum radius of the sphere that encloses the atom.
@@ -79,6 +39,75 @@ def get_bounding_radius(atoms: list, shift: np.ndarray = None) -> float:
         :return: The minimum radius of the sphere that encloses the atom.
     """
     return 0.0
+
+
+def get_cog(coordinates: ndarray, radii: ndarray) -> ndarray:
+    """
+        From the given set of coordinates and the radius array, gets the center
+        of geometry of the molecule.
+
+        :param coordinates: The numpy array with all the coordinates of the
+         atom.
+
+        :param radii: The radius of each atom.
+
+        :return: The average of the maximum and minimum coordinates of the
+         molecule.
+    """
+
+    # Auxiliary variables.
+    maxpos = array([], dtype=float)
+    minpos = array([], dtype=float)
+
+    # Dimensions.
+    length = len(coordinates[0])
+
+    # For every component.
+    for i in range(length):
+        maxpos = nappend(maxpos, max(coordinates[:, i] + radii))
+        minpos = nappend(minpos, min(coordinates[:, i] - radii))
+
+    return (maxpos + minpos) * 0.5
+
+
+def get_com(coordinates: ndarray, masses: ndarray) -> ndarray:
+    """
+        From the given set of coordinates and the radius array, gets the center
+        of mass of the molecule.
+
+        :param coordinates: The coordinates of the atoms.
+
+        :param masses: The masses of the atoms.
+
+        :return: The mass weighted average of the coordinates.
+    """
+    return dot(masses, coordinates) / nsum(masses)
+
+
+def get_dtensor(
+    coordinates: ndarray, radii: ndarray, shift: ndarray = None
+) -> ndarray:
+    """
+        From the given set of coordinates and the radius array, gets the center
+        of mass of the molecule.
+
+        :param coordinates: The coordinates of the atoms.
+
+        :param radii: The radius of each atom.
+
+        :param shift: The shift in coordinates if the diffusion tensor needs to
+         be calculated with respect to a certain reference point.
+
+        :return: The diffusion tensor with respect to the given shift.
+    """
+
+    # No need to shift the coordinates.
+    if shift is None:
+        return udtensor.get_diffusion_tensor(coordinates, radii)
+
+    # Shift all the coordinates before making the calculation.
+    acoordinates = array([x + shift for x in coordinates], dtype=float)
+    return udtensor.get_diffusion_tensor(acoordinates, radii)
 
 
 # ------------------------------------------------------------------------------
