@@ -82,6 +82,151 @@ def get_btensor(coordinates: ndarray, radii: ndarray) -> ndarray:
     return matrix
 
 
+def get_correction_rr(rr_tensor: ndarray, radii: ndarray) -> ndarray:
+    """
+        Gets the corrected rotation-rotation coupling tensor by adding the
+        volume correction.
+
+        :param rr_tensor: The tensor to be corrected.
+
+        :param radii: The radius of all the atoms.
+
+        :return: The volume corrected rotation-rotation coupling tensor.
+    """
+
+    # Get the volume correction.
+    rr = copy.deepcopy(rr_tensor)
+    volume = sum([radius**3 for radius in radii]) * (8.0 * pi)
+
+    # Make the correction.
+    rr += volume * identity(3, dtype=float)
+
+    return rr
+
+
+def get_coupling_tensor_tt(matrix: ndarray, coordinates: ndarray) -> ndarray:
+    """
+        Gets the translation-translation coupling tensor from the matrix.
+
+        :param matrix: The inverse matrix of the B matrix.
+
+        :param coordinates: The coordinates of the particles.
+
+        :return: The 3x3 translation-translation coupling friction tensor.
+    """
+
+    # Auxiliary variables.
+    amatrix = zeros((3, 3))
+    length = len(coordinates)
+
+    # Add the 3x3 blocks.
+    for i in range(length):
+        for j in range(length):
+            amatrix += matrix[i * 3: i * 3 + 3, j * 3: j * 3 + 3]
+
+    return amatrix
+
+
+def get_coupling_tensor_rr(matrix: ndarray, coordinates: ndarray) -> ndarray:
+    """
+        Gets the rotation-rotation coupling tensor from the matrix.
+
+        :param matrix: The inverse matrix of the B matrix.
+
+        :param coordinates: The coordinates of the particles.
+
+        :return: The 3x3 rotation-rotation coupling friction tensor.
+    """
+
+    # Auxiliary matrix.
+    amatrix = zeros((3, 3))
+
+    # Go through the 3x3 blocks.
+    for i, coordinate_0 in enumerate(coordinates):
+        # The anti-symmetric matrix for coordinate 0.
+        cmatrix0 = umath.get_antisymmetric_matrix(coordinate_0)
+
+        for j, coordinate_1 in enumerate(coordinates):
+            # The anti-symmetric matrix for coordinate 1.
+            cmatrix1 = transpose(
+                umath.get_antisymmetric_matrix(coordinate_1)
+            )
+
+            # Get the matrix term.
+            tmatrix = matrix[i * 3: i * 3 + 3, j * 3: j * 3 + 3]
+
+            # Multiplication order might introduce bias.
+            matrix0 = matmul(cmatrix0, matmul(tmatrix, cmatrix1))
+            matrix1 = matmul(matmul(cmatrix0, tmatrix), cmatrix1)
+
+            # Add to the accumulated matrix.
+            amatrix += (matrix0 + matrix1) * 0.5
+
+    return amatrix
+
+
+def get_coupling_tensor_tr(matrix: ndarray, coordinates: ndarray) -> ndarray:
+    """
+        Gets the translation-rotation coupling tensor from the matrix.
+
+        :param matrix: The inverse matrix of the B matrix.
+
+        :param coordinates: The coordinates of the particles.
+
+        :return: The 3x3 translation-rotation coupling friction tensor.
+    """
+
+    # Auxiliary matrix.
+    amatrix = zeros((3, 3))
+    length = len(coordinates)
+
+    # Go through the 3x3 blocks.
+    for i, coordinate_0 in enumerate(coordinates):
+        # The anti-symmetric matrix for the given coordinate.
+        cmatrix = umath.get_antisymmetric_matrix(coordinate_0)
+
+        for j in range(length):
+            # Get the corresponding 3x3 matrix.
+            tmatrix = matrix[i * 3: i * 3 + 3, j * 3: j * 3 + 3]
+
+            # Add to the accumulated matrix.
+            amatrix += matmul(cmatrix, tmatrix)
+
+    return amatrix
+
+
+def get_friction_tensor(tt: ndarray, tr: ndarray, rr: ndarray):
+    """
+        Gets the friction tensor from the translation-translation,
+        translation- rotation and rotation-rotation tensors.
+
+        :param tt: The translation-translation coupling tensor.
+
+        :param tr: The translation-rotation coupling tensor.
+
+        :param rr: The rotation-rotation coupling tensor.
+
+        :return: The 6x6 friction tensor.
+    """
+
+    # Friction tensor.
+    friction = zeros((6, 6))
+
+    # Append the translation tensor.
+    friction[0: 3, 0: 3] = tt
+
+    # Append the translation-rotation tensor in the lower part.
+    friction[3:, 0: 3] = tr
+
+    # Append the translation-rotation transpose tensor in the upper part.
+    friction[0: 3, 3:] = transpose(tr)
+
+    # Append the rotation-rotation transpose tensor in the upper part.
+    friction[3:, 3:] = rr
+
+    return umath.symmetrize(friction, passes=2)
+
+
 def get_tensor_requal(
     coordinate_0: ndarray, coordinate_1: ndarray, radius: float
 ) -> ndarray:
@@ -206,258 +351,19 @@ def get_diffusion_tensor(coordinates: ndarray, radii: ndarray) -> ndarray:
     matrix = inv(matrix)
     matrix = umath.symmetrize(matrix, passes=2)
 
-    #
-    # # Get the different coupling tensors.
-    # tt = DiffusionTensor._get_tensor_tt(matrix, coordinates)
-    # tr = DiffusionTensor._get_tensor_tr(matrix, coordinates)
-    # rr = DiffusionTensor._get_tensor_rr(matrix, coordinates)
-    #
-    # # Free memory.
-    # del matrix
-    #
-    # # Get the volume correction and the friction tensor.
-    # rr = DiffusionTensor._correction_rr(rr, radii)
-    # ft = DiffusionTensor._get_ftensor(tt, tr, rr)
-    #
-    # # Free memory.
-    # del rr
-    #
-    # # Diffusion tensor is related to the inverse of the friction tensor.
-    # function = DiffusionTensor._math_matrix_symmetrize
-    # dtensor = function(inv(ft), passes=2)
-    #
-    # # return array(dtensor, dtype=float)
-    return array([0.0], dtype=float)
+    # Get the different coupling tensors.
+    tt = get_coupling_tensor_tt(matrix, coordinates)
+    tr = get_coupling_tensor_tr(matrix, coordinates)
+    rr = get_coupling_tensor_rr(matrix, coordinates)
 
+    # Free memory.
+    del matrix
 
-class DiffusionTensor:
-    """
-    Class that contains the static functions to calculate the diffusion tensor.
-    """
+    # Get the volume correction and the friction tensor.
+    rr = get_correction_rr(rr, radii)
+    tfriction = get_friction_tensor(tt, tr, rr)
 
-    # ##########################################################################
-    # Methods
-    # ##########################################################################
+    # Free memory.
+    del rr
 
-    # --------------------------------------------------------------------------
-    # Correction Methods.
-    # --------------------------------------------------------------------------
-
-    @staticmethod
-    def _correction_rr(rr_tensor: ndarray, radii: ndarray) -> ndarray:
-        """
-            Gets the corrected rotation-rotation coupling tensor by adding the
-            volume correction.
-
-            :param rr_tensor: The tensor to be corrected.
-
-            :param radii: The radius of all the atoms.
-
-            :return: The volume corrected rotation-rotation coupling tensor.
-        """
-
-        # Get the volume correction.
-        rr = copy.deepcopy(rr_tensor)
-        volume = sum([radius**3 for radius in radii]) * (8.0 * pi)
-
-        rr += volume * identity(3)
-
-        return rr
-
-    # --------------------------------------------------------------------------
-    # Get Methods.
-    # --------------------------------------------------------------------------
-
-    @staticmethod
-    def _get_ftensor(tt: ndarray, tr: ndarray, rr: ndarray):
-        """
-            Gets the friction tensor from the translation-translation,
-            translation- rotation and rotation-rotation tensors.
-
-            :param tt: The translation-translation coupling tensor.
-
-            :param tr: The translation-rotation coupling tensor.
-
-            :param rr: The rotation-rotation coupling tensor.
-
-            :return: The 6x6 friction tensor.
-        """
-
-        # Friction tensor.
-        friction = zeros((6, 6))
-
-        # Append the translation tensor.
-        friction[0: 3, 0: 3] = tt
-
-        # Append the translation-rotation tensor in the lower part.
-        friction[3:, 0: 3] = tr
-
-        # Append the translation-rotation transpose tensor in the upper part.
-        friction[0: 3, 3:] = transpose(tr)
-
-        # Append the rotation-rotation transpose tensor in the upper part.
-        friction[3:, 3:] = rr
-
-        return DiffusionTensor._math_matrix_symmetrize(friction, passes=2)
-
-    @staticmethod
-    def _get_tensor_rr(matrix: ndarray, coordinates: ndarray) -> ndarray:
-        """
-            Gets the rotation-rotation coupling tensor from the matrix.
-
-            :param matrix: The inverse matrix of the B matrix.
-
-            :param coordinates: The coordinates of the particles.
-
-            :return: The 3x3 rotation-rotation coupling friction tensor.
-        """
-
-        # //////////////////////////////////////////////////////////////////////
-        # Auxiliary Functions
-        # //////////////////////////////////////////////////////////////////////
-
-        def get_asmatrix_0(vector_0: ndarray) -> ndarray:
-            """
-                Gets the 3D anti-symmetric matrix.
-
-                :return: The 3D anti-symmetric matrix.
-            """
-            return array(
-                [
-                    [0.0, -vector_0[2], vector_0[1]],
-                    [vector_0[2], 0.0, -vector_0[0]],
-                    [-vector_0[1], vector_0[0], 0.0]
-                ], dtype=float
-            )
-
-        # //////////////////////////////////////////////////////////////////////
-        # Implementation Functions
-        # //////////////////////////////////////////////////////////////////////
-
-        # Auxiliary matrix.
-        amatrix = zeros((3, 3))
-
-        # Go through the 3x3 blocks.
-        for i, c0 in enumerate(coordinates):
-            # The anti-symmetric matrix for coordinate 0.
-            cmatrix0 = get_asmatrix_0(c0)
-
-            for j, c1 in enumerate(coordinates):
-                # The anti-symmetric matrix for coordinate 1.
-                cmatrix1 = transpose(get_asmatrix_0(c1))
-
-                # Get the matrix term.
-                temp_matrix = matrix[i * 3: i * 3 + 3, j * 3: j * 3 + 3]
-                mat1 = matmul(cmatrix0, matmul(temp_matrix, cmatrix1))
-                mat2 = matmul(matmul(cmatrix0, temp_matrix), cmatrix1)
-
-                # Add to the accumulated matrix.
-                amatrix += (mat1 + mat2) * 0.5
-
-        return amatrix
-
-    @staticmethod
-    def _get_tensor_tr(matrix: ndarray, coordinates: ndarray) -> ndarray:
-        """
-            Gets the translation-rotation coupling tensor from the matrix.
-
-            :param matrix: The inverse matrix of the B matrix.
-
-            :param coordinates: The coordinates of the particles.
-
-            :return: The 3x3 translation-rotation coupling friction tensor.
-        """
-
-        # //////////////////////////////////////////////////////////////////////
-        # Auxiliary Functions
-        # //////////////////////////////////////////////////////////////////////
-
-        def get_asmatrix_0(vector_0: ndarray) -> ndarray:
-            """
-                Gets the 3D anti-symmetric matrix.
-
-                :return: The 3D anti-symmetric matrix.
-            """
-            return array(
-                [
-                    [0.0, -vector_0[2], vector_0[1]],
-                    [vector_0[2], 0.0, -vector_0[0]],
-                    [-vector_0[1], vector_0[0], 0.0]
-                ], dtype=float
-            )
-
-        # //////////////////////////////////////////////////////////////////////
-        # Implementation Functions
-        # //////////////////////////////////////////////////////////////////////
-
-        # Auxiliary matrix.
-        amatrix = zeros((3, 3))
-
-        # Go through the 3x3 blocks.
-        for i, c0 in enumerate(coordinates):
-            # The anti-symmetric matrix for coordinate 0.
-            cmatrix0 = get_asmatrix_0(c0)
-
-            for j, c1 in enumerate(coordinates):
-
-                # Get the matrix term.
-                temp_matrix = matrix[i * 3: i * 3 + 3, j * 3: j * 3 + 3]
-
-                # Add to the accumulated matrix.
-                amatrix += matmul(cmatrix0, temp_matrix)
-
-        return amatrix
-
-    @staticmethod
-    def _get_tensor_tt(matrix: ndarray, coordinates: ndarray) -> ndarray:
-        """
-            Gets the translation-translation coupling tensor from the matrix.
-
-            :param matrix: The inverse matrix of the B matrix.
-
-            :param coordinates: The coordinates of the particles.
-
-            :return: The 3x3 translation-translation coupling friction tensor.
-        """
-
-        # Auxiliary matrix.
-        amatrix = zeros((3, 3))
-
-        # Go through the 3x3 blocks.
-        for i, c0 in enumerate(coordinates):
-            for j, c1 in enumerate(coordinates):
-
-                # Add to the accumulated matrix.
-                amatrix += matrix[i * 3: i * 3 + 3, j * 3: j * 3 + 3]
-
-        return amatrix
-
-    # --------------------------------------------------------------------------
-    # Math Methods.
-    # --------------------------------------------------------------------------
-
-    @staticmethod
-    def _math_overlap(
-        coord0: ndarray, radius0: float, coord1: ndarray, radius1: float
-    ) -> bool:
-        """
-            Validates if two spheres overlap each other.
-
-            :param coord0: The coordinate of the zeroth sphere.
-
-            :param radius0: The radius of the zeroth sphere.
-
-            :param coord1: The coordinate of the first sphere.
-
-            :param radius1: The radius of the first sphere.
-        """
-
-        # Sum of the radii, squared.
-        sradius = (radius0 + radius1) ** 2
-
-        # The distance between the two particles, squared.
-        difference = coord0 - coord1
-        sdistance = dot(difference, difference)
-
-        return sdistance < sradius
-
+    return array(umath.symmetrize(inv(tfriction), passes=2), dtype=float)
