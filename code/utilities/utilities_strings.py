@@ -8,7 +8,7 @@
 
 # General.
 import numpy
-from numpy import ndarray, float64
+from numpy import ndarray
 
 # ##############################################################################
 # Functions
