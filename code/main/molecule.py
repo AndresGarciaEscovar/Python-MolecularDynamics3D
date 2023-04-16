@@ -342,9 +342,10 @@ class Molecule:
         self.cog = umolecule.get_cog(self.coordinates, self.radii)
         self.com = umolecule.get_com(self.coordinates, self.masses)
 
-        self.dtensor = umolecule.get_dtensor(self.coordinates, self.masses)
-
-
+        # Calculate with respect to the center of mass.
+        self.dtensor = umolecule.get_dtensor(
+            self.coordinates, self.masses, -self.com
+        )
 
     # ##########################################################################
     # Dunder Methods
