@@ -11,6 +11,9 @@ import copy
 
 from numpy import array, dot, ndarray
 
+# User defined.
+import code.validation.validation_parameters as vparameters
+
 # ##############################################################################
 # Functions
 # ##############################################################################
@@ -21,7 +24,7 @@ from numpy import array, dot, ndarray
 # ------------------------------------------------------------------------------
 
 
-def get_antisymmetric_matrix(vector: ndarray) -> ndarray:
+def get_skew_symmetric_matrix(vector: ndarray) -> ndarray:
     """
         From the given 3D vector, returns the anti-symmetric matrix with the
         entries shuffled.
@@ -32,17 +35,14 @@ def get_antisymmetric_matrix(vector: ndarray) -> ndarray:
     """
 
     # Check it's a valid vector.
-    if not (len(vector) == 3 and all(isinstance(x, (float,)) for x in vector)):
-        raise TypeError(
-            "The given vector must be a 3D vector of floats."
-        )
+    vparameters.is_shape_matrix(vector, (0, 3))
 
     return array(
-        [
-            [0.0, -vector[2], vector[1]],
-            [vector[2], 0.0, -vector[0]],
-            [-vector[1], vector[0], 0.0]
-        ], dtype=float
+        (
+            (0.0, -vector[2], vector[1]),
+            (vector[2], 0.0, -vector[0]),
+            (-vector[1], vector[0], 0.0)
+        ), dtype=float
     )
 
 
