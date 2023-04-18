@@ -9,6 +9,7 @@
 # ##############################################################################
 
 # General.
+from numpy import dtype, ndarray
 from typing import Any
 
 # ##############################################################################
@@ -17,11 +18,124 @@ from typing import Any
 
 
 # ------------------------------------------------------------------------------
-# Miscellaneous Functions
+# Is Functions
 # ------------------------------------------------------------------------------
 
 
-def exists_in_dict(attribute: str, dictionary: dict) -> None:
+def is_float(number: Any) -> None:
+    """
+        Validates that the given string representation of the string is an empty
+        string.
+
+        :param number: The number to be validated.
+
+        :raise ValueError: If the given number is not a floating point number
+         or an integer.
+    """
+    # Check the object is a valid float.
+    if not isinstance(number, (float, dtype("float64").type, int)):
+        raise TypeError(f"The given object is not a real number.")
+
+
+def is_ndarray(array: ndarray, atype: type, length: int) -> None:
+    """
+        Validates all the features of the ndarray.
+
+        :param array: The object to be validated as the numpy array.
+
+        :param atype: The expected type of the array.
+
+        :param length: The expected length of the array.
+    """
+
+    # Validate the three features.
+    is_ndarray_type(array)
+    is_ndarray_dtype(array, atype)
+    is_ndarray_length(array, length)
+
+
+def is_ndarray_dtype(array: ndarray, atype: type) -> None:
+    """
+        Validates that the entries of the given array are all of the same type.
+
+        :param array: The array whose type is going to be validated.
+
+        :param atype: The expected type of the array.
+
+        :raise TypeError: If the elements in the ndarray do not match the
+         required type.
+    """
+    if array.dtype.type is not atype:
+        raise TypeError(
+            f"The numpy array is not of the proper type. It's entries are of "
+            f"type {array.dtype}, but must be of type {atype}."
+        )
+
+
+def is_ndarray_length(array: ndarray, length: int) -> None:
+    """
+        Validates that the given numpy array has the proper length.
+
+        :param array: The array whose length is going to be validated.
+
+        :param length: The expected length of the array.
+
+        :raise TypeError: If the length of the numpy array doesn't match the
+         expected length.
+    """
+
+    # Customize the name if needed.
+    if len(array) != length:
+        raise ValueError(
+            f"The numpy array is not of the proper length. The current number "
+            f"of entries is {len(array)} and it should have {length}."
+        )
+
+
+def is_ndarray_type(array: Any) -> None:
+    """
+        Validates that the array is an ndarray.
+
+        :param array: The object to be validated as the numpy array.
+
+        :raise TypeError: If array object is not an ndarray.
+    """
+    if not isinstance(array, ndarray):
+        raise TypeError(
+            f"The given object is not a numpy array; it should be a numpy "
+            f"array."
+        )
+
+
+def is_negative(number: Any, include: bool = False) -> None:
+    """
+        Validates if the given number is a negative floating point number, i.e.,
+        a float, and it's greater than zero.
+
+        :param number: The number to be tested.
+
+        :param include: If zero must be included.
+
+        :raise ValueError: If the number is not a negative number.
+    """
+    # Check it's a float.
+    is_float(number)
+
+    if not include and not number < 0.0:
+        raise ValueError(
+            f"The given floating point number is a positive number; it should "
+            f"be a negative number and non-zero."
+        )
+
+    # Check if the number is not negative or zero.
+    if include and not number <= 0.0:
+        raise ValueError(
+            f"The given floating point number is a positive number; it should "
+            f"be a negative number, or zero."
+        )
+
+
+def is_not_in_dictionary(attribute: Any, dictionary: dict) -> None:
     """
         Checks that the given parameter exists in the dictionary, otherwise it
         raises an error.
@@ -33,89 +147,82 @@ def exists_in_dict(attribute: str, dictionary: dict) -> None:
 
         :raise AttributeError: If the attribute is not in the given dictionary.
     """
-    if attribute in dictionary:
+    # Check the key is NOT in the dictionary.
+    if attribute in dictionary.keys():
         raise AttributeError(
             f"The attibute '{attribute}' already exists and can only be "
             f"initialized once."
         )
 
 
-def none_not(robj: Any, name: str = None) -> None:
+def is_not_none(tobject: Any) -> None:
     """
         Validates that the given parameter is not noea string.
 
-        :param robj: The object whose type is to be examined.
-
-        :param name: The name of the object, optional.
+        :param tobject: The object whose type is to be examined.
 
         :raise TypeError: If the given object is None.
     """
-    if robj is None:
-        name = "" if name is None else f", {name},"
-        raise TypeError (
-            f"The given object{name} is None; it must take a non-None value."
+    # Check the object is not None.
+    if tobject is None:
+        raise TypeError(
+            f"The given object is None; it must take a non-None value."
         )
 
 
-def srepr_empty(robj: Any, strip: bool = True, name: str = None) -> None:
+def is_positive(number: Any, include: bool = False) -> None:
+    """
+        Validates if the given number is a floating point number, i.e., a float.
+        and it's greater than zero.
+
+        :param number: The number to be tested.
+
+        :param include: If zero must be included.
+
+        :raise ValueError: If the number is not a positive number.
+    """
+    # Check it's a float.
+    is_float(number)
+
+    # Check if it's a negative number.
+    if not include and not number > 0.0:
+        raise ValueError(
+            f"The given floating point number is a positive number; it should "
+            f"be a positive number and non-zero."
+        )
+
+    # Check if the number is not postive or zero.
+    if include and not number >= 0.0:
+        raise ValueError(
+            f"The given floating point number is a negative number; it should "
+            f"be a positive number, or zero."
+        )
+
+
+def is_string(string: Any, strip: bool = False, empty: bool = False) -> None:
     """
         Validates that the given string representation of the string is an empty
         string.
 
-        :param robj: The object whose string representation is to be examined.
+        :param string: The string to be validated.
 
         :param strip: A boolean flag indicating if the string must be stripped
          before making the comparison. True  if the string must be stripped
          before making the comparison; False, otherwise. True by default.
 
-        :param name: The name of the object, optional.
+        :param empty: A boolean flag that indicates if the string is to be
+         checked to be empty. True, if the string cannot be empty; False,
+         otherwise.
 
-        :raise ValueError: If the given string representation of the object is
-         not an empty tring.
+        :raise ValueError: If the given string is not an empty string.
+
+        :raise TypeError: If the given object is not a string.
     """
+    # Check the object is a string.
+    if not isinstance(string, str):
+        raise TypeError(f"The given object is not a string.")
 
-    # Check that the object is not none.
-    none_not(robj, name)
-
-    # Strip, or not.
-    tstring = f"{robj}".strip() if strip else f"{robj}"
-
-    # Must throw and exception.
-    if tstring != "":
-        name = "" if name is None else f", {name},"
-        raise ValueError(
-            f"The given object{name} string representation is not empty, when "
-            f"if should be."
-        )
-
-
-def srepr_empty_not(robj: Any, strip: bool = True, name: str = None) -> None:
-    """
-        Validates that the given string representation of the string is not an
-        empty string.
-
-        :param robj: The object whose string representation is to be examined.
-
-        :param strip: A boolean flag indicating if the string must be stripped
-         before making the comparison. True  if the string must be stripped
-         before making the comparison; False, otherwise. True by default.
-
-        :param name: The name of the object, optional.
-
-        :raise ValueError: If the given string representation of the object is
-         not an empty tring.
-    """
-
-    # Check that the object is not none.
-    none_not(robj, name)
-
-    # Strip, or not.
-    tstring = f"{robj}".strip() if strip else f"{robj}"
-
-    # Must throw and exception.
-    if tstring == "":
-        name = "" if name is None else f", {name},"
-        raise ValueError(
-            f"The given object{name} string representation is empty, when it "
-            f"shouldn't be."
-        )
+    # Check the string is not empty.
+    tstring = string.strip() if strip else string
+    if empty and tstring == "":
+        raise ValueError("The string should not be an empty string.")
