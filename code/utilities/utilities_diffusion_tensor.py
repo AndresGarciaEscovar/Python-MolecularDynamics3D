@@ -144,12 +144,12 @@ def get_coupling_tensor_rr(matrix: ndarray, coordinates: ndarray) -> ndarray:
     # Go through the 3x3 blocks.
     for i, coordinate_0 in enumerate(coordinates):
         # The anti-symmetric matrix for coordinate 0.
-        cmatrix0 = umath.get_antisymmetric_matrix(coordinate_0)
+        cmatrix0 = umath.get_skew_symmetric_matrix(coordinate_0)
 
         for j, coordinate_1 in enumerate(coordinates):
             # The anti-symmetric matrix for coordinate 1.
             cmatrix1 = transpose(
-                umath.get_antisymmetric_matrix(coordinate_1)
+                umath.get_skew_symmetric_matrix(coordinate_1)
             )
 
             # Get the matrix term.
@@ -183,7 +183,7 @@ def get_coupling_tensor_tr(matrix: ndarray, coordinates: ndarray) -> ndarray:
     # Go through the 3x3 blocks.
     for i, coordinate_0 in enumerate(coordinates):
         # The anti-symmetric matrix for the given coordinate.
-        cmatrix = umath.get_antisymmetric_matrix(coordinate_0)
+        cmatrix = umath.get_skew_symmetric_matrix(coordinate_0)
 
         for j in range(length):
             # Get the corresponding 3x3 matrix.
