@@ -12,6 +12,14 @@
 # ##############################################################################
 
 
+def test_is_instance() -> None:
+    """
+        Tests that it's instance works without tuples.
+    """
+    print("Testing it's instance: ", end="")
+    print(isinstance(" ", str))
+
+
 def test_print_none() -> None:
     """
         Tests how the None parameter prints.
@@ -30,6 +38,7 @@ def main() -> None:
     """
 
     # Print the None pointer.
+    test_is_instance()
     test_print_none()
 
 # ##############################################################################
