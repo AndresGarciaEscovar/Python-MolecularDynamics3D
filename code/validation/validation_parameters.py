@@ -9,7 +9,7 @@
 # ##############################################################################
 
 # General.
-from numpy import dtype, ndarray
+from numpy import dtype, float64, ndarray
 from typing import Any
 
 # ##############################################################################
@@ -196,6 +196,32 @@ def is_positive(number: Any, include: bool = False) -> None:
         raise ValueError(
             f"The given floating point number is a negative number; it should "
             f"be a positive number, or zero."
+        )
+
+
+def is_shape_matrix(matrix: Any, dimensions: tuple) -> None:
+    """
+        Validates that the given matrix has the proper shape and it's a
+        numerical matrix.
+
+        :param matrix: The matrix to be validated.
+
+        :param dimensions: The expected dimensions of the numpy array.
+
+        :raise ValueError: If the given string is not an empty string.
+
+        :raise TypeError: If the given object is not a string.
+    """
+
+    # Check it's a numpy array and has the proper type.
+    is_ndarray_type(matrix)
+    is_ndarray_dtype(matrix, float64)
+
+    # Check the right dimensions.
+    if matrix.shape != dimensions:
+        raise ValueError(
+            f"The given matrix has the wrong shape. Expected shape: "
+            f"{dimensions}, current shape: {matrix.shape}."
         )
 
 
