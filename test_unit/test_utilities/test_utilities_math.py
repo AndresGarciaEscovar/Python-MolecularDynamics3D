@@ -26,6 +26,10 @@ ITERATIONS = 100
 class TestAtom(unittest.TestCase):
 
     def test_get_antisymmetric_matrix(self):
+        """
+            Check
+        """
+        pass
 
 
 # ##############################################################################
