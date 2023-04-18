@@ -274,6 +274,5 @@ if __name__ == '__main__':
     """
         Runs the main program.
     """
-    # unittest.main()
-
-    print(str(None))
+    unittest.main()
+#
