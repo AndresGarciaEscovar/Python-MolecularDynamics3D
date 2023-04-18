@@ -7,12 +7,12 @@
 # ##############################################################################
 
 # General
-
 import mendeleev
-import numpy as np
 import random as rd
 import string
 import unittest
+
+from numpy import array, float64
 
 # User defined.
 import code.main.atom as atom
@@ -37,7 +37,7 @@ class TestAtom(unittest.TestCase):
 
         # Randomly choose a radius, mass and set of coordinates.
         mass, radius = rd.uniform(0.01, 10.0), rd.uniform(0.01, 10.0)
-        coordinate = np.array(
+        coordinate = array(
             [rd.uniform(-10.0, 10.0) for _ in range(3)], dtype=float
         )
 
@@ -49,15 +49,17 @@ class TestAtom(unittest.TestCase):
             matom.aname = ""
 
         # Try to change the name to None.
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             matom.aname = None
 
-        # Try to change the name to anything else.
-        matom.aname = 6
+        # Try to change the name to anything other than a string.
+        with self.assertRaises(TypeError):
+            matom.aname = 6
 
         # Result must be a string.
-        self.assertIsInstance(matom.aname, (str,))
-        self.assertEqual(matom.aname, str(f"{6}"))
+        matom.aname = f"6"
+        self.assertIsInstance(matom.aname, str)
+        self.assertEqual(matom.aname, f"6")
 
     def test_change_atype(self):
         """
@@ -66,7 +68,7 @@ class TestAtom(unittest.TestCase):
 
         # Randomly choose a radius, mass and set of coordinates.
         mass, radius = rd.uniform(0.01, 10.0), rd.uniform(0.01, 10.0)
-        coordinate = np.array(
+        coordinate = array(
             [rd.uniform(-10.0, 10.0) for _ in range(3)], dtype=float
         )
 
@@ -78,15 +80,17 @@ class TestAtom(unittest.TestCase):
             matom.atype = ""
 
         # Try to change the name to None.
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             matom.atype = None
 
-        # Try to change the name to anything else.
-        matom.atype = 6
+        # Try to change the name to anything other than a string.
+        with self.assertRaises(TypeError):
+            matom.atype = 6
 
         # Result must be a string.
-        self.assertIsInstance(matom.atype, (str,))
-        self.assertEqual(matom.atype, str(f"{6}"))
+        matom.atype = f"6"
+        self.assertIsInstance(matom.atype, str)
+        self.assertEqual(matom.atype, f"6")
 
     def test_change_coordinates(self):
         """
@@ -95,45 +99,32 @@ class TestAtom(unittest.TestCase):
 
         # Randomly choose a radius, mass and set of coordinates.
         mass, radius = rd.uniform(0.01, 10.0), rd.uniform(0.01, 10.0)
-        coordinate = np.array(
+        coordinate = array(
                 [rd.uniform(-10.0, 10.0) for _ in range(3)], dtype=float
         )
 
         # Create an atom.
         matom = atom.Atom(radius, mass, coordinate)
 
-        # Try to set the coordinates to a non-numpy array.
-        with self.assertRaises(TypeError):
-            matom.coordinates = [1.0, 2.0, 3.0]
+        # Change the coordinates to an invalid dimension.
+        with self.assertRaises(ValueError):
+            matom.coordinates = [2, 3]
 
-        # Try to set the coordinates to a numpy array with the wrong dimensions.
-        for i in [x for x in range(1, 11) if x != len(coordinate)]:
-            with self.assertRaises(ValueError):
-                matom.coordinates = np.array(
-                    [rd.uniform(0.0, 1.0)] * i, dtype=float
-                )
-
-        # Try to set the coordinates to a numpy array with the coordinate types.
-        with self.assertRaises(TypeError):
-            length = len(coordinate)
-            matom.coordinates = np.array(
-                [rd.choice([i for i in range(10)]) for _ in range(length)],
-                dtype=int
-            )
+        with self.assertRaises(ValueError):
+            matom.coordinates = [2, 3, 4, 5]
 
         # Change the coordinates to something valid.
-        length = len(coordinate)
-        tcoordinates = np.array(
-            [rd.uniform(-10.0, 10.0) for _ in range(length)],
-            dtype=float
-        )
-        matom.coordinates = tcoordinates
+        previous = len(matom.coordinates)
+        ncoordinates = [2, 3, 4]
+        matom.coordinates = ncoordinates
 
-        # Coordinates should have changed.
-        self.assertEqual(len(matom.coordinates), len(tcoordinates))
-        for crd0, crd1 in zip(matom.coordinates, tcoordinates):
-            self.assertEqual(type(crd0), type(crd1))
-            self.assertEqual(crd0, crd1)
+        # Check the length.
+        self.assertEqual(previous, len(matom.coordinates))
+
+        # Check the entriesa are consistent.
+        for coordinate_0, coordinate_1 in zip(matom.coordinates, ncoordinates):
+            self.assertEqual(float64, coordinate_0.dtype.type)
+            self.assertEqual(coordinate_0, float64(coordinate_1))
 
     def test_change_mass(self):
         """
@@ -142,7 +133,7 @@ class TestAtom(unittest.TestCase):
 
         # Randomly choose a radius, mass and set of coordinates.
         mass, radius = rd.uniform(0.01, 10.0), rd.uniform(0.01, 10.0)
-        coordinate = np.array(
+        coordinate = array(
                 [rd.uniform(-10.0, 10.0) for _ in range(3)], dtype=float
         )
 
@@ -150,12 +141,12 @@ class TestAtom(unittest.TestCase):
         matom = atom.Atom(radius, mass, coordinate)
 
         # Try to set a zero or negative mass.
-        for tmass in [0.0, -rd.uniform(0.01, 10.0)]:
+        for tmass in [0.0, rd.uniform(0.01, 10.0)]:
             with self.assertRaises(ValueError):
-                matom.mass = tmass
+                matom.mass = -tmass
 
         # Try to set with the wrong type.
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             matom.mass = f"{tmass}"
 
     def test_change_radius(self):
@@ -165,7 +156,7 @@ class TestAtom(unittest.TestCase):
 
         # Randomly choose a radius, mass and set of coordinates.
         mass, radius = rd.uniform(0.01, 10.0), rd.uniform(0.01, 10.0)
-        coordinate = np.array(
+        coordinate = array(
                 [rd.uniform(-10.0, 10.0) for _ in range(3)], dtype=float
         )
 
@@ -173,13 +164,13 @@ class TestAtom(unittest.TestCase):
         matom = atom.Atom(radius, mass, coordinate)
 
         # Try to set a zero or negative mass.
-        for tradius in [0.0, -rd.uniform(0.01, 10.0)]:
+        for tradius in [0.0, rd.uniform(0.01, 10.0)]:
             with self.assertRaises(ValueError):
-                matom.radius = tradius
+                matom.radius = -tradius
 
         # Try to set with the wrong type.
-        with self.assertRaises(ValueError):
-            matom.radius = f"{tradius}"
+        with self.assertRaises(TypeError):
+            matom.radius = f"sfsfsfd"
 
     def test_creation(self):
         """
@@ -190,7 +181,7 @@ class TestAtom(unittest.TestCase):
         for _ in range(ITERATIONS):
             # Choose a random mass and radius
             mass, radius = rd.uniform(0.01, 10.0), rd.uniform(0.01, 10.0)
-            coordinate = np.array(
+            coordinate = array(
                 [rd.uniform(-10.0, 10.0) for _ in range(3)], dtype=float
             )
 
@@ -212,7 +203,7 @@ class TestAtom(unittest.TestCase):
 
         # Randomly choose a radius, mass and set of coordinates.
         mass, radius = rd.uniform(0.01, 10.0), rd.uniform(0.01, 10.0)
-        coordinate = np.array(
+        coordinate = array(
             [rd.uniform(-10.0, 10.0) for _ in range(3)], dtype=float
         )
 

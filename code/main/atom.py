@@ -3,16 +3,15 @@
 # ##############################################################################
 
 # General.
-import copy
 import mendeleev
-import numpy as np
 
+from numpy import append as nappend, array, delete as ndelete, ndarray, zeros
 from sqlalchemy.orm.exc import NoResultFound
-from typing import Any
 from warnings import warn
 
 # User defined.
 import code.utilities.utilities_strings as sutils
+import code.validation.validation_parameters as vparameters
 
 # ##############################################################################
 # Classes
@@ -63,28 +62,20 @@ class Atom:
 
             :return: Returns a copy of the name of the atom.
         """
-        return copy.deepcopy(self.__aname)
+        return self.__aname
 
     @aname.setter
-    def aname(self, aname: Any) -> None:
+    def aname(self, aname: str) -> None:
         """
             Sets the name of the atom, that is the string representation of the
             given object.
 
             :param aname: The new name of the atom.
         """
+        # Validate it's a string.
+        vparameters.is_string(aname, strip=True, empty=True)
 
-        # Must not be None or an empty string.
-        if aname is None or f"{aname}".strip() == "":
-            raise ValueError(
-                f"To set the name of the atom, the string representation of "
-                f"the object must not be an empty string, or the string must "
-                f"not be 'None'"
-                f"{'; requested atom name is None' if aname is None else ''}."
-            )
-
-        # Set the name.
-        self.__aname = f"{aname}".strip()
+        self.__aname = aname.strip()
 
     # ------------------------------------------------------------------------ #
 
@@ -95,42 +86,34 @@ class Atom:
 
             :return: Returns a copy of the type of the atom.
         """
-        return copy.deepcopy(self.__atype)
+        return self.__atype
 
     @atype.setter
-    def atype(self, atype: Any) -> None:
+    def atype(self, atype: str) -> None:
         """
             Sets the type of the atom, that is the string representation of the
             given object.
 
             :param atype: The new type of the atom.
         """
+        # Validate it's a string.
+        vparameters.is_string(atype, strip=True, empty=True)
 
-        # Must not be None or an empty string.
-        if atype is None or f"{atype}".strip() == "":
-            raise ValueError(
-                f"To set the type of the atom, the string representation of "
-                f"the object must not be an empty string, or the string must "
-                f"not be 'None'"
-                f"{'; requested atom name is None' if atype is None else ''}."
-            )
-
-        # Set the name.
-        self.__atype = f"{atype}".strip()
+        self.__atype = atype.strip()
 
     # ------------------------------------------------------------------------ #
 
     @property
-    def coordinates(self) -> np.ndarray:
+    def coordinates(self) -> ndarray:
         """
             Returns a copy of the coordinates of the atom.
 
             :return: Returns a copy of the coordinates of the atom.
         """
-        return copy.deepcopy(self.__coordinates)
+        return self.__coordinates[0]
 
     @coordinates.setter
-    def coordinates(self, coordinates: np.ndarray) -> None:
+    def coordinates(self, coordinates: ndarray) -> None:
         """
             Sets the coordinates of the atom.
 
@@ -138,44 +121,10 @@ class Atom:
              1-dimensional numpy array of floats.
         """
 
-        # Try to validate setting up the coordinates.
-        try:
-            # Validate the coordinates.
-            if not isinstance(coordinates, np.ndarray):
-                raise TypeError(
-                    f"The coordinates must be a numpy array of 3 entries. "
-                    f"Type: {type(coordinates)}."
-                )
-
-            elif len(coordinates) != self.dimensions:
-                raise ValueError(
-                    f"The coordinates must be as long as the pre-existing "
-                    f"array. Length: {len(coordinates)}."
-                )
-
-            elif not all(map(lambda x: isinstance(x, float), coordinates)):
-                raise TypeError(
-                    f"The coordinates must be a numpy array of 3 entries of "
-                    f"type numpy float. Entry types: "
-                    f"{[type(x) for x in coordinates]}."
-                )
-
-        except AttributeError:
-            """
-                Only gets here if self.dimensions is not yet set; i.e., array is
-                set for the first time.
-            """
-
-            # Check if all the coordinates are floating point numbers.
-            if not all(map(lambda x: isinstance(x, float), coordinates)):
-                raise TypeError(
-                    f"The coordinates must be a numpy array of 3 entries of "
-                    f"type numpy float. Entry types: "
-                    f"{[type(x) for x in coordinates]}."
-                )
-
-        # Set the coordinates.
-        self.__coordinates = coordinates
+        # Gurantees same dimensions and type.
+        crds = array(coordinates, dtype=float)
+        self.__coordinates = nappend(self.__coordinates, [crds], axis=0)
+        self.__coordinates = ndelete(self.__coordinates, 0, axis=0)
 
     # ------------------------------------------------------------------------ #
 
@@ -213,11 +162,7 @@ class Atom:
         """
 
         # Validate the mass.
-        if not isinstance(mass, (int, float)) or mass <= 0.0:
-            raise ValueError(
-                f"The requested mass must be a floating point number greater "
-                f"than zero. Type: {type(mass)}, value: {mass}."
-            )
+        vparameters.is_positive(mass, include=False)
 
         self.__mass = float(mass)
 
@@ -242,15 +187,10 @@ class Atom:
             :param radius: The floating point number that represents the
              radius of the atom.
         """
+        # Validate the radius.
+        vparameters.is_positive(radius, include=False)
 
-        # Validate the radius
-        if not isinstance(radius, (int, float)) or radius <= 0.0:
-            raise ValueError(
-                f"The requested radius must be a floating point number greater "
-                f"than zero. Type: {type(radius)}, value: {radius}."
-            )
-
-        self.__radius = radius
+        self.__radius = float(radius)
 
     # //////////////////////////////////////////////////////////////////////////
     # Methods
@@ -301,7 +241,7 @@ class Atom:
     # //////////////////////////////////////////////////////////////////////////
 
     def __init__(
-        self, radius: float, mass: float, coordinates: np.ndarray,
+        self, radius: float, mass: float, coordinates: ndarray,
         atype: str = None, aname: str = None
     ):
         """
@@ -323,13 +263,16 @@ class Atom:
         """
 
         # Set the atom names and type.
-        self.aname = "---" if aname is None else f"{aname}"
-        self.atype = "---" if atype is None else f"{atype}"
+        self.aname = "---" if aname is None else aname
+        self.atype = "---" if atype is None else atype
 
         # Set the other parameters.
-        self.coordinates = coordinates
         self.mass = mass
         self.radius = radius
+
+        # Easy way of setting up the coordinates.
+        self.__coordinates = zeros((1, len(coordinates)), dtype=float)
+        self.coordinates = coordinates
 
     # //////////////////////////////////////////////////////////////////////////
     # Dunder Methods
