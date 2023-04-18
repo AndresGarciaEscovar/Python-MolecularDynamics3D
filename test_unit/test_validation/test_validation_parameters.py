@@ -216,6 +216,35 @@ class TestAtom(unittest.TestCase):
         key = list(dictionary.keys())[0] + "w"
         vparameters.is_not_in_dictionary(key, dictionary)
 
+    def test_is_shape_matrix(self):
+        """
+            Tests that the function is_string is working as intended.
+        """
+
+        # Define a matrix.
+        matrix = [3, 1, 3]
+
+        # Must be a numpy array.
+        with self.assertRaises(TypeError):
+            vparameters.is_shape_matrix(matrix, (0, 3))
+
+        # Check for the wrong dimensions.
+        matrix = array([3, 1, 3, 9], dtype=float)
+
+        # Must be a numpy array.
+        with self.assertRaises(ValueError):
+            vparameters.is_shape_matrix(matrix, (3,))
+
+        # Check for the right dimensions.
+        vparameters.is_shape_matrix(matrix, (4,))
+
+        # Last test case.
+        matrix = array([[3, 1, 3, 9], [4, 7, 2, 6]], dtype=float)
+
+        with self.assertRaises(ValueError):
+            vparameters.is_shape_matrix(matrix, (4, 2))
+        vparameters.is_shape_matrix(matrix, (2, 4))
+
     def test_is_string(self):
         """
             Tests that the function is_string is working as intended.
