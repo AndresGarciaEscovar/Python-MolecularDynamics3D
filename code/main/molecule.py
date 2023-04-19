@@ -8,15 +8,17 @@
 
 # General.
 import os
-import numpy as np
 import yaml
 
+from numpy import array, ndarray
 from pathlib import Path
 from typing import Any
 
 # User defined.
 import code.main.atom as atom
 import code.utilities.utilities_molecule as umolecule
+import code.validation.validation_arrays as varrays
+import code.validation.validation_parameters as vparameters
 
 # import molecular_dynamics.main.diffusion_tensor as dt
 # import molecular_dynamics.utilities.utilities_strings as us
@@ -56,26 +58,44 @@ class Molecule:
         """
 
         # Cannot change the atoms if they already exist.
-        if "_Molecule__atoms" in self.__dict__:
-            raise AttributeError(
-                "The atoms can only be initialized once. If atoms must be "
-                "added/removed/edited, it must be done through the add_atom or "
-                "remove_atom functions."
-            )
+        vparameters.exists_in_dict("_Molecule__atoms", self.__dict__)
 
         self.__atoms = atoms
 
     # ------------------------------------------------------------------------ #
 
     @property
-    def coordinates(self) -> np.ndarray:
+    def coordinates(self) -> ndarray:
         """
             Returns the coordinates of all the atoms in the molecule.
 
             :return: The numpy array of the coordinates of the atoms in the
              molecule, in the order in which the atoms are stored.
         """
-        return np.array([x.coordinates for x in self.atoms], dtype=float)
+        return array([x.coordinates for x in self.atoms], dtype=float)
+
+    # ------------------------------------------------------------------------ #
+
+    @property
+    def com(self) -> ndarray:
+        """
+            Returns the string that represents the name of the molecule.
+
+            :return: The string that represents the name of the molecule.
+        """
+        return self.__com
+
+    @com.setter
+    def com(self, com: ndarray) -> None:
+        """
+            Sets the center of mass.
+
+            :param com: The numpy array that represents the center of mass of
+             the molecule.
+        """
+        a = array([0.0 for _ in range(3)], dtype=float)
+        com = a
+        self.__com = com
 
     # ------------------------------------------------------------------------ #
 
@@ -93,14 +113,14 @@ class Molecule:
     # ------------------------------------------------------------------------ #
 
     @property
-    def masses(self) -> np.ndarray:
+    def masses(self) -> ndarray:
         """
             Returns the masses  of all the atoms in the molecule.
 
             :return: The numpy array of the masses of the atoms in the molecule,
              in the order in which the atoms are stored.
         """
-        return np.array([x.mass for x in self.atoms], dtype=float)
+        return array([x.mass for x in self.atoms], dtype=float)
 
     # ------------------------------------------------------------------------ #
 
@@ -145,14 +165,14 @@ class Molecule:
     # ------------------------------------------------------------------------ #
 
     @property
-    def radii(self) -> np.ndarray:
+    def radii(self) -> ndarray:
         """
             Returns the radius of all the atoms in the molecule.
 
             :return: The numpy array of the radius of the atoms in the molecule,
              in the order in which the atoms are stored.
         """
-        return np.array([x.radius for x in self.atoms], dtype=float)
+        return array([x.radius for x in self.atoms], dtype=float)
 
     # ##########################################################################
     # Methods
@@ -163,7 +183,7 @@ class Molecule:
     # --------------------------------------------------------------------------
 
     def atom_add(
-        self, radius: float, mass: float, coordinates: np.ndarray,
+        self, radius: float, mass: float, coordinates: ndarray,
         aname: str = None, atype: str = None
     ) -> None:
         """
@@ -248,7 +268,7 @@ class Molecule:
         for name, iatom in info["atoms"].items():
             # Extract the information.
             atype = f"{iatom['atype']}"
-            crds = np.array(iatom["coordinates"], dtype=float)
+            crds = array(iatom["coordinates"], dtype=float)
             mass = float(iatom["mass"])
             radius = float(iatom["radius"])
 
@@ -382,6 +402,9 @@ class Molecule:
 # ##############################################################################
 
 if __name__ == "__main__":
+
+    print("This is None:" + str(None))
+
     # Path from where the molecules are loaded.
     mp0 = f"{Path(os.getcwd(), '..', '..', 'data', 'product.yaml').resolve()}"
     mp1 = f"{Path(os.getcwd(), '..', '..', 'data', 'reactant.yaml').resolve()}"
@@ -391,5 +414,5 @@ if __name__ == "__main__":
     mp3 = f"{Path(os.getcwd(), '..', '..', 'data', 'reactant_1.yaml').resolve()}"
 
     # Load using the absolute path.
-    molecule0 = Molecule(mp0)
+    # molecule0 = Molecule(mp0)
     # molecule1 = Molecule(mp1)
