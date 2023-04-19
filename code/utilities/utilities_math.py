@@ -35,7 +35,7 @@ def get_skew_symmetric_matrix(vector: ndarray) -> ndarray:
     """
 
     # Check it's a valid vector.
-    vparameters.is_shape_matrix(vector, (0, 3))
+    vparameters.is_shape_matrix(vector, (3,))
 
     return array(
         (
