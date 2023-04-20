@@ -18,7 +18,7 @@ import code.utilities.utilities_math as umath
 # ##############################################################################
 
 
-class TestAtom(unittest.TestCase):
+class TestUtilitiesMath(unittest.TestCase):
 
     def test_get_skew_symmetric_matrix(self):
         """

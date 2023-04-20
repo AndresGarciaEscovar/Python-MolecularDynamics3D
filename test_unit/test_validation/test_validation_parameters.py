@@ -25,7 +25,7 @@ ITERATIONS = 100
 # ##############################################################################
 
 
-class TestAtom(unittest.TestCase):
+class TestValidationParameters(unittest.TestCase):
 
     def test_is_float(self):
         """
