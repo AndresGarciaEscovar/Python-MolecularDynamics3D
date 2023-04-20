@@ -99,6 +99,8 @@ def symmetrize(matrix: ndarray, passes: int = 0):
 
         :return: The numpy array with the matrix symmetrized.
     """
+    # Must be a square matrix.
+    vparameters.is_shape_matrix(matrix, (len(matrix), len(matrix)))
 
     # Only integer numbers.
     cpasses = int(passes)
