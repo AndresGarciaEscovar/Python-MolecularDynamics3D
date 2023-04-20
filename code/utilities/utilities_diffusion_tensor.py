@@ -22,7 +22,7 @@ from numpy.linalg import norm, inv
 
 # User defined.
 import code.utilities.utilities_math as umath
-
+import code.validation.validation_parameters as vparameters
 
 # ##############################################################################
 # Auxiliary Functions
@@ -298,32 +298,6 @@ def get_tensor_runequal(
     return tensor
 
 
-# ------------------------------------------------------------------------------
-# Validation Functions
-# ------------------------------------------------------------------------------
-
-
-def validate_dimensionality(coordinates: ndarray) -> None:
-    """
-        Validates the coordinates are 3D before continuing.
-
-        :param coordinates: The coordinates whose dimensionality is to be
-         validated.
-
-        :raise ValueError: If the coordinates are not 3D.
-    """
-
-    # Validate the dimensionality.
-    if len(coordinates) == 3:
-        return
-
-    # Dimensionality not valid.
-    raise ValueError(
-        "The dimensionality of the coordinates must be 3 for the diffusion "
-        "tensor to be calculated."
-    )
-
-
 # ##############################################################################
 # Main Function(s)
 # ##############################################################################
@@ -342,7 +316,7 @@ def get_diffusion_tensor(coordinates: ndarray, radii: ndarray) -> ndarray:
     """
 
     # Validate the coordinate dimensionality.
-    validate_dimensionality(coordinates[0])
+    vparameters.is_shape_matrix(coordinates[0], (3,))
 
     # Get the big matrix.
     matrix = get_btensor(coordinates, radii)

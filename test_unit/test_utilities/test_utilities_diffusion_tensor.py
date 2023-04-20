@@ -1,17 +1,18 @@
 """
     File that contains the tests for the math utilities.
 """
-
+import copy
 # ##############################################################################
 # Imports
 # ##############################################################################
 
 # General
 import unittest
-from numpy import array
+from numpy import array, dot, identity, outer, pi
+from numpy.linalg import norm
 
 # User defined.
-import code.utilities.utilities_math as umath
+import code.utilities.utilities_diffusion_tensor as udtensor
 
 # ##############################################################################
 # Classes
@@ -20,169 +21,326 @@ import code.utilities.utilities_math as umath
 
 class TestUtilitiesDiffusionTensor(unittest.TestCase):
 
-    def test_get_skew_symmetric_matrix(self):
+    def test_get_btensor(self):
         """
-            Tests that the get_skew_symmetric_matrix method is working properly.
+            Tests that the get_btensor function is working properly; for a
+            simple two atom case.
         """
 
-        # Loop through the different types of arrays.
-        for mtype in (list, tuple):
-            tarray = mtype([1, 2, 3])
-            with self.assertRaises(TypeError):
-                umath.get_skew_symmetric_matrix(tarray)
+        # ----------------------- Atoms don't intersect ---------------------- #
 
-            tarray = array(tarray, dtype=float)
-            rmatrix = umath.get_skew_symmetric_matrix(tarray)
+        # Try to setup a 3D molecule whose atoms don't intersect.
+        coordinates = array(
+            [
+                [0.0, 0.0, -1.0],
+                [0.0, 0.0, +0.5]
+            ], dtype=float
+        )
+        radii = array([1.0, 0.5])
 
-            compmatrix = array(
-                [
-                    [0.0, -tarray[2], tarray[1]],
-                    [tarray[2], 0.0, -tarray[0]],
-                    [-tarray[1], tarray[0], 0.0]
-                ], dtype=float
-            )
+        # Manually calculate the tensor.
+        entry_00 = identity(3) / (6.0 * pi * radii[0])
+        entry_11 = identity(3) / (6.0 * pi * radii[1])
 
-            # Matrices must be equal, element by element.
-            for i, row in enumerate(compmatrix):
-                for j, column in enumerate(row):
-                    self.assertEqual(column, rmatrix[i, j])
+        # Get the unequal tensor.
+        difference = coordinates[0] - coordinates[1]
+        oproduct = outer(difference, difference)
 
-            tarray = array([1, 2, 3, 4], dtype=float)
-            with self.assertRaises(ValueError):
-                umath.get_skew_symmetric_matrix(tarray)
+        dnorm = norm(difference)
+        norms = dot(difference, difference)
+        sradiuss = (radii[0] ** 2) + (radii[1] ** 2)
 
-    def test_intersect_spheres(self):
-        """
-            Tests that the function intersect_spheres is working properly.
-        """
-        # Define the radii.
-        radius_0 = 1.0
-        radius_1 = 1.0
+        # Calculate the tensor.
+        entry_01 = identity(3)
+        entry_01 += (oproduct / norms)
+        entry_01 += ((identity(3) / 3.0) - (oproduct / norms)) * (sradiuss / norms)
+        entry_01 /= (8.0 * pi * dnorm)
 
-        # Define two coordinates.
-        coordinates_0 = array([0, 0, 1], dtype=float)
-        coordinates_1 = [0, 0, 0]
+        # Get the unequal tensor.
+        difference = coordinates[1] - coordinates[0]
+        oproduct = outer(difference, difference)
 
-        # Wrong type for the first array.
-        with self.assertRaises(TypeError):
-            umath.intersect_hspheres(
-                coordinates_0, radius_0, coordinates_1, radius_1
-            )
+        dnorm = norm(difference)
+        norms = dot(difference, difference)
+        sradiuss = (radii[0] ** 2) + (radii[1] ** 2)
 
-        # Define two coordinates.
-        coordinates_0 = [0, 0, 0]
-        coordinates_1 = array([0, 0, 1], dtype=float)
+        # Calculate the tensor.
+        entry_10 = identity(3)
+        entry_10 += (oproduct / norms)
+        entry_10 += ((identity(3) / 3.0) - (oproduct / norms)) * (sradiuss / norms)
+        entry_10 /= (8.0 * pi * dnorm)
 
-        # Wrong type for the zeroth array.
-        with self.assertRaises(TypeError):
-            umath.intersect_hspheres(
-                coordinates_0, radius_0, coordinates_1, radius_1
-            )
-
-        # Define two coordinates.
-        coordinates_0 = array([0, 0, 1, 0], dtype=float)
-        coordinates_1 = array([0, 0, 1], dtype=float)
-
-        # Arrays of different lengths.
-        with self.assertRaises(ValueError):
-            umath.intersect_hspheres(
-                coordinates_0, radius_0, coordinates_1, radius_1
-            )
-
-        # Define two coordinates.
-        coordinates_0 = array([0, 0, 0], dtype=float)
-        coordinates_1 = array([0, 0, 1], dtype=int)
-
-        # Arrays wrong numerical types.
-        with self.assertRaises(TypeError):
-            umath.intersect_hspheres(
-                coordinates_0, radius_0, coordinates_1, radius_1
-            )
-
-        # Define two coordinates.
-        radius_0 = 1.0
-        coordinates_0 = array([0, 0, 0], dtype=float)
-
-        radius_1 = 1.0
-        coordinates_1 = array([0, 0, 1], dtype=float)
-
-        # Spheres must intersect.
-        self.assertTrue(
-            umath.intersect_hspheres(
-                coordinates_0, radius_0, coordinates_1, radius_1
-            )
+        # This is a very symmetric molecule, so there should be no coupling.
+        expected_btensor = array(
+            [
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            ], dtype=float
         )
 
-        # Spheres must not intersect; i.e., barely touching.
-        radius_0 = 0.5
-        radius_1 = 0.5
+        # Set the entries.
+        expected_btensor[0: 3, 0: 3] = entry_00
+        expected_btensor[0: 3, 3: 6] = entry_01
+        expected_btensor[3: 6, 0: 3] = entry_10
+        expected_btensor[3: 6, 3: 6] = entry_11
 
-        self.assertFalse(
-            umath.intersect_hspheres(
-                coordinates_0, radius_0, coordinates_1, radius_1
-            )
+        # Get the tensor.
+        actual_btensor = udtensor.get_btensor(coordinates, radii)
+
+        # Compare the dimensions.
+        self.assertEqual(expected_btensor.shape, actual_btensor.shape)
+
+        # Compare all the entries.
+        for i in range(len(expected_btensor)):
+            for j in range(len(expected_btensor)):
+                self.assertEqual(expected_btensor[i, j], actual_btensor[i, j])
+
+        # ------------- Atoms intersect and have different radii ------------- #
+
+        # Try to setup a 3D molecule whose atoms intersect.
+        coordinates = array(
+            [
+                [0.0, 0.0, -0.5],
+                [0.0, 0.0, +0.5]
+            ], dtype=float
+        )
+        radii = array([1.0, 0.5])
+
+        # Manually calculate the tensor.
+        entry_00 = identity(3) / (6.0 * pi * radii[0])
+        entry_11 = identity(3) / (6.0 * pi * radii[1])
+
+        # Get the unequal tensor.
+        difference = coordinates[0] - coordinates[1]
+        oproduct = outer(difference, difference)
+
+        dnorm = norm(difference)
+        norms = dot(difference, difference)
+        sradiuss = (radii[0] ** 2) + (radii[1] ** 2)
+
+        # Calculate the tensor.
+        entry_01 = identity(3)
+        entry_01 += (oproduct / norms)
+        entry_01 += ((identity(3) / 3.0) - (oproduct / norms)) * (sradiuss / norms)
+        entry_01 /= (8.0 * pi * dnorm)
+
+        # Get the unequal tensor.
+        difference = coordinates[1] - coordinates[0]
+        oproduct = outer(difference, difference)
+
+        dnorm = norm(difference)
+        norms = dot(difference, difference)
+        sradiuss = (radii[0] ** 2) + (radii[1] ** 2)
+
+        # Calculate the tensor.
+        entry_10 = identity(3)
+        entry_10 += (oproduct / norms)
+        entry_10 += ((identity(3) / 3.0) - (oproduct / norms)) * (sradiuss / norms)
+        entry_10 /= (8.0 * pi * dnorm)
+
+        # This is a very symmetric molecule, so there should be no coupling.
+        expected_btensor = array(
+            [
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            ], dtype=float
         )
 
-        # Spheres must not intersect; i.e., far from touching.
-        radius_0 = 0.2
-        radius_1 = 0.2
+        # Set the entries.
+        expected_btensor[0: 3, 0: 3] = entry_00
+        expected_btensor[0: 3, 3: 6] = entry_01
+        expected_btensor[3: 6, 0: 3] = entry_10
+        expected_btensor[3: 6, 3: 6] = entry_11
 
-        self.assertFalse(
-            umath.intersect_hspheres(
-                coordinates_0, radius_0, coordinates_1, radius_1
-            )
+        # Get the tensor.
+        actual_btensor = udtensor.get_btensor(coordinates, radii)
+
+        # Compare the dimensions.
+        self.assertEqual(expected_btensor.shape, actual_btensor.shape)
+
+        # Compare all the entries.
+        for i in range(len(expected_btensor)):
+            for j in range(len(expected_btensor)):
+                self.assertEqual(expected_btensor[i, j], actual_btensor[i, j])
+
+        # ----------- Atoms don't intersect and have the same radii ---------- #
+
+        # Try to setup a 3D molecule whose atoms don't intersect.
+        coordinates = array(
+            [
+                [0.0, 0.0, -1.0],
+                [0.0, 0.0, +1.0]
+            ], dtype=float
+        )
+        radii = array([1.0, 1.0])
+
+        # Manually calculate the tensor.
+        entry_00 = identity(3) / (6.0 * pi * radii[0])
+        entry_11 = identity(3) / (6.0 * pi * radii[1])
+
+        # Get the unequal tensor.
+        difference = coordinates[0] - coordinates[1]
+        oproduct = outer(difference, difference)
+
+        dnorm = norm(difference)
+        norms = dot(difference, difference)
+        sradiuss = (radii[0] ** 2) + (radii[1] ** 2)
+
+        # Calculate the tensor.
+        entry_01 = identity(3)
+        entry_01 += (oproduct / norms)
+        entry_01 += ((identity(3) / 3.0) - (oproduct / norms)) * (sradiuss / norms)
+        entry_01 /= (8.0 * pi * dnorm)
+
+        # Get the unequal tensor.
+        difference = coordinates[1] - coordinates[0]
+        oproduct = outer(difference, difference)
+
+        dnorm = norm(difference)
+        norms = dot(difference, difference)
+        sradiuss = (radii[0] ** 2) + (radii[1] ** 2)
+
+        # Calculate the tensor.
+        entry_10 = identity(3)
+        entry_10 += (oproduct / norms)
+        entry_10 += ((identity(3) / 3.0) - (oproduct / norms)) * (sradiuss / norms)
+        entry_10 /= (8.0 * pi * dnorm)
+
+        # This is a very symmetric molecule, so there should be no coupling.
+        expected_btensor = array(
+            [
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            ], dtype=float
         )
 
-    def test_symmetrize(self):
+        # Set the entries.
+        expected_btensor[0: 3, 0: 3] = entry_00
+        expected_btensor[0: 3, 3: 6] = entry_01
+        expected_btensor[3: 6, 0: 3] = entry_10
+        expected_btensor[3: 6, 3: 6] = entry_11
+
+        # Get the tensor.
+        actual_btensor = udtensor.get_btensor(coordinates, radii)
+
+        # Compare the dimensions.
+        self.assertEqual(expected_btensor.shape, actual_btensor.shape)
+
+        # Compare all the entries.
+        for i in range(len(expected_btensor)):
+            for j in range(len(expected_btensor)):
+                self.assertEqual(expected_btensor[i, j], actual_btensor[i, j])
+
+        # ------------- Atoms have the same radius and intersect ------------- #
+
+        # Try to setup a 3D molecule whose atoms intersect.
+        coordinates = array(
+            [
+                [0.0, 0.0, -1.0],
+                [0.0, 0.0, +1.0]
+            ], dtype=float
+        )
+        radii = array([1.5, 1.5])
+
+        # Manually calculate the tensor.
+        entry_00 = identity(3) / (6.0 * pi * radii[0])
+        entry_11 = identity(3) / (6.0 * pi * radii[1])
+
+        # Get the unequal tensor.
+        difference = coordinates[0] - coordinates[1]
+        oproduct = outer(difference, difference)
+
+        dnorm = norm(difference)
+        sradiuss = radii[0]
+
+        # Calculate the tensor.
+        entry_01 = (1.0 - dnorm * 9.0 / (sradiuss * 32.0)) * identity(3)
+        entry_01 += (3.0 / (32.0 * dnorm * sradiuss)) * oproduct
+        entry_01 /= (6.0 * pi * sradiuss)
+
+        # Get the unequal tensor.
+        difference = coordinates[1] - coordinates[0]
+        oproduct = outer(difference, difference)
+
+        dnorm = norm(difference)
+        sradiuss = radii[1]
+
+        # Calculate the tensor.
+        entry_10 = (1.0 - dnorm * 9.0 / (sradiuss * 32.0)) * identity(3)
+        entry_10 += (3.0 / (32.0 * dnorm * sradiuss)) * oproduct
+        entry_10 /= (6.0 * pi * sradiuss)
+
+        # This is a very symmetric molecule, so there should be no coupling.
+        expected_btensor = array(
+            [
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            ], dtype=float
+        )
+
+        # Set the entries.
+        expected_btensor[0: 3, 0: 3] = entry_00
+        expected_btensor[0: 3, 3: 6] = entry_01
+        expected_btensor[3: 6, 0: 3] = entry_10
+        expected_btensor[3: 6, 3: 6] = entry_11
+
+        # Get the tensor.
+        actual_btensor = udtensor.get_btensor(coordinates, radii)
+
+        # Compare the dimensions.
+        self.assertEqual(expected_btensor.shape, actual_btensor.shape)
+
+        # Compare all the entries.
+        for i in range(len(expected_btensor)):
+            for j in range(len(expected_btensor)):
+                self.assertEqual(expected_btensor[i, j], actual_btensor[i, j])
+
+    def test_get_correction_rr(self):
         """
-            Tests that the function symmetrize is working properly.
+            Tests that the get_correction_rr function is working properly; for a
+            simple two atom case.
         """
-        # Define a non-square matrix.
-        matrix = array([
-            [1, 2, 3],
-            [4, 5, 6]
-        ], dtype=float)
 
-        # Wrong dimensions.
-        with self.assertRaises(ValueError):
-            umath.symmetrize(matrix, passes=3)
+        # Define a 3x3 matrix, whichever, and two real numbers.
+        matrix = array(
+            [[1.0, 2.0, 3.0],
+             [4.0, 5.0, 6.0],
+             [7.0, 8.0, 9.0]],
+            dtype=float
+        )
+        radii = array([3.0, 2.0], dtype=float)
 
-        # Define square matrix.
-        matrix = array([
-            [1, 2, 3],
-            [4, 5, 6],
-            [7, 8, 9],
-        ], dtype=int)
+        # The expected correction.
+        expected_tensor = copy.deepcopy(matrix)
+        expected_tensor += (radii[0]**3) * (8.0 * pi) * identity(3, dtype=float)
+        expected_tensor += (radii[1]**3) * (8.0 * pi) * identity(3, dtype=float)
 
-        with self.assertRaises(TypeError):
-            umath.symmetrize(matrix)
+        # Get the correction.
+        actual_tensor = udtensor.get_correction_rr(matrix, radii)
 
-        # Wrong type of matrix.
-        matrix = [
-            [1, 2, 3],
-            [4, 5, 6],
-            [7, 8, 9],
-        ]
+        # Dimensions should be equal.
+        self.assertEqual(expected_tensor.shape, actual_tensor.shape)
 
-        with self.assertRaises(TypeError):
-            umath.symmetrize(matrix)
-
-        # Define square matrix.
-        matrix = array([
-            [1, 2, 3],
-            [4, 5, 6],
-            [7, 8, 9],
-        ], dtype=float)
-
-        # Correct dimensions.
-        rmatrix = umath.symmetrize(matrix, passes=3)
-
-        # Must be the same dimensions.
-        self.assertEqual(matrix.shape, rmatrix.shape)
-
-        for i in range(len(matrix)):
-            for j in range(len(matrix)):
-                self.assertEqual(rmatrix[i, j], rmatrix[j, i])
+        # Numbers should be equal.
+        for i in range(len(expected_tensor)):
+            for j in range(len(expected_tensor)):
+                self.assertEqual(expected_tensor[i, j], actual_tensor[i, j])
 
 
 # ##############################################################################
