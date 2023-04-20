@@ -72,6 +72,10 @@ def intersect_hspheres(
          their position in space and their hyper-radius; i.e., their separation
          is greater than the sum of their radii.
     """
+    # Both arrays need to have the same dimensions.
+    vparameters.is_shape_matrix(coordinate_0, (len(coordinate_0),))
+    vparameters.is_shape_matrix(coordinate_1, (len(coordinate_0),))
+
     # Difference between the two spheres.
     difference = coordinate_0 - coordinate_1
     sradius = (radius_0 + radius_1) ** 2
