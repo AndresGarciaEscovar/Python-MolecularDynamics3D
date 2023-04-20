@@ -9,6 +9,7 @@
 # General
 import unittest
 from numpy import array
+
 # User defined.
 import code.utilities.utilities_math as umath
 
