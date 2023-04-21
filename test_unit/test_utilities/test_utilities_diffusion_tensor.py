@@ -490,6 +490,39 @@ class TestUtilitiesDiffusionTensor(unittest.TestCase):
             for j in range(len(expected_tensor)):
                 self.assertEqual(expected_tensor[i, j], actual_tensor[i, j])
 
+    def test_get_friction_tensor(self):
+        """
+            Tests that the get_friction_tensor function is working properly; for
+            a simple two atom case.
+        """
+
+        # Define a 6x6 matrix with some entries, irrelevant which ones they are.
+        matrix = array(
+            [[1.00, 2.00, 3.00, 19.0, 25.0, 31.00],
+             [7.00, 8.00, 9.00, 20.0, 26.0, 32.0],
+             [13.0, 14.0, 15.0, 21.0, 27.0, 33.0],
+             [19.0, 20.0, 21.0, 22.0, 23.0, 24.0],
+             [25.0, 26.0, 27.0, 28.0, 29.0, 30.0],
+             [31.0, 32.0, 33.0, 34.0, 35.0, 36.0]],
+            dtype=float
+        )
+
+        # Extract the relevant matrices.
+        tt = matrix[0: 3, 0: 3]
+        tr = matrix[3: 6, 0: 3]
+        rr = matrix[3: 6, 3: 6]
+
+        # The actual tensor.
+        actual_tensor = udtensor.get_friction_tensor(tt, tr, rr)
+
+        # Symmetrize twice.
+        matrix = umath.symmetrize(matrix, passes=2)
+
+        # Validate the entries.
+        for i in range(len(matrix)):
+            for j in range(len(matrix)):
+                self.assertEqual(matrix[i, j], actual_tensor[i, j])
+
 
 # ##############################################################################
 # Main Program
