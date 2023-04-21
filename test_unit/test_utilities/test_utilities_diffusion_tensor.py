@@ -8,11 +8,12 @@ import copy
 
 # General
 import unittest
-from numpy import array, dot, identity, outer, pi
+from numpy import array, dot, identity, matmul, outer, pi, transpose, zeros
 from numpy.linalg import norm
 
 # User defined.
 import code.utilities.utilities_diffusion_tensor as udtensor
+import code.utilities.utilities_math as umath
 
 # ##############################################################################
 # Classes
@@ -333,6 +334,153 @@ class TestUtilitiesDiffusionTensor(unittest.TestCase):
 
         # Get the correction.
         actual_tensor = udtensor.get_correction_rr(matrix, radii)
+
+        # Dimensions should be equal.
+        self.assertEqual(expected_tensor.shape, actual_tensor.shape)
+
+        # Numbers should be equal.
+        for i in range(len(expected_tensor)):
+            for j in range(len(expected_tensor)):
+                self.assertEqual(expected_tensor[i, j], actual_tensor[i, j])
+
+    def test_get_coupling_tensor_tt(self):
+        """
+            Tests that the get_coupling_tensor_tt function is working properly;
+            for a simple two atom case.
+        """
+
+        # Define a 6x6 matrix with some entries, irrelevant which ones they are.
+        matrix = array(
+            [[1.00, 2.00, 3.00, 4.00, 5.00, 6.00],
+             [7.00, 8.00, 9.00, 10.0, 11.0, 12.0],
+             [13.0, 14.0, 15.0, 16.0, 17.0, 18.0],
+             [19.0, 20.0, 21.0, 22.0, 23.0, 24.0],
+             [25.0, 26.0, 27.0, 28.0, 29.0, 30.0],
+             [31.0, 32.0, 33.0, 34.0, 35.0, 36.0]],
+            dtype=float
+        )
+
+        # Some coordinates..
+        coordinates = array(
+            [[3.0, 2.0, 4.0],
+             [5.0, 6.0, 7.0]],
+            dtype=float
+        )
+
+        # The expected correction.
+        expected_tensor = zeros((3, 3), dtype=float)
+        expected_tensor += matrix[0: 3, 0: 3]
+        expected_tensor += matrix[0: 3, 3: 6]
+        expected_tensor += matrix[3: 6, 0: 3]
+        expected_tensor += matrix[3: 6, 3: 6]
+
+        # Get the correction.
+        actual_tensor = udtensor.get_coupling_tensor_tt(matrix, coordinates)
+
+        # Dimensions should be equal.
+        self.assertEqual(expected_tensor.shape, actual_tensor.shape)
+
+        # Numbers should be equal.
+        for i in range(len(expected_tensor)):
+            for j in range(len(expected_tensor)):
+                self.assertEqual(expected_tensor[i, j], actual_tensor[i, j])
+
+    def test_get_coupling_tensor_rr(self):
+        """
+            Tests that the get_coupling_tensor_rr function is working properly;
+            for a simple two atom case.
+        """
+
+        # Define a 6x6 matrix with some entries, irrelevant which ones they are.
+        matrix = array(
+            [[1.00, 2.00, 3.00, 4.00, 5.00, 6.00],
+             [7.00, 8.00, 9.00, 10.0, 11.0, 12.0],
+             [13.0, 14.0, 15.0, 16.0, 17.0, 18.0],
+             [19.0, 20.0, 21.0, 22.0, 23.0, 24.0],
+             [25.0, 26.0, 27.0, 28.0, 29.0, 30.0],
+             [31.0, 32.0, 33.0, 34.0, 35.0, 36.0]],
+            dtype=float
+        )
+
+        # Some coordinates..
+        coordinates = array(
+            [[3.0, 2.0, 4.0],
+             [5.0, 6.0, 7.0]],
+            dtype=float
+        )
+
+        # Define the skew anti-symmetric matrices.
+        skew_0 = umath.get_skew_symmetric_matrix(coordinates[0])
+        skew_1 = umath.get_skew_symmetric_matrix(coordinates[1])
+
+        # The expected correction.
+        term00 = matmul(matmul(skew_0, matrix[0: 3, 0: 3]), transpose(skew_0))
+        term00 += matmul(skew_0, matmul(matrix[0: 3, 0: 3], transpose(skew_0)))
+        term00 = term00 * 0.5
+
+        term01 = matmul(matmul(skew_0, matrix[0: 3, 3: 6]), transpose(skew_1))
+        term01 += matmul(skew_0, matmul(matrix[0: 3, 3: 6], transpose(skew_1)))
+        term01 = term01 * 0.5
+
+        term10 = matmul(matmul(skew_1, matrix[3: 6, 0: 3]), transpose(skew_0))
+        term10 += matmul(skew_1, matmul(matrix[3: 6, 0: 3], transpose(skew_0)))
+        term10 = term10 * 0.5
+
+        term11 = matmul(matmul(skew_1, matrix[3: 6, 3: 6]), transpose(skew_1))
+        term11 += matmul(skew_1, matmul(matrix[3: 6, 3: 6], transpose(skew_1)))
+        term11 = term11 * 0.5
+
+        expected_tensor = term00 + term01 + term10 + term11
+
+        # Get the correction.
+        actual_tensor = udtensor.get_coupling_tensor_rr(matrix, coordinates)
+
+        # Dimensions should be equal.
+        self.assertEqual(expected_tensor.shape, actual_tensor.shape)
+
+        # Numbers should be equal.
+        for i in range(len(expected_tensor)):
+            for j in range(len(expected_tensor)):
+                self.assertEqual(expected_tensor[i, j], actual_tensor[i, j])
+
+    def test_get_coupling_tensor_tr(self):
+        """
+            Tests that the get_coupling_tensor_tr function is working properly;
+            for a simple two atom case.
+        """
+
+        # Define a 6x6 matrix with some entries, irrelevant which ones they are.
+        matrix = array(
+            [[1.00, 2.00, 3.00, 4.00, 5.00, 6.00],
+             [7.00, 8.00, 9.00, 10.0, 11.0, 12.0],
+             [13.0, 14.0, 15.0, 16.0, 17.0, 18.0],
+             [19.0, 20.0, 21.0, 22.0, 23.0, 24.0],
+             [25.0, 26.0, 27.0, 28.0, 29.0, 30.0],
+             [31.0, 32.0, 33.0, 34.0, 35.0, 36.0]],
+            dtype=float
+        )
+
+        # Some coordinates..
+        coordinates = array(
+            [[3.0, 2.0, 4.0],
+             [5.0, 6.0, 7.0]],
+            dtype=float
+        )
+
+        # Define the skew anti-symmetric matrices.
+        skew_0 = umath.get_skew_symmetric_matrix(coordinates[0])
+        skew_1 = umath.get_skew_symmetric_matrix(coordinates[1])
+
+        # The expected correction.
+        term00 = matmul(skew_0, matrix[0: 3, 0: 3])
+        term01 = matmul(skew_0, matrix[0: 3, 3: 6])
+        term10 = matmul(skew_1, matrix[3: 6, 0: 3])
+        term11 = matmul(skew_1, matrix[3: 6, 3: 6])
+
+        expected_tensor = term00 + term01 + term10 + term11
+
+        # Get the correction.
+        actual_tensor = udtensor.get_coupling_tensor_tr(matrix, coordinates)
 
         # Dimensions should be equal.
         self.assertEqual(expected_tensor.shape, actual_tensor.shape)
