@@ -212,17 +212,17 @@ def get_friction_tensor(tt: ndarray, tr: ndarray, rr: ndarray):
     # Friction tensor.
     friction = zeros((6, 6))
 
-    # Append the translation tensor.
+    # Append the translation tensor in the upper left part.
     friction[0: 3, 0: 3] = tt
 
-    # Append the translation-rotation tensor in the lower part.
-    friction[3:, 0: 3] = tr
+    # Append the translation-rotation tensor in the lower left part.
+    friction[3: 6, 0: 3] = tr
 
-    # Append the translation-rotation transpose tensor in the upper part.
-    friction[0: 3, 3:] = transpose(tr)
+    # Append the translation-rotation transpose tensor in the upper right part.
+    friction[0: 3, 3: 6] = transpose(tr)
 
-    # Append the rotation-rotation transpose tensor in the upper part.
-    friction[3:, 3:] = rr
+    # Append the rotation-rotation tensor in the lower rigth.
+    friction[3: 6, 3: 6] = rr
 
     return umath.symmetrize(friction, passes=2)
 
