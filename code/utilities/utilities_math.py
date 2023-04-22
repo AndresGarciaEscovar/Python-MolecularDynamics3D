@@ -9,7 +9,9 @@
 # General.
 import copy
 
-from numpy import array, dot, ndarray
+import numpy as np
+from numpy import array, cos, cross, dot, float64, ndarray, sin, sqrt, sum as nsum
+from numpy.linalg import norm
 
 # User defined.
 import code.validation.validation_parameters as vparameters
@@ -82,6 +84,46 @@ def intersect_hspheres(
 
     return dot(difference, difference) < sradius
 
+
+# ------------------------------------------------------------------------------
+# Rotate Functions
+# ------------------------------------------------------------------------------
+
+
+def rotate_vector(
+    vector: ndarray, around: ndarray, angle: float, about: ndarray = None
+) -> ndarray:
+    """
+        Rotates the "vector" around the "around" vector the given "angle" with
+        respect to the given "about" point; if no "about" point which to rotate
+        the vector is given, it will be assumed it's about (0, 0, 0)
+    """
+
+    # Check that the amount is a float.
+    vparameters.is_float(angle)
+
+    # Define the about vector.
+    if about is None:
+        about = array([0.0 for _ in vector], dtype=float)
+    vparameters.is_shape_matrix(about, (3,))
+
+    # Convert into numpy arrays.
+    tvector, taround, tabout = array([vector, around, about], dtype=float)
+
+    # Fix vectors.
+    tvector -= about
+    taround /= norm(taround)
+
+    # Trigonometric values.
+    cosa = cos(angle)
+    sina = sin(angle)
+
+    # Rotate about the required vector.
+    rvector = tvector * cosa
+    rvector += cross(taround, tvector) * sina
+    rvector += taround * dot(taround, tvector) * (float64(1.0) - cosa)
+
+    return rvector + about
 
 # ------------------------------------------------------------------------------
 # Symmetrize Functions

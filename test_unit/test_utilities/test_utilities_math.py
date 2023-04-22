@@ -8,7 +8,7 @@
 
 # General
 import unittest
-from numpy import array
+from numpy import array, pi
 
 # User defined.
 import code.utilities.utilities_math as umath
@@ -132,6 +132,368 @@ class TestUtilitiesMath(unittest.TestCase):
                 coordinates_0, radius_0, coordinates_1, radius_1
             )
         )
+
+    def test_rotate_vector(self):
+        """
+            Tests that the function symmetrize is working properly.
+        """
+
+        #  This one will NOT change.
+        about = array([0, 0, 0], dtype=float)
+
+        # ------------------------- About the x-axis ------------------------- #
+
+        # Define the vectors.
+        vector = [+1, 0, 0]
+        around = [+1, 0, 0]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([1.0, 0.0, 0.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # Define the vectors.
+        vector = [0, +1, 0]
+        around = [+1, 0, 0]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([0.0, 0.0, 1.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # Define the vectors.
+        vector = [0, 0, +1]
+        around = [+1, 0, 0]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([0.0, -1.0, 0.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # --------------------- About the negative x-axis -------------------- #
+
+        # Define the vectors.
+        vector = [+1, 0, 0]
+        around = [-1, 0, 0]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([1.0, 0.0, 0.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # Define the vectors.
+        vector = [0, +1, 0]
+        around = [-1, 0, 0]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([0.0, 0.0, -1.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # Define the vectors.
+        vector = [0, 0, +1]
+        around = [-1, 0, 0]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([0.0, 1.0, 0.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # ------------------------- About the y-axis ------------------------- #
+
+        # Define the vectors.
+        vector = [+1, 0, 0]
+        around = [0, +1, 0]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([0.0, 0.0, -1.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # Define the vectors.
+        vector = [0, +1, 0]
+        around = [0, +1, 0]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([0.0, 1.0, 0.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # Define the vectors.
+        vector = [0, 0, +1]
+        around = [0, +1, 0]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([1.0, 0.0, 0.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # --------------------- About the negative y-axis -------------------- #
+
+        # Define the vectors.
+        vector = [+1, 0, 0]
+        around = [0, -1, 0]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([0.0, 0.0, 1.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # Define the vectors.
+        vector = [0, +1, 0]
+        around = [0, -1, 0]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([0.0, 1.0, 0.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # Define the vectors.
+        vector = [0, 0, +1]
+        around = [0, -1, 0]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([-1.0, 0.0, 0.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # ------------------------- About the z-axis ------------------------- #
+
+        # Define the vectors.
+        vector = [+1, 0, 0]
+        around = [0, 0, +1]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([0.0, 1.0, 0.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # Define the vectors.
+        vector = [0, +1, 0]
+        around = [0, 0, +1]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([-1.0, 0.0, 0.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # Define the vectors.
+        vector = [0, 0, +1]
+        around = [0, 0, +1]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([0.0, 0.0, 1.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # --------------------- About the negative z-axis -------------------- #
+
+        # Define the vectors.
+        vector = [+1, 0, 0]
+        around = [0, 0, -1]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([0.0, -1.0, 0.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # Define the vectors.
+        vector = [0, +1, 0]
+        around = [0, 0, -1]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([1.0, 0.0, 0.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
+
+        # Define the vectors.
+        vector = [0, 0, +1]
+        around = [0, 0, -1]
+
+        # Amount to be rotated.
+        amount = pi * 0.5
+
+        # Expected result.
+        expected = array([0.0, 0.0, 1.0], dtype=float)
+
+        # Get the result.
+        result = umath.rotate_vector(vector, around, amount, about)
+
+        # Shapes must be the same.
+        self.assertEqual(result.shape, expected.shape)
+
+        for i in range(result.shape[0]):
+            self.assertAlmostEqual(expected[i], result[i], 10)
 
     def test_symmetrize(self):
         """
