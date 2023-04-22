@@ -144,8 +144,8 @@ class TestUtilitiesMath(unittest.TestCase):
         # ------------------------- About the x-axis ------------------------- #
 
         # Define the vectors.
-        vector = [+1, 0, 0]
-        around = [+1, 0, 0]
+        vector = array([+1, 0, 0], dtype=float)
+        around = array([+1, 0, 0], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -163,8 +163,8 @@ class TestUtilitiesMath(unittest.TestCase):
             self.assertAlmostEqual(expected[i], result[i], 10)
 
         # Define the vectors.
-        vector = [0, +1, 0]
-        around = [+1, 0, 0]
+        vector = array([0, +1, 0], dtype=float)
+        around = array([+1, 0, 0], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -182,8 +182,8 @@ class TestUtilitiesMath(unittest.TestCase):
             self.assertAlmostEqual(expected[i], result[i], 10)
 
         # Define the vectors.
-        vector = [0, 0, +1]
-        around = [+1, 0, 0]
+        vector = array([0, 0, +1], dtype=float)
+        around = array([+1, 0, 0], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -203,8 +203,8 @@ class TestUtilitiesMath(unittest.TestCase):
         # --------------------- About the negative x-axis -------------------- #
 
         # Define the vectors.
-        vector = [+1, 0, 0]
-        around = [-1, 0, 0]
+        vector = array([+1, 0, 0], dtype=float)
+        around = array([-1, 0, 0], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -222,8 +222,8 @@ class TestUtilitiesMath(unittest.TestCase):
             self.assertAlmostEqual(expected[i], result[i], 10)
 
         # Define the vectors.
-        vector = [0, +1, 0]
-        around = [-1, 0, 0]
+        vector = array([0, +1, 0], dtype=float)
+        around = array([-1, 0, 0], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -241,8 +241,8 @@ class TestUtilitiesMath(unittest.TestCase):
             self.assertAlmostEqual(expected[i], result[i], 10)
 
         # Define the vectors.
-        vector = [0, 0, +1]
-        around = [-1, 0, 0]
+        vector = array([0, 0, +1], dtype=float)
+        around = array([-1, 0, 0], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -262,8 +262,8 @@ class TestUtilitiesMath(unittest.TestCase):
         # ------------------------- About the y-axis ------------------------- #
 
         # Define the vectors.
-        vector = [+1, 0, 0]
-        around = [0, +1, 0]
+        vector = array([+1, 0, 0], dtype=float)
+        around = array([0, +1, 0], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -281,8 +281,8 @@ class TestUtilitiesMath(unittest.TestCase):
             self.assertAlmostEqual(expected[i], result[i], 10)
 
         # Define the vectors.
-        vector = [0, +1, 0]
-        around = [0, +1, 0]
+        vector = array([0, +1, 0], dtype=float)
+        around = array([0, +1, 0], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -300,8 +300,8 @@ class TestUtilitiesMath(unittest.TestCase):
             self.assertAlmostEqual(expected[i], result[i], 10)
 
         # Define the vectors.
-        vector = [0, 0, +1]
-        around = [0, +1, 0]
+        vector = array([0, 0, +1], dtype=float)
+        around = array([0, +1, 0], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -321,8 +321,8 @@ class TestUtilitiesMath(unittest.TestCase):
         # --------------------- About the negative y-axis -------------------- #
 
         # Define the vectors.
-        vector = [+1, 0, 0]
-        around = [0, -1, 0]
+        vector = array([+1, 0, 0], dtype=float)
+        around = array([0, -1, 0], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -340,8 +340,8 @@ class TestUtilitiesMath(unittest.TestCase):
             self.assertAlmostEqual(expected[i], result[i], 10)
 
         # Define the vectors.
-        vector = [0, +1, 0]
-        around = [0, -1, 0]
+        vector = array([0, +1, 0], dtype=float)
+        around = array([0, -1, 0], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -359,8 +359,8 @@ class TestUtilitiesMath(unittest.TestCase):
             self.assertAlmostEqual(expected[i], result[i], 10)
 
         # Define the vectors.
-        vector = [0, 0, +1]
-        around = [0, -1, 0]
+        vector = array([0, 0, +1], dtype=float)
+        around = array([0, -1, 0], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -380,8 +380,8 @@ class TestUtilitiesMath(unittest.TestCase):
         # ------------------------- About the z-axis ------------------------- #
 
         # Define the vectors.
-        vector = [+1, 0, 0]
-        around = [0, 0, +1]
+        vector = array([+1, 0, 0], dtype=float)
+        around = array([0, 0, +1], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -399,8 +399,8 @@ class TestUtilitiesMath(unittest.TestCase):
             self.assertAlmostEqual(expected[i], result[i], 10)
 
         # Define the vectors.
-        vector = [0, +1, 0]
-        around = [0, 0, +1]
+        vector = array([0, +1, 0], dtype=float)
+        around = array([0, 0, +1], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -418,8 +418,8 @@ class TestUtilitiesMath(unittest.TestCase):
             self.assertAlmostEqual(expected[i], result[i], 10)
 
         # Define the vectors.
-        vector = [0, 0, +1]
-        around = [0, 0, +1]
+        vector = array([0, 0, +1], dtype=float)
+        around = array([0, 0, +1], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -439,8 +439,8 @@ class TestUtilitiesMath(unittest.TestCase):
         # --------------------- About the negative z-axis -------------------- #
 
         # Define the vectors.
-        vector = [+1, 0, 0]
-        around = [0, 0, -1]
+        vector = array([+1, 0, 0], dtype=float)
+        around = array([0, 0, -1], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -458,8 +458,8 @@ class TestUtilitiesMath(unittest.TestCase):
             self.assertAlmostEqual(expected[i], result[i], 10)
 
         # Define the vectors.
-        vector = [0, +1, 0]
-        around = [0, 0, -1]
+        vector = array([0, +1, 0], dtype=float)
+        around = array([0, 0, -1], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5
@@ -477,8 +477,8 @@ class TestUtilitiesMath(unittest.TestCase):
             self.assertAlmostEqual(expected[i], result[i], 10)
 
         # Define the vectors.
-        vector = [0, 0, +1]
-        around = [0, 0, -1]
+        vector = array([0, 0, +1], dtype=float)
+        around = array([0, 0, -1], dtype=float)
 
         # Amount to be rotated.
         amount = pi * 0.5

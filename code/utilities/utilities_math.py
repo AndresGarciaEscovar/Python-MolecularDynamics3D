@@ -9,8 +9,7 @@
 # General.
 import copy
 
-import numpy as np
-from numpy import array, cos, cross, dot, float64, ndarray, sin, sqrt, sum as nsum
+from numpy import array, cos, cross, dot, float64, ndarray, sin
 from numpy.linalg import norm
 
 # User defined.
@@ -103,12 +102,15 @@ def rotate_vector(
     vparameters.is_float(angle)
 
     # Define the about vector.
-    if about is None:
-        about = array([0.0 for _ in vector], dtype=float)
+    about = array([0.0] * 3, dtype=float) if about is None else about
+
+    # Check the types.
     vparameters.is_shape_matrix(about, (3,))
+    vparameters.is_shape_matrix(vector, (3,))
+    vparameters.is_shape_matrix(around, (3,))
 
     # Convert into numpy arrays.
-    tvector, taround, tabout = array([vector, around, about], dtype=float)
+    tvector, taround, tabout = vector, around, about
 
     # Fix vectors.
     tvector -= about
@@ -124,6 +126,24 @@ def rotate_vector(
     rvector += taround * dot(taround, tvector) * (float64(1.0) - cosa)
 
     return rvector + about
+
+
+# ------------------------------------------------------------------------------
+# Rotate Functions
+# ------------------------------------------------------------------------------
+
+
+def translate_vector(vector: ndarray, translation: ndarray) -> ndarray:
+    """
+        Translates the "vector" by the "translation" vector.
+    """
+
+    # Check that the amounts match.
+    vparameters.is_shape_matrix(vector, (len(vector),))
+    vparameters.is_shape_matrix(translation, (len(vector),))
+
+    return vector + translation
+
 
 # ------------------------------------------------------------------------------
 # Symmetrize Functions
