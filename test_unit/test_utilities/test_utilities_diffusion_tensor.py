@@ -523,6 +523,90 @@ class TestUtilitiesDiffusionTensor(unittest.TestCase):
             for j in range(len(matrix)):
                 self.assertEqual(matrix[i, j], actual_tensor[i, j])
 
+    def test_get_tensor_requal(self):
+        """
+            Tests that the get_tensor_requal function is working properly; for
+            a pair of coordinates and radii.
+        """
+
+        # Define a pair of coordinates and a radius.
+        coordinates = array(
+            [[0.0, 0.0, 0.5],
+             [0.0, 0.0, -0.5]],
+            dtype=float
+        )
+        radius = 3.0
+
+        # Base tensors.
+        difference = coordinates[0] - coordinates[1]
+        oproduct = outer(difference, difference)
+
+        # Distance between the two points.
+        distance = norm(difference)
+
+        # Calculate the tensor.
+        tensor = (1.0 - distance * 9.0 / (radius * 32.0)) * identity(3)
+        tensor += (3.0 / (32.0 * distance * radius)) * oproduct
+        tensor /= (6.0 * pi * radius)
+
+        # Get the expected tensor.
+        expected_tensor = udtensor.get_tensor_requal(
+            coordinates[0], coordinates[1], radius
+        )
+
+        # Shapes must be the same.
+        self.assertEqual(tensor.shape, expected_tensor.shape)
+
+        # Validate the entries.
+        for i in range(len(tensor)):
+            for j in range(len(tensor)):
+                self.assertEqual(expected_tensor[i, j], tensor[i, j])
+
+    def test_get_tensor_runequal(self):
+        """
+            Tests that the get_tensor_runequal function is working properly; for
+            a pair of coordinates and a pair of radii.
+        """
+
+        # Define a pair of coordinates and a radius.
+        coordinates = array(
+            [[0.0, 0.0, 0.5],
+             [0.0, 0.0, -0.5]],
+            dtype=float
+        )
+        radii = array([0.5, 1.0], dtype=float)
+
+        # Base tensors.
+        difference = coordinates[0] - coordinates[1]
+        oproduct = outer(difference, difference)
+
+        # Distance between the two points.
+        dnorm = norm(difference)
+        norms = dot(difference, difference)
+
+        # Sum of square of the radii.
+        sradii = (radii[0] ** 2) + (radii[1] ** 2)
+
+        # Calculate the tensor.
+        tensor = identity(3)
+        tensor += (oproduct / norms)
+        tensor += ((identity(3) / 3.0) - (oproduct / norms)) * (sradii / norms)
+        tensor /= (8.0 * pi * dnorm)
+
+        # Get the expected tensor.
+        expected_tensor = udtensor.get_tensor_runequal(
+            coordinates[0], radii[0], coordinates[1], radii[1]
+        )
+
+        # Shapes must be the same.
+        self.assertEqual(tensor.shape, expected_tensor.shape)
+
+        # Validate the entries.
+        for i in range(len(tensor)):
+            for j in range(len(tensor)):
+                self.assertEqual(expected_tensor[i, j], tensor[i, j])
+
+
 
 # ##############################################################################
 # Main Program

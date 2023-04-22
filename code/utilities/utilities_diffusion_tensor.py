@@ -287,12 +287,12 @@ def get_tensor_runequal(
     norms = dot(difference, difference)
 
     # Sum of square of the radii.
-    sradiuss = (radius_0 ** 2) + (radius_1 ** 2)
+    sradii = (radius_0 ** 2) + (radius_1 ** 2)
 
     # Calculate the tensor.
     tensor = identity(3)
     tensor += (oproduct / norms)
-    tensor += ((identity(3) / 3.0) - (oproduct / norms)) * (sradiuss / norms)
+    tensor += ((identity(3) / 3.0) - (oproduct / norms)) * (sradii / norms)
     tensor /= (8.0 * pi * dnorm)
 
     return tensor
