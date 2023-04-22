@@ -9,6 +9,8 @@
 # General.
 import numpy as np
 
+import code.utilities.utilities_math as umath
+
 # ##############################################################################
 # Functions
 # ##############################################################################
@@ -111,6 +113,20 @@ def test_print_none() -> None:
     print(f"The string for None is: {None}")
 
 
+def test_zzz() -> None:
+    """
+        Tests that it's instance works without tuples.
+    """
+
+    vector = [0, 1, 0]
+    around = [1, 0, 0]
+    about = np.array([0, 0, 0], dtype=float)
+
+    amount = np.pi * 0.5
+
+    print(umath.rotate_vector(vector, around, amount, about))
+
+
 # ##############################################################################
 # Main Function
 # ##############################################################################
@@ -126,6 +142,9 @@ def main() -> None:
     test_numpy_array_append()
     test_numpy_array_remove()
     test_print_none()
+
+    # General test that can be removed.
+    test_zzz()
 
 # ##############################################################################
 # Main Program
