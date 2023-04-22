@@ -607,7 +607,6 @@ class TestUtilitiesDiffusionTensor(unittest.TestCase):
                 self.assertEqual(expected_tensor[i, j], tensor[i, j])
 
 
-
 # ##############################################################################
 # Main Program
 # ##############################################################################
