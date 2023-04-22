@@ -104,29 +104,6 @@ def get_correction_rr(rr_tensor: ndarray, radii: ndarray) -> ndarray:
     return rr
 
 
-def get_coupling_tensor_tt(matrix: ndarray, coordinates: ndarray) -> ndarray:
-    """
-        Gets the translation-translation coupling tensor from the matrix.
-
-        :param matrix: The inverse matrix of the B matrix.
-
-        :param coordinates: The coordinates of the particles.
-
-        :return: The 3x3 translation-translation coupling friction tensor.
-    """
-
-    # Auxiliary variables.
-    amatrix = zeros((3, 3))
-    length = len(coordinates)
-
-    # Add the 3x3 blocks.
-    for i in range(length):
-        for j in range(length):
-            amatrix += matrix[i * 3: i * 3 + 3, j * 3: j * 3 + 3]
-
-    return amatrix
-
-
 def get_coupling_tensor_rr(matrix: ndarray, coordinates: ndarray) -> ndarray:
     """
         Gets the rotation-rotation coupling tensor from the matrix.
@@ -191,6 +168,29 @@ def get_coupling_tensor_tr(matrix: ndarray, coordinates: ndarray) -> ndarray:
 
             # Add to the accumulated matrix.
             amatrix += matmul(cmatrix, tmatrix)
+
+    return amatrix
+
+
+def get_coupling_tensor_tt(matrix: ndarray, coordinates: ndarray) -> ndarray:
+    """
+        Gets the translation-translation coupling tensor from the matrix.
+
+        :param matrix: The inverse matrix of the B matrix.
+
+        :param coordinates: The coordinates of the particles.
+
+        :return: The 3x3 translation-translation coupling friction tensor.
+    """
+
+    # Auxiliary variables.
+    amatrix = zeros((3, 3))
+    length = len(coordinates)
+
+    # Add the 3x3 blocks.
+    for i in range(length):
+        for j in range(length):
+            amatrix += matrix[i * 3: i * 3 + 3, j * 3: j * 3 + 3]
 
     return amatrix
 
