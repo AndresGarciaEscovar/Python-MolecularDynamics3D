@@ -9,7 +9,7 @@ import copy
 # General
 import unittest
 from numpy import array, dot, identity, matmul, outer, pi, transpose, zeros
-from numpy.linalg import norm
+from numpy.linalg import inv, norm
 
 # User defined.
 import code.utilities.utilities_diffusion_tensor as udtensor
@@ -600,6 +600,72 @@ class TestUtilitiesDiffusionTensor(unittest.TestCase):
 
         # Shapes must be the same.
         self.assertEqual(tensor.shape, expected_tensor.shape)
+
+        # Validate the entries.
+        for i in range(len(tensor)):
+            for j in range(len(tensor)):
+                self.assertEqual(expected_tensor[i, j], tensor[i, j])
+
+    # ##########################################################################
+    # Test Main Function(s)
+    # ##########################################################################
+
+    def test_get_diffusion_tensor(self):
+        """
+            Tests that the get_diffusion_tensor function is working properly;
+            for a pair of coordinates and a pair of radii.
+        """
+
+        # ----------------------- Define the parameters ---------------------- #
+
+        # Define a pair of coordinates and a radius.
+        coordinates = array(
+            [[0.0, 0.0, 0.5],
+             [0.0, 0.0, -0.5]],
+            dtype=float
+        )
+        radii = array([0.5, 1.0], dtype=float)
+
+        # -------------------- Procedure to get the tensor ------------------- #
+
+        # Get the big matrix.
+        matrix = udtensor.get_btensor(coordinates, radii)
+
+        # Invert the matrix, and symmetrize, to get the BIG C matrix.
+        matrix = inv(matrix)
+        matrix = umath.symmetrize(matrix, passes=2)
+
+        # Get the different coupling tensors.
+        tt = udtensor.get_coupling_tensor_tt(matrix, coordinates)
+        tr = udtensor.get_coupling_tensor_tr(matrix, coordinates)
+        rr = udtensor.get_coupling_tensor_rr(matrix, coordinates)
+
+        # Free memory.
+        del matrix
+
+        # Get the volume correction and the friction tensor.
+        rr = udtensor.get_correction_rr(rr, radii)
+        tfriction = udtensor.get_friction_tensor(tt, tr, rr)
+
+        # Free memory.
+        del rr
+
+        # Get the expected tensor.
+        tensor = array(umath.symmetrize(inv(tfriction), passes=2), dtype=float)
+
+        # Free memory.
+        del tfriction
+
+        # ---------------------- Get the expected tensor --------------------- #
+
+        # Get the expected tensor.
+        expected_tensor = udtensor.get_diffusion_tensor(coordinates, radii)
+
+        # ----------------------------- Validate ----------------------------- #
+
+        # Test the shape is correct.
+        self.assertEqual(expected_tensor.shape, (6,6))
+        self.assertEqual(expected_tensor.shape, tensor.shape)
 
         # Validate the entries.
         for i in range(len(tensor)):
