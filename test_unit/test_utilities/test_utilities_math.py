@@ -495,6 +495,42 @@ class TestUtilitiesMath(unittest.TestCase):
         for i in range(result.shape[0]):
             self.assertAlmostEqual(expected[i], result[i], 10)
 
+    def test_translate_vector(self):
+        """
+            Tests that the function translate_vector is working properly.
+        """
+
+        # Two vectors of the wrong type.
+        vector0 = [1, 2, 3]
+        vector1 = [1, 2, 3]
+
+        with self.assertRaises(TypeError):
+            umath.translate_vector(vector0, vector1)
+
+        # Two vectors, one of the wrong type.
+        vector0 = array([1, 2, 3], dtype=float)
+        vector1 = [1, 2, 3]
+
+        with self.assertRaises(TypeError):
+            umath.translate_vector(vector0, vector1)
+
+        # Two vectors, one with a different length.
+        vector0 = array([1, 2, 3, 4], dtype=float)
+        vector1 = array([1, 2, 3], dtype=float)
+
+        with self.assertRaises(ValueError):
+            umath.translate_vector(vector0, vector1)
+
+        # Two vectors, one with a different length.
+        vector0 = array([1, 2, 4], dtype=float)
+        vector1 = array([1, 2, 3], dtype=float)
+
+        vector2 = umath.translate_vector(vector0, vector1)
+
+        self.assertEqual(vector0.shape, vector2.shape)
+        for value0, value1, value2 in zip(vector0, vector1, vector2):
+            self.assertEqual(value0 + value1, value2)
+
     def test_symmetrize(self):
         """
             Tests that the function symmetrize is working properly.
