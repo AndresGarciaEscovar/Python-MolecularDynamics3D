@@ -12,6 +12,7 @@ from numpy import append as nappend, array, dot, ndarray, sum as nsum
 
 # User defined.
 import code.utilities.utilities_diffusion_tensor as udtensor
+import code.validation.validation_parameters as vparameters
 
 # ##############################################################################
 # Functions
@@ -23,18 +24,24 @@ import code.utilities.utilities_diffusion_tensor as udtensor
 # ------------------------------------------------------------------------------
 
 
-def get_bounding_radius(atoms: list, shift: ndarray = None) -> float:
+def get_bounding_radius(coordinates: ndarray, radii: ndarray) -> float:
     """
         From the given set of atoms, in the given coordinate system,
         gets the minimum radius of the sphere that encloses the atom.
 
-        :param atoms: The list with the atoms in the molecule.
+        Pre-condition, variables must come from a molecule, so validation of
+        arrays doesn't need to be checked for consistency.
 
-        :param shift: A numpy array that represents the shift in the molecule,
-         if any.
+        :param coordinates: The numpy array with all the coordinates of the
+         atom.
+
+        :param radii: The numpy array with the radius of each atom.
 
         :return: The minimum radius of the sphere that encloses the atom.
     """
+
+    print(coordinates)
+
     return 0.0
 
 
@@ -43,10 +50,13 @@ def get_cog(coordinates: ndarray, radii: ndarray) -> ndarray:
         From the given set of coordinates and the radius array, gets the center
         of geometry of the molecule.
 
+        Pre-condition, variables must come from a molecule, so validation of
+        arrays doesn't need to be checked for consistency.
+
         :param coordinates: The numpy array with all the coordinates of the
          atom.
 
-        :param radii: The radius of each atom.
+        :param radii: The numpy array with the radius of each atom.
 
         :return: The average of the maximum and minimum coordinates of the
          molecule.
@@ -71,6 +81,9 @@ def get_com(coordinates: ndarray, masses: ndarray) -> ndarray:
     """
         From the given set of coordinates and the radius array, gets the center
         of mass of the molecule.
+
+        Pre-condition, variables must come from a molecule, so validation of
+        arrays doesn't need to be checked for consistency.
 
         :param coordinates: The coordinates of the atoms.
 
@@ -98,9 +111,15 @@ def get_dtensor(
         :return: The diffusion tensor with respect to the given shift.
     """
 
+    # Check that the dimensionality is valid.
+    vparameters.is_shape_matrix(coordinates[0], (3,))
+
     # No need to shift the coordinates.
     if shift is None:
         return udtensor.get_diffusion_tensor(coordinates, radii)
+
+    # Check that the dimensionality of the shift is valid.
+    vparameters.is_shape_matrix(shift, (3,))
 
     # Shift all the coordinates before making the calculation.
     acoordinates = array([x + shift for x in coordinates], dtype=float)
