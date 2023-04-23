@@ -8,10 +8,7 @@
 # ##############################################################################
 
 # General.
-
-from numpy import array, dot, ndarray
-from numpy import append as nappend
-from numpy import sum as nsum
+from numpy import append as nappend, array, dot, ndarray, sum as nsum
 
 # User defined.
 import code.utilities.utilities_diffusion_tensor as udtensor
