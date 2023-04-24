@@ -252,3 +252,22 @@ def is_string(string: Any, strip: bool = False, empty: bool = False) -> None:
     tstring = string.strip() if strip else string
     if empty and tstring == "":
         raise ValueError("The string should not be an empty string.")
+
+
+def is_yaml(path: str) -> None:
+    """
+        Validates that the given string corresponds to the path of a yaml file.
+
+        :param path: The string to be validated.
+
+        :raise TypeError: If the given string does not represent a yaml file.
+    """
+    # Validate it's a string.
+    is_string(path)
+
+    # Check it is a yaml file.
+    if not (path.endswith(".yaml") or path.endswith(".yml")):
+        raise TypeError(
+            f"The given file location: {path}, doesn't correspond to a "
+            f"yaml file. The file must have a '.yaml' or a '.yml' extension."
+        )
