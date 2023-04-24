@@ -17,12 +17,8 @@ from typing import Any
 # User defined.
 import code.main.atom as atom
 import code.utilities.utilities_molecule as umolecule
-import code.validation.validation_arrays as varrays
 import code.validation.validation_parameters as vparameters
-
-# import molecular_dynamics.main.diffusion_tensor as dt
-# import molecular_dynamics.utilities.utilities_strings as us
-# import molecular_dynamics.utilities.utilities_vector as uv
+import code.validation.validation_molecule as vmolecule
 
 # ##############################################################################
 # Classes
@@ -56,9 +52,8 @@ class Molecule:
 
             :param atoms: The initial list of atoms.
         """
-
         # Cannot change the atoms if they already exist.
-        vparameters.exists_in_dict("_Molecule__atoms", self.__dict__)
+        vparameters.is_not_in_dictionary("_Molecule__atoms", self.__dict__)
 
         self.__atoms = atoms
 
@@ -93,8 +88,6 @@ class Molecule:
             :param com: The numpy array that represents the center of mass of
              the molecule.
         """
-        a = array([0.0 for _ in range(3)], dtype=float)
-        com = a
         self.__com = com
 
     # ------------------------------------------------------------------------ #
@@ -141,14 +134,10 @@ class Molecule:
             :param name: The object or string whose string representation is the
              name of the molecule.
         """
+        # The molecule must have a non-empty name.
+        vparameters.is_string(name, strip=True, empty=True)
 
-        # The molecule must have a name.
-        if name is None or f"{name}".strip() == "":
-            raise ValueError(
-                "A non-empty name must be provided to the molecule."
-            )
-
-        self.__name = f"{name}".strip()
+        self.__name = name.strip()
 
     # ------------------------------------------------------------------------ #
 
@@ -183,8 +172,8 @@ class Molecule:
     # --------------------------------------------------------------------------
 
     def atom_add(
-        self, radius: float, mass: float, coordinates: ndarray,
-        aname: str = None, atype: str = None
+        self, aname: str, radius: float, mass: float, coordinates: ndarray,
+        atype: str = None
     ) -> None:
         """
             Adds an atom to the atom list.
@@ -198,25 +187,27 @@ class Molecule:
             :param coordinates: The numpy array of floating point numbers that
              that represent the coordinates of the atom.
 
-            :param aname: The name of the atom; this is an optional parameter.
+            :param aname: The name of the atom.
 
             :param atype: The type of the atom; this is an optional parameter.
         """
 
-        # Make into strings.
-        aname = "---" if aname is None else f"{aname}"
-        atype = "---" if atype is None else f"{atype}"
+        # Validate both strings, if needed.
+        vparameters.is_string(aname, empty=False)
+        if atype is not None:
+            vparameters.is_string(atype, empty=False)
+
+        # Format the strings properly.
+        aname = "---" if aname.strip() == "" else aname
+        atype = "---" if atype is None or atype.strip() == "" else atype
 
         # Check the atom names are unique.
-        if aname.strip() in self.anames:
-            raise ValueError(
-                f"There is already an atom with the name: '{aname}', in this "
-                f"molecule: {self.name}. Please make sure all the atoms have "
-                f"UNIQUE names."
-            )
+        vmolecule.is_unique_name(aname, self.anames)
 
-        # Add the atom.
-        self.atoms.append(atom.Atom(radius, mass, coordinates, atype, aname))
+        # Create and add the atom.
+        matom = atom.Atom(radius, mass, coordinates, atype.strip(), aname.strip()
+        )
+        self.atoms.append(matom)
 
     def atom_remove(self, index: int) -> None:
         """
@@ -273,7 +264,7 @@ class Molecule:
             radius = float(iatom["radius"])
 
             # Add the atom to the system.
-            self.atom_add(radius, mass, crds, name, atype)
+            self.atom_add(name, radius, mass, crds, atype)
 
     def save(self, path: str) -> None:
         """
@@ -287,43 +278,41 @@ class Molecule:
         # Auxiliary variables.
         indent = "    "
 
-        # Remove leading and trailing spaces.
+        # Validate it's a yaml file.
         path = path.strip()
-
-        # Check it is a yaml file.
-        if not path.endswith(".yaml"):
-            raise TypeError(
-                f"The given file location: {path}, doesn't correspond to a "
-                f"yaml file. The file must have a '.yaml' extension."
-            )
-
-        # Basic structure.
-        temp = [
-            "# Coordinates are in Angstrom.",
-            "# Mass is in AMU.",
-            "# Radius is in Angstrom.",
-            "# Atom type (atype) is not a mandatory field; set to '---' by "
-            "default.",
-            f"molecule_name: {self.name}",
-            f"atoms:",
-        ]
+        vparameters.is_yaml(path)
 
         # Ge the information of the atoms:
-        for matom in self.atoms:
-            # Get a LIST of the coordinates.
-            coordinates = ','.join([f"{float(x)}" for x in matom.coordinates])
-
-            # Add the variables.
-            temp.append(f"{indent * 1}{matom.aname}:")
-            temp.append(f"{indent * 2}coordinates: [{coordinates}]")
-            temp.append(f"{indent * 2}mass: {matom.mass}")
-            temp.append(f"{indent * 2}radius: {matom.radius}")
-            temp.append(f"{indent * 2}atype: {matom.atype}")
-
-        # Write the file.
         with open(path, mode="w", newline="\n") as fl:
-            for line in temp:
-                fl.write(line + "\n")
+            # Write the file header.
+            fl.writelines([
+                "# Coordinates are in Angstrom.\n",
+                "# Mass is in AMU.\n",
+                "# Radius is in Angstrom.\n",
+                "# Atom type (atype) is not a mandatory field; set to '---' by "
+                "default.\n",
+                "# The diffusion tensor must ALWAYS be given with respect to "
+                "the center of mass.\n",
+                f"molecule_name: {self.name}\n",
+                f"atoms:\n",
+            ])
+
+            # For all the atoms.
+            for matom in self.atoms:
+                # Get a LIST of the coordinates.
+                coordinates = ','.join([f"{float(x)}" for x in matom.coordinates])
+
+                # Add the atom properties.
+                fl.write(f"{indent * 1}{matom.aname}:\n")
+                fl.write(f"{indent * 2}coordinates: [{coordinates}]\n")
+                fl.write(f"{indent * 2}mass: {matom.mass}\n")
+                fl.write(f"{indent * 2}radius: {matom.radius}\n")
+                fl.write(f"{indent * 2}atype: {matom.atype}\n")
+
+            # Add the diffusion tensor.
+            fl.write("diffusion_tensor:\n")
+            for row in self.dtensor:
+                fl.write(f"{indent * 1}- [{','.join(list(map(str, row)))}]\n")
 
     # --------------------------------------------------------------------------
     # Rotate Methods
@@ -367,6 +356,11 @@ class Molecule:
             self.coordinates, self.masses, -self.com
         )
 
+        print(self.dtensor)
+        print(self.coordinates)
+        print(self.cog)
+        print(self.com)
+
     # ##########################################################################
     # Dunder Methods
     # ##########################################################################
@@ -403,8 +397,6 @@ class Molecule:
 
 if __name__ == "__main__":
 
-    print("This is None:" + str(None))
-
     # Path from where the molecules are loaded.
     mp0 = f"{Path(os.getcwd(), '..', '..', 'data', 'product.yaml').resolve()}"
     mp1 = f"{Path(os.getcwd(), '..', '..', 'data', 'reactant.yaml').resolve()}"
@@ -414,5 +406,6 @@ if __name__ == "__main__":
     mp3 = f"{Path(os.getcwd(), '..', '..', 'data', 'reactant_1.yaml').resolve()}"
 
     # Load using the absolute path.
-    # molecule0 = Molecule(mp0)
+    molecule0 = Molecule(mp0)
+    molecule0.save("test.yaml")
     # molecule1 = Molecule(mp1)
