@@ -172,30 +172,6 @@ class TestAtom(unittest.TestCase):
         with self.assertRaises(TypeError):
             matom.radius = f"sfsfsfd"
 
-    def test_creation(self):
-        """
-            Tests the creation of the atom and the basic quantities.
-        """
-
-        # Test several times.
-        for _ in range(ITERATIONS):
-            # Choose a random mass and radius
-            mass, radius = rd.uniform(0.01, 10.0), rd.uniform(0.01, 10.0)
-            coordinate = array(
-                [rd.uniform(-10.0, 10.0) for _ in range(3)], dtype=float
-            )
-
-            # Create an atom.
-            matom = atom.Atom(radius, mass, coordinate)
-
-            # Check that the atom is properly created.
-            self.assertEqual(mass, matom.mass)
-            self.assertEqual(radius, matom.radius)
-
-            # Check the remaining variables.
-            self.assertEqual("---", matom.aname)
-            self.assertEqual("---", matom.atype)
-
     def test_setup_from_atype(self):
         """
             Tests changing the type of the atom.
@@ -225,6 +201,34 @@ class TestAtom(unittest.TestCase):
         matom.set_from_elements()
         self.assertEqual(element.mass, matom.mass)
         self.assertEqual(element.vdw_radius / 100.0, matom.radius)
+
+    # --------------------------------------------------------------------------
+    # Creation test.
+    # --------------------------------------------------------------------------
+
+    def test_creation(self):
+        """
+            Tests the creation of the atom and the basic quantities.
+        """
+
+        # Test several times.
+        for _ in range(ITERATIONS):
+            # Choose a random mass and radius
+            mass, radius = rd.uniform(0.01, 10.0), rd.uniform(0.01, 10.0)
+            coordinate = array(
+                [rd.uniform(-10.0, 10.0) for _ in range(3)], dtype=float
+            )
+
+            # Create an atom.
+            matom = atom.Atom(radius, mass, coordinate)
+
+            # Check that the atom is properly created.
+            self.assertEqual(mass, matom.mass)
+            self.assertEqual(radius, matom.radius)
+
+            # Check the remaining variables.
+            self.assertEqual("---", matom.aname)
+            self.assertEqual("---", matom.atype)
 
 
 # ##############################################################################
