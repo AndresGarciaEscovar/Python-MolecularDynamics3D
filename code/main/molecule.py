@@ -205,7 +205,8 @@ class Molecule:
         vmolecule.is_unique_name(aname, self.anames)
 
         # Create and add the atom.
-        matom = atom.Atom(radius, mass, coordinates, atype.strip(), aname.strip()
+        matom = atom.Atom(
+            radius, mass, coordinates, atype.strip(), aname.strip()
         )
         self.atoms.append(matom)
 
