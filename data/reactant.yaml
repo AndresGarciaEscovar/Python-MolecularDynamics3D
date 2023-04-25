@@ -2,6 +2,7 @@
 # Mass is in AMU.
 # Radius is in Angstrom.
 # Atom type (atype) is not a mandatory field; set to '---' by default.
+# The diffusion tensor is ALWAYS given with respect to the center of mass.
 molecule_name: pnb
 atoms:
     atom_1:
