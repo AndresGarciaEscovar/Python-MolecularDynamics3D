@@ -8,7 +8,10 @@
 
 # General
 import os
+import shutil
 import unittest
+import yaml
+
 
 from numpy import array
 from pathlib import Path
@@ -20,6 +23,7 @@ import code.main.molecule as molecule
 # ##############################################################################
 # Classes
 # ##############################################################################
+
 
 class MoleculeManager:
     """
@@ -86,6 +90,13 @@ class MoleculeManager:
         # Create the parent directory.
         Path(self.path).mkdir(parents=True, exist_ok=True)
 
+        # Auxiliary variables.
+        indent = "    "
+        info = (
+            ("[0.0,0.0,1.0]", "3.0", "1.0"),
+            ("[0.0,0.0,-1.0]", "3.0", "1.0")
+        )
+
         # Creates a basic molecule.
         filename = f"{Path(self.path, 'temp_mol.yaml')}"
 
@@ -102,13 +113,45 @@ class MoleculeManager:
                 "atoms:\n",
             ])
 
+            # Append the atoms and their information.
+            for i, (coordinate, mass, radius) in enumerate(info, start=1):
+                file.writelines([
+                    f"{indent * 1}atom_{i}:\n",
+                    f"{indent * 2}coordinates: {coordinate}\n",
+                    f"{indent * 2}mass: {mass}\n",
+                    f"{indent * 2}radius: {radius}\n",
+                    f'{indent * 2}atype: "---"\n',
+                ])
+
+        # Don't worry about this.
+        if not self.dtensor:
+            return filename
+
+        with open(filename, mode="a", newline="\n") as file:
+            file.writelines([
+                "diffusion_tensor:\n",
+                f"{indent * 1}- [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]\n",
+                f"{indent * 1}- [0.0, 2.0, 0.0, 0.0, 0.0, 0.0]\n",
+                f"{indent * 1}- [0.0, 0.0, 3.0, 0.0, 0.0, 0.0]\n",
+                f"{indent * 1}- [0.0, 0.0, 0.0, 4.0, 0.0, 0.0]\n",
+                f"{indent * 1}- [0.0, 0.0, 0.0, 0.0, 5.0, 0.0]\n",
+                f"{indent * 1}- [0.0, 0.0, 0.0, 0.0, 0.0, 6.0]\n",
+            ])
+
         return filename
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
+            Exit the context manager.
 
+            :param exc_type: The type of the exeception thrown.
+
+            :param exc_val: the values of the execeptions thrown.
+
+            :param exc_tb: The traceback of the exceptions thrown.
         """
-        pass
+        # Remove all the directories.
+        shutil.rmtree(self.tpath)
 
     def __init__(self, path: str = None, dtensor: bool = False):
         """
@@ -122,6 +165,7 @@ class MoleculeManager:
         cntr = 0
         while self.path.is_dir():
             self.path = Path(tpath, f"temp{cntr}").resolve()
+            cntr += 1
 
         # Determine which one is NOT the top directory.
         self.tpath = MoleculeManager.get_top_dir(f"{self.path}")
@@ -145,7 +189,7 @@ class TestMolecule(unittest.TestCase):
         location = os.path.dirname(__file__)
 
         # Set the working directory in the current location.
-        with MoleculeManager() as mpath:
+        with MoleculeManager(dtensor=True) as mpath:
             pass
 
 
