@@ -12,8 +12,7 @@ import shutil
 import unittest
 import yaml
 
-
-from numpy import array
+from numpy import array, sqrt
 from pathlib import Path
 
 # User defined.
@@ -127,7 +126,9 @@ class MoleculeManager:
         if not self.dtensor:
             return filename
 
+        # Append to the file.
         with open(filename, mode="a", newline="\n") as file:
+            # 6x6 diffusion tensor.
             file.writelines([
                 "diffusion_tensor:\n",
                 f"{indent * 1}- [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]\n",
@@ -136,6 +137,17 @@ class MoleculeManager:
                 f"{indent * 1}- [0.0, 0.0, 0.0, 4.0, 0.0, 0.0]\n",
                 f"{indent * 1}- [0.0, 0.0, 0.0, 0.0, 5.0, 0.0]\n",
                 f"{indent * 1}- [0.0, 0.0, 0.0, 0.0, 0.0, 6.0]\n",
+            ])
+
+            sq0 = sqrt(2)
+            sq1 = -sqrt(2)
+
+            # 3x3 diffusion tensor.
+            file.writelines([
+                "orientation:\n",
+                f"{indent * 1}- [{sq0},{sq0}, 0.0]\n",
+                f"{indent * 1}- [{sq0},{sq1}, 0.0]\n",
+                f"{indent * 1}- [{0.0},{0.0}, 1.0]\n"
             ])
 
         return filename
@@ -150,7 +162,7 @@ class MoleculeManager:
 
             :param exc_tb: The traceback of the exceptions thrown.
         """
-        # Remove all the directories.
+        # Remove all the directories and files of the temporary files.
         shutil.rmtree(self.tpath)
 
     def __init__(self, path: str = None, dtensor: bool = False):
@@ -189,8 +201,17 @@ class TestMolecule(unittest.TestCase):
         location = os.path.dirname(__file__)
 
         # Set the working directory in the current location.
-        with MoleculeManager(dtensor=True) as mpath:
-            pass
+        with cm_swd.SetWD(location) as loc:
+            with MoleculeManager(dtensor=True) as mpath:
+                with open(mpath, "r") as stream:
+                    dictionary = yaml.safe_load(stream)
+
+        print(dictionary)
+
+
+
+
+
 
 
 
