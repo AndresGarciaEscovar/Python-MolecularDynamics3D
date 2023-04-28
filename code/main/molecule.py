@@ -10,7 +10,7 @@
 import os
 import yaml
 
-from numpy import array, ndarray
+from numpy import array, identity, ndarray
 from pathlib import Path
 from typing import Any
 
@@ -101,7 +101,7 @@ class Molecule:
             :return: The number of coordinates used to described the position of
              a molecule in space.
         """
-        return self.atoms[0].dimensions
+        return len(self.atoms[0])
 
     # ------------------------------------------------------------------------ #
 
@@ -241,9 +241,14 @@ class Molecule:
     # Load an Save Methods
     # --------------------------------------------------------------------------
 
-    def load(self) -> None:
+    def load(self) -> tuple:
         """
-            Loads the molecule from the self.filename variable.
+            Loads the molecule from the self.filename variable; if the diffusion
+            tensor exists, it will return it, along with the orientation of the
+            molecule.
+
+            :return: The tuple with the diffusion tensor and the orientation,
+             if they exist; otherwise, it will return a tuple with None.
         """
 
         # Remove all the atoms.
@@ -266,6 +271,11 @@ class Molecule:
 
             # Add the atom to the system.
             self.atom_add(name, radius, mass, crds, atype)
+
+        # Dimensionality.
+        length = len(self.coordinates[0])
+
+        return umolecule.get_dtensor_and_orientation(info, length)
 
     def save(self, path: str) -> None:
         """
@@ -346,21 +356,17 @@ class Molecule:
         self.atoms = list()
 
         # Load the molecule.
-        self.load()
+        self.dtensor, self.orientation = self.load()
+
+        # Fix the diffusion tensor.
+        if self.dtensor is None and self.dimensions == 3:
+            self.dtensor = umolecule.get_dtensor(
+                self.coordinates, self.masses, -self.com
+            )
 
         # Get the center of mass of the molecule.
         self.cog = umolecule.get_cog(self.coordinates, self.radii)
         self.com = umolecule.get_com(self.coordinates, self.masses)
-
-        # Calculate with respect to the center of mass.
-        self.dtensor = umolecule.get_dtensor(
-            self.coordinates, self.masses, -self.com
-        )
-
-        print(self.dtensor)
-        print(self.coordinates)
-        print(self.cog)
-        print(self.com)
 
     # ##########################################################################
     # Dunder Methods
@@ -396,17 +402,17 @@ class Molecule:
 #
 # ##############################################################################
 
-if __name__ == "__main__":
-
-    # Path from where the molecules are loaded.
-    mp0 = f"{Path(os.getcwd(), '..', '..', 'data', 'product.yaml').resolve()}"
-    mp1 = f"{Path(os.getcwd(), '..', '..', 'data', 'reactant.yaml').resolve()}"
-
-    # Path to where the molecules are saved.
-    mp2 = f"{Path(os.getcwd(), '..', '..', 'data', 'product_1.yaml').resolve()}"
-    mp3 = f"{Path(os.getcwd(), '..', '..', 'data', 'reactant_1.yaml').resolve()}"
-
-    # Load using the absolute path.
-    molecule0 = Molecule(mp0)
-    molecule0.save("test.yaml")
-    # molecule1 = Molecule(mp1)
+# if __name__ == "__main__":
+#
+#     # Path from where the molecules are loaded.
+#     mp0 = f"{Path(os.getcwd(), '..', '..', 'data', 'product.yaml').resolve()}"
+#     mp1 = f"{Path(os.getcwd(), '..', '..', 'data', 'reactant.yaml').resolve()}"
+#
+#     # Path to where the molecules are saved.
+#     mp2 = f"{Path(os.getcwd(), '..', '..', 'data', 'product_1.yaml').resolve()}"
+#     mp3 = f"{Path(os.getcwd(), '..', '..', 'data', 'reactant_1.yaml').resolve()}"
+#
+#     # Load using the absolute path.
+#     molecule0 = Molecule(mp0)
+#     molecule0.save("test.yaml")
+#     # molecule1 = Molecule(mp1)

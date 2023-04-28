@@ -107,7 +107,7 @@ class MoleculeManager:
                 "# Atom type (atype) is not a mandatory field; set to '---' by "
                 "default.\n",
                 "# The diffusion tensor is always given with respect to the "
-                "center of mass.",
+                "center of mass.\n",
                 'molecule_name: "test_molecule"\n',
                 "atoms:\n",
             ])
@@ -188,7 +188,6 @@ class MoleculeManager:
 
 class TestMolecule(unittest.TestCase):
 
-
     # --------------------------------------------------------------------------
     # Creation test.
     # --------------------------------------------------------------------------
@@ -203,11 +202,8 @@ class TestMolecule(unittest.TestCase):
         # Set the working directory in the current location.
         with cm_swd.SetWD(location) as loc:
             with MoleculeManager(dtensor=True) as mpath:
-                with open(mpath, "r") as stream:
-                    dictionary = yaml.safe_load(stream)
-
-        print(dictionary)
-
+                # Load the molecule.
+                mol = molecule.Molecule(mpath)
 
 
 
