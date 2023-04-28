@@ -8,7 +8,7 @@
 # ##############################################################################
 
 # General.
-from numpy import append as nappend, array, dot, ndarray, sum as nsum
+from numpy import append as nappend, array, dot, identity, ndarray, sum as nsum
 
 # User defined.
 import code.utilities.utilities_diffusion_tensor as udtensor
@@ -126,9 +126,29 @@ def get_dtensor(
     return udtensor.get_diffusion_tensor(acoordinates, radii)
 
 
-# ------------------------------------------------------------------------------
-# Validate Functions
-# ------------------------------------------------------------------------------
+def get_dtensor_and_orientation(information: dict, dimensions: int) -> tuple:
+    """
+        From the given dictionary, gets the diffusion tensor and orientation
+        from a dictionary. If a quantity doesn't exist, a None value will be
+        returned.
 
-if __name__ == "__main__":
-    pass
+        :param information: The dictionary with the molecule information.
+
+        :param dimensions: The dimensionality of the space, i.e., 3D, 2D, etc.
+
+        :return: A tuple with the values of the diffusion tensor and the
+         orientation of the molecule, both quantities with respect to its center
+         of mass.
+
+    """
+    # Check the diffusion tensor exists.
+    dtensor = None
+    if "diffusion_tensor" in information and dimensions == 3:
+        dtensor = array(information["diffusion_tensor"], dtype=float)
+
+    # Check the orientation exists.
+    orientation = identity(dimensions)
+    if "orientation" in information:
+        orientation = array(information["orientation"], dtype=float)
+
+    return dtensor, orientation
