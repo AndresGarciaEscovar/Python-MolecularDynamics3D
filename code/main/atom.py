@@ -28,7 +28,7 @@ class Atom:
          A string that represents the name of the atom. It can be changed at
          any time.
 
-        self.aname: str
+        self.atype: str
          A string that represents the type of the atom. It can be changed at
          any time.
 
@@ -122,8 +122,8 @@ class Atom:
         """
 
         # Gurantees same dimensions and type.
-        crds = array(coordinates, dtype=float)
-        self.__coordinates = nappend(self.__coordinates, [crds], axis=0)
+        coords = array(coordinates, dtype=float)
+        self.__coordinates = nappend(self.__coordinates, [coords], axis=0)
         self.__coordinates = ndelete(self.__coordinates, 0, axis=0)
 
     # ------------------------------------------------------------------------ #
