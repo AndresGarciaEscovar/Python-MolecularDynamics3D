@@ -1,18 +1,18 @@
 """
     File that contains the Molecule class and its methods.
 """
+import copy
 
 # ##############################################################################
 # Imports
 # ##############################################################################
 
 # General.
-import os
 import yaml
 
-from numpy import array, identity, ndarray
+from numpy import append as nappend, array, delete as ndelete, ndarray
 from pathlib import Path
-from typing import Any
+from typing import Any, Union
 
 # User defined.
 import code.main.atom as atom
@@ -34,6 +34,18 @@ class Molecule:
     # ##########################################################################
     # Properties
     # ##########################################################################
+
+    @property
+    def anames(self) -> tuple:
+        """
+            Returns the names of all the atoms in the molecule.
+
+            :return: The tuple that contains all of the names of the atoms in
+             the molecule, in the order in which the atoms are stored.
+        """
+        return tuple(x.aname for x in self.atoms)
+
+    # ------------------------------------------------------------------------ #
 
     @property
     def atoms(self) -> list:
@@ -60,6 +72,81 @@ class Molecule:
     # ------------------------------------------------------------------------ #
 
     @property
+    def cod(self) -> Union[None, ndarray]:
+        """
+            Returns the numpy array that represents the center of diffusion of
+            the molecule.
+
+            :return: The numpy array that represents the center of diffusion of
+             the molecule.
+        """
+        return self.__cod[0]
+
+    @cod.setter
+    def cod(self, cod: ndarray) -> None:
+        """
+            Sets the center of diffusion.
+
+            :param cod: The numpy array that represents the center of diffusion
+             of the molecule.
+        """
+        tcod = array(cod, dtype=float)
+        self.__cod = nappend(self.__cod, [tcod], axis=0)
+        self.__cod = ndelete(self.__cod, 0, axis=0)
+
+    # ------------------------------------------------------------------------ #
+
+    @property
+    def cog(self) -> ndarray:
+        """
+            Returns the numpy array that represents the center of geometry of
+            the molecule.
+
+            :return: The numpy array that represents the center of geometry of
+             the molecule.
+        """
+        return self.__com[0]
+
+    @cog.setter
+    def cog(self, cog: ndarray) -> None:
+        """
+            Sets the center of geometry.
+
+            :param cog: The numpy array that represents the center of geometry
+             of the molecule.
+        """
+        tcog = array(cog, dtype=float)
+        self.__cog = nappend(self.__cog, [tcog], axis=0)
+        self.__cog = ndelete(self.__cog, 0, axis=0)
+
+    # ------------------------------------------------------------------------ #
+
+    @property
+    def com(self) -> ndarray:
+        """
+            Returns the numpy array that represents the center of mass of the
+            molecule.
+
+            :return: The numpy array that represents the center of mass of the
+             molecule.
+        """
+        return self.__com[0]
+
+    @com.setter
+    def com(self, com: ndarray) -> None:
+        """
+            Sets the center of mass.
+
+            :param com: The numpy array that represents the center of mass of
+             the molecule.
+        """
+        tcom = array(com, dtype=float)
+        self.__com = nappend(self.__com, [tcom], axis=0)
+        self.__com = ndelete(self.__com, 0, axis=0)
+
+    # ------------------------------------------------------------------------ #
+
+    @property
     def coordinates(self) -> ndarray:
         """
             Returns the coordinates of all the atoms in the molecule.
@@ -72,23 +159,13 @@ class Molecule:
     # ------------------------------------------------------------------------ #
 
     @property
-    def com(self) -> ndarray:
+    def diffusion_tensor(self) -> ndarray:
         """
-            Returns the string that represents the name of the molecule.
+            The diffusion tensor, only exists for 3D molecules.
 
-            :return: The string that represents the name of the molecule.
+            :return: The diffusion tensor for the molecule.
         """
-        return self.__com
-
-    @com.setter
-    def com(self, com: ndarray) -> None:
-        """
-            Sets the center of mass.
-
-            :param com: The numpy array that represents the center of mass of
-             the molecule.
-        """
-        self.__com = com
+        return self.__diffusion_tensor
 
     # ------------------------------------------------------------------------ #
 
@@ -108,7 +185,7 @@ class Molecule:
     @property
     def masses(self) -> ndarray:
         """
-            Returns the masses  of all the atoms in the molecule.
+            Returns the masses of all the atoms in the molecule.
 
             :return: The numpy array of the masses of the atoms in the molecule,
              in the order in which the atoms are stored.
@@ -142,14 +219,30 @@ class Molecule:
     # ------------------------------------------------------------------------ #
 
     @property
-    def anames(self) -> tuple:
+    def orientation(self) -> ndarray:
         """
-            Returns the names of all the atoms in the molecule.
+            Returns the numpy array that represents the orientation of the
+            molecule, with respect to the center of mass.
 
-            :return: The tuple that contains all of the names of the atoms in
-             the molecule, in the order in which the atoms are stored.
+            :return: The numpy array that represents the orientation of the
+             molecule, with respect to the center of mass.
         """
-        return tuple(x.aname for x in self.atoms)
+        return self.__orientation
+
+    @orientation.setter
+    def orientation(self, orientation: ndarray) -> None:
+        """
+            Sets the orientaiton of the molecule.
+
+            :param orientation: The numpy array that represents the orientation
+             of the molecule, with respect to the center of mass.
+        """
+        # The molecule must have a non-empty name.
+        vparameters.is_shape_matrix(
+            orientation, (self.dimensions, self.dimensions)
+        )
+
+        self.__orientation = orientation
 
     # ------------------------------------------------------------------------ #
 
@@ -234,6 +327,7 @@ class Molecule:
         """
             Removes all the atoms and leaves an empty list.
         """
+        # Remove ALL the atoms.
         while len(self) > 0:
             self.atom_remove(0)
 
@@ -322,7 +416,7 @@ class Molecule:
 
             # Add the diffusion tensor.
             fl.write("diffusion_tensor:\n")
-            for row in self.dtensor:
+            for row in self.diffusion_tensor:
                 fl.write(f"{indent * 1}- [{','.join(list(map(str, row)))}]\n")
 
     # --------------------------------------------------------------------------
@@ -347,7 +441,6 @@ class Molecule:
             :param filename: The name of the file from where the molecule must
              be loaded.
         """
-
         # Set the file name.
         self.filename = f"{Path(filename).resolve()}"
         self.name = "<Unnamed molecule>"
@@ -356,17 +449,28 @@ class Molecule:
         self.atoms = list()
 
         # Load the molecule.
-        self.dtensor, self.orientation = self.load()
+        self.__diffusion_tensor, self.orientation = self.load()
+
+        # Get the center of geometry and mass of the molecule.
+        self.__cog = array([[0.0] * self.dimensions], dtype=float)
+        self.cog = umolecule.get_cog(self.coordinates, self.radii)
+
+        self.__com = array([[0.0] * self.dimensions], dtype=float)
+        self.com = umolecule.get_com(self.coordinates, self.masses)
+
+        # Set the center of diffusion of the molecule.
+        self.__cod = array([[0.0] * self.dimensions], dtype=float)
+        self.cod = self.com
 
         # Fix the diffusion tensor.
-        if self.dtensor is None and self.dimensions == 3:
-            self.dtensor = umolecule.get_dtensor(
+        if self.__diffusion_tensor is None and self.dimensions == 3:
+            self.__diffusion_tensor = umolecule.get_dtensor(
                 self.coordinates, self.masses, -self.com
             )
 
-        # Get the center of mass of the molecule.
-        self.cog = umolecule.get_cog(self.coordinates, self.radii)
-        self.com = umolecule.get_com(self.coordinates, self.masses)
+        # Get the center of diffusion.
+        if self.diffusion_tensor is not None:
+            self.cod = umolecule.get_cod(self.diffusion_tensor) + self.com
 
     # ##########################################################################
     # Dunder Methods
