@@ -9,6 +9,7 @@
 
 # General.
 from numpy import append as nappend, array, dot, identity, ndarray, sum as nsum
+from numpy.linalg import inv
 
 # User defined.
 import code.utilities.utilities_diffusion_tensor as udtensor
@@ -24,7 +25,7 @@ import code.validation.validation_parameters as vparameters
 # ------------------------------------------------------------------------------
 
 
-def get_bounding_radius(coordinates: ndarray, radii: ndarray) -> float:
+def get_bounding_radius(coordinates: ndarray) -> float:
     """
         From the given set of atoms, in the given coordinate system,
         gets the minimum radius of the sphere that encloses the atom.
@@ -35,14 +36,48 @@ def get_bounding_radius(coordinates: ndarray, radii: ndarray) -> float:
         :param coordinates: The numpy array with all the coordinates of the
          atom.
 
-        :param radii: The numpy array with the radius of each atom.
-
         :return: The minimum radius of the sphere that encloses the atom.
     """
 
     print(coordinates)
 
     return 0.0
+
+
+def get_cod(dtensor: ndarray) -> ndarray:
+    """
+        From the given diffusion tensor and set of coordinates, gets the
+        center of diffusion; with respect to the given point.
+
+        Pre-condition, variables must come from a molecule, so validation of
+        arrays doesn't need to be checked for consistency.
+
+        :param dtensor: The 6x6 numpy array that represents the diffusion
+         tensor.
+
+        :return: The average of the maximum and minimum coordinates of the
+         molecule.
+    """
+    # Check it's a 6x6 tensor.
+    vparameters.is_shape_matrix(dtensor, (6, 6))
+
+    drr = dtensor[3:, 3:]
+    dtr = dtensor[3:, :3]
+
+    matrix = inv(array(
+        [
+            [drr[1, 1] + drr[2, 2], -drr[0, 1], -drr[0, 2]],
+            [-drr[1, 0], drr[0, 0] + drr[2, 2], -drr[1, 2]],
+            [-drr[2, 0], -drr[2, 1], drr[0, 0] + drr[1, 1]]
+        ],
+        dtype=float
+    ))
+    vector = array(
+        [dtr[1, 2] - dtr[2, 1], dtr[2, 0] - dtr[0, 2], dtr[0, 1] - dtr[1, 0]],
+        dtype=float
+    )
+
+    return array([dot(vector, y) for y in matrix], dtype=float)
 
 
 def get_cog(coordinates: ndarray, radii: ndarray) -> ndarray:
