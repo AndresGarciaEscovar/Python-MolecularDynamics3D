@@ -1,7 +1,6 @@
 """
     File that contains the Molecule class and its methods.
 """
-import copy
 
 # ##############################################################################
 # Imports
@@ -506,17 +505,18 @@ class Molecule:
 #
 # ##############################################################################
 
-# if __name__ == "__main__":
-#
-#     # Path from where the molecules are loaded.
-#     mp0 = f"{Path(os.getcwd(), '..', '..', 'data', 'product.yaml').resolve()}"
-#     mp1 = f"{Path(os.getcwd(), '..', '..', 'data', 'reactant.yaml').resolve()}"
+if __name__ == "__main__":
+
+    import os
+
+    # Path from where the molecules are loaded.
+    mp0 = f"{Path(os.getcwd(), '..', '..', 'data', 'product.yaml').resolve()}"
+    mp1 = f"{Path(os.getcwd(), '..', '..', 'data', 'reactant.yaml').resolve()}"
 #
 #     # Path to where the molecules are saved.
 #     mp2 = f"{Path(os.getcwd(), '..', '..', 'data', 'product_1.yaml').resolve()}"
 #     mp3 = f"{Path(os.getcwd(), '..', '..', 'data', 'reactant_1.yaml').resolve()}"
 #
-#     # Load using the absolute path.
-#     molecule0 = Molecule(mp0)
-#     molecule0.save("test.yaml")
-#     # molecule1 = Molecule(mp1)
+    # Load using the absolute path.
+    # molecule0 = Molecule(mp0)
+    molecule1 = Molecule(mp1)
