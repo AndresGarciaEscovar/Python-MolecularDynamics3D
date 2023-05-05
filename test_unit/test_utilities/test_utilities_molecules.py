@@ -67,6 +67,7 @@ class TestUtilitiesMolecule(unittest.TestCase):
         # Must be the same dimensions.
         self.assertEqual(matrix.shape, rmatrix.shape)
 
+        # Entries must be equal.
         for i in range(len(matrix)):
             for j in range(len(matrix)):
                 self.assertEqual(rmatrix[i, j], rmatrix[j, i])
