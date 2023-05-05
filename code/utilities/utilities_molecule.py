@@ -38,9 +38,7 @@ def get_bounding_radius(coordinates: ndarray) -> float:
 
         :return: The minimum radius of the sphere that encloses the atom.
     """
-
-    print(coordinates)
-
+    print("TODO: get_bounding_radius.")
     return 0.0
 
 
@@ -172,7 +170,6 @@ def get_dtensor_and_orientation(information: dict, dimensions: int) -> tuple:
         :return: A tuple with the values of the diffusion tensor and the
          orientation of the molecule, both quantities with respect to its center
          of mass.
-
     """
     # Check the diffusion tensor exists.
     dtensor = None
