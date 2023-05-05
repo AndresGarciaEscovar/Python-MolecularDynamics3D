@@ -18,7 +18,7 @@ import copy
 from numpy import array, dot, identity, matmul, ndarray, outer, pi, transpose
 from numpy import zeros
 
-from numpy.linalg import norm, inv
+from numpy.linalg import inv, norm
 
 # User defined.
 import code.utilities.utilities_math as umath
@@ -50,34 +50,29 @@ def get_btensor(coordinates: ndarray, radii: ndarray) -> ndarray:
     matrix = zeros((dimensions, dimensions), dtype=float)
 
     # Loop through the pairs.
-    for i, (coordinate_0, radius_0) in enumerate(zip(coordinates, radii)):
-        for j, (coordinate_1, radius_1) in enumerate(zip(coordinates, radii)):
+    for i, (coord0, radius0) in enumerate(zip(coordinates, radii)):
+        for j, (coord1, radius1) in enumerate(zip(coordinates, radii)):
 
             # Determine if the particles overlap.
-            overlap = umath.intersect_hspheres(
-                coordinate_0, radius_0, coordinate_1, radius_1
-            )
+            overlap = umath.intersect_hspheres(coord0, radius0, coord1, radius1)
 
             # Set the matrix entries.
             xpos, ypos = i * 3, j * 3
 
             # Self interaction.
             if i == j:
-                tensor = identity(3) / (6.0 * pi * radius_0)
-                matrix[xpos: xpos + 3, ypos: ypos + 3] = tensor
-                continue
+                tensor = identity(3) / (6.0 * pi * radius0)
 
-            # Radii are equal and spheres overlap.
-            if radius_0 == radius_1 and overlap:
-                matrix[xpos: xpos + 3, ypos: ypos + 3] = get_tensor_requal(
-                    coordinate_0, coordinate_1, radius_0
-                )
-                continue
+            elif radius0 == radius1 and overlap:
+                # Radii are equal and spheres overlap.
+                tensor = get_tensor_requal(coord0, coord1, radius0)
 
-            # No sphere overlap (or spheres overlap and radii are different).
-            matrix[xpos: xpos + 3, ypos: ypos + 3] = get_tensor_runequal(
-                    coordinate_0, radius_0, coordinate_1, radius_1
-            )
+            else:
+                # No overlap (or spheres overlap and radii are different).
+                tensor = get_tensor_runequal(coord0, radius0, coord1, radius1)
+
+            # Assign the elements.
+            matrix[xpos: xpos + 3, ypos: ypos + 3] = tensor
 
     return matrix
 
@@ -122,22 +117,19 @@ def get_coupling_tensor_rr(matrix: ndarray, coordinates: ndarray) -> ndarray:
     for i, coordinate_0 in enumerate(coordinates):
         # The anti-symmetric matrix for coordinate 0.
         cmatrix0 = umath.get_skew_symmetric_matrix(coordinate_0)
+        xpos = i * 3
 
         for j, coordinate_1 in enumerate(coordinates):
-            # The anti-symmetric matrix for coordinate 1.
-            cmatrix1 = transpose(
-                umath.get_skew_symmetric_matrix(coordinate_1)
-            )
+            # The transpose anti-symmetric matrix for coordinate 1.
+            cmatrix1 = umath.get_skew_symmetric_matrix(coordinate_1)
+            cmatrix1 = transpose(cmatrix1)
+            ypos = j * 3
 
             # Get the matrix term.
-            tmatrix = matrix[i * 3: i * 3 + 3, j * 3: j * 3 + 3]
-
-            # Multiplication order might introduce bias.
-            matrix0 = matmul(cmatrix0, matmul(tmatrix, cmatrix1))
-            matrix1 = matmul(matmul(cmatrix0, tmatrix), cmatrix1)
+            tmatrix = matrix[xpos: xpos + 3, ypos: ypos + 3]
 
             # Add to the accumulated matrix.
-            amatrix += (matrix0 + matrix1) * 0.5
+            amatrix += matmul(cmatrix0, tmatrix, cmatrix1)
 
     return amatrix
 
@@ -161,10 +153,13 @@ def get_coupling_tensor_tr(matrix: ndarray, coordinates: ndarray) -> ndarray:
     for i, coordinate_0 in enumerate(coordinates):
         # The anti-symmetric matrix for the given coordinate.
         cmatrix = umath.get_skew_symmetric_matrix(coordinate_0)
+        xpos = i * 3
 
         for j in range(length):
+            ypos = j * 3
+
             # Get the corresponding 3x3 matrix.
-            tmatrix = matrix[i * 3: i * 3 + 3, j * 3: j * 3 + 3]
+            tmatrix = matrix[xpos: xpos + 3, ypos: ypos + 3]
 
             # Add to the accumulated matrix.
             amatrix += matmul(cmatrix, tmatrix)
@@ -189,8 +184,10 @@ def get_coupling_tensor_tt(matrix: ndarray, coordinates: ndarray) -> ndarray:
 
     # Add the 3x3 blocks.
     for i in range(length):
+        xpos = i * 3
         for j in range(length):
-            amatrix += matrix[i * 3: i * 3 + 3, j * 3: j * 3 + 3]
+            ypos = j * 3
+            amatrix += matrix[xpos: xpos + 3, ypos: ypos + 3]
 
     return amatrix
 
@@ -252,7 +249,7 @@ def get_tensor_requal(
     distance = norm(difference)
 
     # Calculate the tensor.
-    tensor = (1.0 - distance * 9.0 / (radius * 32.0)) * identity(3)
+    tensor = (1.0 - (distance * 9.0) / (radius * 32.0)) * identity(3)
     tensor += (3.0 / (32.0 * distance * radius)) * oproduct
 
     return tensor / (6.0 * pi * radius)
@@ -314,7 +311,6 @@ def get_diffusion_tensor(coordinates: ndarray, radii: ndarray) -> ndarray:
 
         :return: A 6x6 np array whose entries are the diffusion tensor.
     """
-
     # Validate the coordinate dimensionality.
     vparameters.is_shape_matrix(coordinates[0], (3,))
 
@@ -335,9 +331,12 @@ def get_diffusion_tensor(coordinates: ndarray, radii: ndarray) -> ndarray:
 
     # Get the volume correction and the friction tensor.
     rr = get_correction_rr(rr, radii)
-    tfriction = get_friction_tensor(tt, tr, rr)
+
+    # Get the friction tensor.
+    tfriction = inv(get_friction_tensor(tt, tr, rr))
+    tfriction = umath.symmetrize(tfriction, passes=2)
 
     # Free memory.
     del rr
 
-    return array(umath.symmetrize(inv(tfriction), passes=2), dtype=float)
+    return array(tfriction, dtype=float)
