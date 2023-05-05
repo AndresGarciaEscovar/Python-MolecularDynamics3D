@@ -96,7 +96,6 @@ def get_cog(coordinates: ndarray, radii: ndarray) -> ndarray:
         :return: The average of the maximum and minimum coordinates of the
          molecule.
     """
-
     # Auxiliary variables.
     maxpos = array([], dtype=float)
     minpos = array([], dtype=float)
@@ -145,7 +144,6 @@ def get_dtensor(
 
         :return: The diffusion tensor with respect to the given shift.
     """
-
     # Check that the dimensionality is valid.
     vparameters.is_shape_matrix(coordinates[0], (3,))
 
