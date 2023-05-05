@@ -7,8 +7,10 @@
 # ##############################################################################
 
 # General.
-import numpy
 from numpy import ndarray
+
+# User defined.
+import code.validation.validation_parameters as vparamaters
 
 # ##############################################################################
 # Functions
@@ -113,3 +115,34 @@ def get_string_molecule(
         string_list[i] = "   ".join(string_list[i])
 
     return "\n".join(string_list)
+
+
+# ------------------------------------------------------------------------------
+# Print Function.
+# ------------------------------------------------------------------------------
+
+def print_matrix(matrix: ndarray) -> None:
+    """
+        Prints the given 2D matrix.
+
+        :param matrix: The 2D matrix to be printed.
+    """
+    # Check it's a two dimensional matrix.
+    vparamaters.is_shape_matrix(matrix, (len(matrix[0]), len(matrix)))
+
+    # Print each row.
+    for row in matrix:
+        print("|" + " ".join(f"{x:+.7e}" for x in row) + "|")
+
+
+def print_vector(vector: ndarray) -> None:
+    """
+        Prints the given 1D vector.
+
+        :param vector: The 1D vector to be printed.
+    """
+    # Check it's a two dimensional matrix.
+    vparamaters.is_shape_matrix(vector, (len(vector),))
+
+    # Print each row.
+    print("(" + ",".join(f"{x:+.7e}" for x in vector) + ")")
