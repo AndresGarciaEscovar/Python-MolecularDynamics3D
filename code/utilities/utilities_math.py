@@ -54,7 +54,7 @@ def get_skew_symmetric_matrix(vector: ndarray) -> ndarray:
 
 def intersect_hspheres(
     coordinate_0: ndarray, radius_0: float, coordinate_1: ndarray,
-    radius_1: float
+    radius_1: float, check: bool = True
 ) -> bool:
     """
         Returns a boolean flag indicating if two hyper-spheres intersect, given
@@ -69,13 +69,19 @@ def intersect_hspheres(
 
         :param radius_1: The radius of the first hyper-sphere.
 
+        :param check: A boolean flag that indicates if checking the vector
+         dimensionality is required. True if checking needs to be done; False,
+         otherwise. True by default.
+
         :return: A boolean flag indicating if two hyper-spheres intersect, given
          their position in space and their hyper-radius; i.e., their separation
          is greater than the sum of their radii.
     """
-    # Both arrays need to have the same dimensions.
-    vparameters.is_shape_matrix(coordinate_0, (len(coordinate_0),))
-    vparameters.is_shape_matrix(coordinate_1, (len(coordinate_0),))
+    # Check if needed.
+    if check:
+        # Both arrays need to have the same dimensions.
+        vparameters.is_shape_matrix(coordinate_0, (len(coordinate_0),))
+        vparameters.is_shape_matrix(coordinate_1, (len(coordinate_0),))
 
     # Difference between the two spheres.
     difference = coordinate_0 - coordinate_1
