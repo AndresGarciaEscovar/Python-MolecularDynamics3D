@@ -11,7 +11,7 @@ import unittest
 from numpy import array, pi
 
 # User defined.
-import code.utilities.utilities_math as umath
+import code.utilities.utilities_molecule
 
 # ##############################################################################
 # Classes
@@ -20,57 +20,44 @@ import code.utilities.utilities_math as umath
 
 class TestUtilitiesMolecule(unittest.TestCase):
 
-    def test_symmetrize(self):
+    def test_get_bounding_radius(self):
         """
-            Tests that the function symmetrize is working properly.
+            Tests that the get_bounding_radius function is working properly.
         """
-        # Define a non-square matrix.
-        matrix = array([
-            [1, 2, 3],
-            [4, 5, 6]
-        ], dtype=float)
+        self.assertTrue(False)
 
-        # Wrong dimensions.
-        with self.assertRaises(ValueError):
-            umath.symmetrize(matrix, passes=3)
+    def test_get_cod(self):
+        """
+            Tests that the get_cod function is working properly; where cod is
+            center of diffusion.
+        """
+        self.assertTrue(False)
 
-        # Define square matrix.
-        matrix = array([
-            [1, 2, 3],
-            [4, 5, 6],
-            [7, 8, 9],
-        ], dtype=int)
+    def test_get_cog(self):
+        """
+            Tests that the get_cog function is working properly; where cog is
+            center of geometry.
+        """
+        self.assertTrue(False)
 
-        with self.assertRaises(TypeError):
-            umath.symmetrize(matrix)
+    def test_get_com(self):
+        """
+            Tests that the get_com function is working properly; where cog is
+            center of mass.
+        """
+        self.assertTrue(False)
 
-        # Wrong type of matrix.
-        matrix = [
-            [1, 2, 3],
-            [4, 5, 6],
-            [7, 8, 9],
-        ]
+    def test_get_dtensor(self):
+        """
+            Tests that the get_dtensor function is working properly.
+        """
+        self.assertTrue(False)
 
-        with self.assertRaises(TypeError):
-            umath.symmetrize(matrix)
-
-        # Define square matrix.
-        matrix = array([
-            [1, 2, 3],
-            [4, 5, 6],
-            [7, 8, 9],
-        ], dtype=float)
-
-        # Correct dimensions.
-        rmatrix = umath.symmetrize(matrix, passes=3)
-
-        # Must be the same dimensions.
-        self.assertEqual(matrix.shape, rmatrix.shape)
-
-        # Entries must be equal.
-        for i in range(len(matrix)):
-            for j in range(len(matrix)):
-                self.assertEqual(rmatrix[i, j], rmatrix[j, i])
+    def test_dtensor_and_orientation(self):
+        """
+            Tests that the dtensor_and_orientation function is working properly.
+        """
+        self.assertTrue(False)
 
 
 # ##############################################################################
