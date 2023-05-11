@@ -414,22 +414,12 @@ class TestUtilitiesDiffusionTensor(unittest.TestCase):
         skew_1 = umath.get_skew_symmetric_matrix(coordinates[1])
 
         # The expected correction.
-        term00 = matmul(matmul(skew_0, matrix[0: 3, 0: 3]), transpose(skew_0))
-        term00 += matmul(skew_0, matmul(matrix[0: 3, 0: 3], transpose(skew_0)))
-        term00 = term00 * 0.5
+        term00 = matmul(skew_0, matmul(matrix[0: 3, 0: 3], transpose(skew_0)))
+        term01 = matmul(skew_0, matmul(matrix[0: 3, 3: 6], transpose(skew_1)))
+        term10 = matmul(skew_1, matmul(matrix[3: 6, 0: 3], transpose(skew_0)))
+        term11 = matmul(skew_1, matmul(matrix[3: 6, 3: 6], transpose(skew_1)))
 
-        term01 = matmul(matmul(skew_0, matrix[0: 3, 3: 6]), transpose(skew_1))
-        term01 += matmul(skew_0, matmul(matrix[0: 3, 3: 6], transpose(skew_1)))
-        term01 = term01 * 0.5
-
-        term10 = matmul(matmul(skew_1, matrix[3: 6, 0: 3]), transpose(skew_0))
-        term10 += matmul(skew_1, matmul(matrix[3: 6, 0: 3], transpose(skew_0)))
-        term10 = term10 * 0.5
-
-        term11 = matmul(matmul(skew_1, matrix[3: 6, 3: 6]), transpose(skew_1))
-        term11 += matmul(skew_1, matmul(matrix[3: 6, 3: 6], transpose(skew_1)))
-        term11 = term11 * 0.5
-
+        # The expected tensor.
         expected_tensor = term00 + term01 + term10 + term11
 
         # Get the correction.

@@ -129,7 +129,7 @@ def get_coupling_tensor_rr(matrix: ndarray, coordinates: ndarray) -> ndarray:
             tmatrix = matrix[xpos: xpos + 3, ypos: ypos + 3]
 
             # Add to the accumulated matrix.
-            amatrix += matmul(cmatrix0, tmatrix, cmatrix1)
+            amatrix += matmul(cmatrix0, matmul(tmatrix, cmatrix1))
 
     return amatrix
 
