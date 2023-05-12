@@ -9,7 +9,8 @@
 
 # General.
 from numpy import append as nappend, array, dot, identity, ndarray, sum as nsum
-from numpy.linalg import inv
+from numpy import zeros
+from numpy.linalg import inv, norm
 
 # User defined.
 import code.utilities.utilities_diffusion_tensor as udtensor
@@ -25,7 +26,9 @@ import code.validation.validation_parameters as vparameters
 # ------------------------------------------------------------------------------
 
 
-def get_bounding_radius(coordinates: ndarray) -> float:
+def get_bounding_radius(
+    coordinates: ndarray, radii: ndarray, shift: ndarray = None
+) -> float:
     """
         From the given set of atoms, in the given coordinate system,
         gets the minimum radius of the sphere that encloses the atom.
@@ -36,10 +39,17 @@ def get_bounding_radius(coordinates: ndarray) -> float:
         :param coordinates: The numpy array with all the coordinates of the
          atom.
 
+        :param radii: The numpy array with the radius of each atom.
+
+        :param shift: The shift in coordinates if the bounding radius needs to
+         be calculated with respect to a certain reference point.
+
         :return: The minimum radius of the sphere that encloses the atom.
     """
-    print("TODO: get_bounding_radius.")
-    return 0.0
+    # Set the shift.
+    sft = zeros((len(coordinates[0]),), dtype=float) if shift is None else shift
+
+    return max(norm(x + sft) + y for x, y in zip(coordinates, radii))
 
 
 def get_cod(dtensor: ndarray) -> ndarray:
@@ -153,8 +163,8 @@ def get_dtensor(
     vparameters.is_shape_matrix(shift, (3,))
 
     # Shift all the coordinates before making the calculation.
-    acoordinates = array([x + shift for x in coordinates], dtype=float)
-    return udtensor.get_diffusion_tensor(acoordinates, radii)
+    tcoordinates = array([x + shift for x in coordinates], dtype=float)
+    return udtensor.get_diffusion_tensor(tcoordinates, radii)
 
 
 def get_dtensor_and_orientation(information: dict, dimensions: int) -> tuple:
@@ -179,6 +189,7 @@ def get_dtensor_and_orientation(information: dict, dimensions: int) -> tuple:
     # Check the orientation exists.
     orientation = identity(dimensions)
     if "orientation" in information:
-        orientation = array(information["orientation"], dtype=float)
+        if len(information["orientation"]) == dimensions:
+            orientation = array(information["orientation"], dtype=float)
 
     return dtensor, orientation
