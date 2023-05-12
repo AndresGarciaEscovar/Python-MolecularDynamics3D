@@ -346,7 +346,46 @@ class TestUtilitiesMolecule(unittest.TestCase):
         """
             Tests that the get_dtensor function is working properly.
         """
-        self.assertTrue(False)
+        # Define some coordinates and radii.
+        coordinates = array([
+            [1, 2, 3],
+            [4, 5, 6],
+        ], dtype= float)
+        radii = array([2, 3], dtype=float)
+        shift = array([1, 1, -1], dtype=float)
+
+        # Get the diffusion tensor; no problems should be found.
+        umolecule.get_dtensor(coordinates, radii)
+        umolecule.get_dtensor(coordinates, radii, shift)
+
+        # ------------------ Wrong Number of Atoms vs Radii ------------------ #
+
+        # Wrong number of number of atoms and radii.
+        with self.assertRaises(ValueError):
+            umolecule.get_dtensor(coordinates[1:], radii)
+
+        # ------------------ Wrong Dimensions of Coordinates ----------------- #
+
+        # Define some coordinates and radii.
+        coordinates = array([
+            [1, 2],
+            [4, 5],
+        ], dtype=float)
+
+        # Wrong dimensions of coordinates.
+        with self.assertRaises(ValueError):
+            umolecule.get_dtensor(coordinates, radii)
+
+        # Define some coordinates and radii.
+        coordinates = array([
+            [1, 2, 3],
+            [4, 5, 6],
+        ], dtype=float)
+        shift = array([1, 1], dtype=float)
+
+        # Wrong shift dimensions.
+        with self.assertRaises(ValueError):
+            umolecule.get_dtensor(coordinates, radii, shift)
 
     def test_dtensor_and_orientation(self):
         """

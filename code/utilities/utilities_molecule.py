@@ -154,6 +154,7 @@ def get_dtensor(
     """
     # Check that the dimensionality is valid.
     vparameters.is_shape_matrix(coordinates[0], (3,))
+    vparameters.is_shape_matrix(radii, (len(coordinates),))
 
     # No need to shift the coordinates.
     if shift is None:
