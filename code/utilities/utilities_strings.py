@@ -22,7 +22,7 @@ import code.validation.validation_parameters as vparamaters
 # ------------------------------------------------------------------------------
 
 
-def get_string_array(array: ndarray, precision: int = 7) -> str:
+def get_string_vector(array: ndarray, precision: int = 7) -> str:
     """
         Gets the string representation of the given numpy array, to the given
         precision.
@@ -55,7 +55,7 @@ def get_string_matrix(matrix: ndarray, precision: int = 7) -> str:
 
     # For each coordinate.
     for i, row in enumerate(matrix):
-        string.append(get_string_array(row, precision))
+        string.append(get_string_vector(row, precision))
 
     return "\n".join(string)
 
@@ -82,7 +82,7 @@ def get_string_molecule(
     # Auxiliary variables.
     string_list = [[
             "#", "Coordinates (x,y,z) (Angstrom)", "Radius (Angstrom)",
-            "Mass (Angstrom)"
+            "Mass (AMU)"
     ]]
 
     # Width of each column.
@@ -92,7 +92,7 @@ def get_string_molecule(
     for i, (crd, r, m) in enumerate(zip(coordinates, radii, masses)):
         # The entry tuple.
         entry = [
-            f"{i + 1}.", get_string_array(crd, precision),
+            f"{i + 1}.", get_string_vector(crd, precision),
             f"{r:.{precision}e}", f"{m:.{precision}e}"
         ]
 
@@ -145,4 +145,4 @@ def print_vector(vector: ndarray) -> None:
     vparamaters.is_shape_matrix(vector, (len(vector),))
 
     # Print each row.
-    print("(" + ",".join(f"{x:+.7e}" for x in vector) + ")")
+    print(get_string_vector(vector, precision=7))
