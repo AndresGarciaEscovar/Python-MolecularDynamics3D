@@ -24,7 +24,7 @@ from typing import Any
 
 def is_unique_name(name: str, names: tuple) -> None:
     """
-        Checks that the given name in the atom is unique.
+        Checks that the given name to an atom in the molecule is unique.
 
         :param name: The intended name of the atom.
 
