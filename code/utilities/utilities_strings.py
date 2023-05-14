@@ -59,7 +59,9 @@ def get_string_vector(
     )
 
 
-def get_string_matrix(matrix: ndarray, precision: int = 7) -> str:
+def get_string_matrix(
+    matrix: ndarray, precision: int = 7, characters: tuple = None
+) -> str:
     """
         Gets the string representation of the given matrix, to the given
         precision.
@@ -69,15 +71,20 @@ def get_string_matrix(matrix: ndarray, precision: int = 7) -> str:
         :param precision: The precision with which the floating point numbers
          must be represented; seven significant figures, by default.
 
+        :param characters: The opening and closing characters.
+
         :return: The string representation of all the matrix rows.
     """
 
     # String where the results will be stored.
     string = []
 
+    # Choose the right enclosing parentheses.
+    chars = ("|", "|") if characters is None else characters
+
     # For each coordinate.
     for i, row in enumerate(matrix):
-        string.append(get_string_vector(row, precision, characters=("|", "|")))
+        string.append(get_string_vector(row, precision, characters=chars))
 
     return "\n".join(string)
 
@@ -143,18 +150,22 @@ def get_string_molecule(
 # Print Function.
 # ------------------------------------------------------------------------------
 
-def print_matrix(matrix: ndarray) -> None:
+
+def print_matrix(matrix: ndarray, characters: tuple = None) -> None:
     """
         Prints the given 2D matrix.
 
         :param matrix: The 2D matrix to be printed.
+
+        :param characters: The opening and closing characters.
     """
     # Check it's a two dimensional matrix.
     vparamaters.is_shape_matrix(matrix, (len(matrix), len(matrix[0])))
 
-    # Print each row.
-    for row in matrix:
-        print(get_string_vector(row, precision=7, characters=("|", "|")))
+    # Choose the right enclosing parentheses.
+    chars = ("|", "|") if characters is None else characters
+
+    print(get_string_matrix(matrix, precision=7, characters=chars))
 
 
 def print_vector(vector: ndarray, characters: tuple = None) -> None:
