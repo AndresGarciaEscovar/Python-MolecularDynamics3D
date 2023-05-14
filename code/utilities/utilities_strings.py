@@ -22,7 +22,9 @@ import code.validation.validation_parameters as vparamaters
 # ------------------------------------------------------------------------------
 
 
-def get_string_vector(array: ndarray, precision: int = 7) -> str:
+def get_string_vector(
+    array: ndarray, precision: int = 7, characters: tuple = None
+) -> str:
     """
         Gets the string representation of the given numpy array, to the given
         precision.
@@ -32,9 +34,29 @@ def get_string_vector(array: ndarray, precision: int = 7) -> str:
         :param precision: The precision with which the floating point numbers
          must be represented; seven significant figures, by default.
 
+        :param characters: The opening and closing characters.
+
         :return: The string representation of the given array.
     """
-    return "(" + ", ".join(f"{e:+.{precision}e}" for e in array) + ")"
+    # Set the opening and closing characters.
+    chars = ("(", ")") if characters is None else characters
+
+    if not isinstance(chars, tuple):
+        raise ValueError(
+            "The object that contains the characters to enclose the vector "
+            f"must be a 2-tuple. It's currently a {type(chars)}."
+        )
+
+    if len(chars) != 2:
+        raise ValueError(
+            "The number of enclosing characters to print a vector must be two "
+            f"(2). The current number is {len(chars)}."
+        )
+
+    return (
+        f"{chars[0]}" + ", ".join(f"{e:+.{precision}e}" for e in array) +
+        f"{chars[1]}"
+    )
 
 
 def get_string_matrix(matrix: ndarray, precision: int = 7) -> str:
@@ -55,7 +77,7 @@ def get_string_matrix(matrix: ndarray, precision: int = 7) -> str:
 
     # For each coordinate.
     for i, row in enumerate(matrix):
-        string.append(get_string_vector(row, precision))
+        string.append(get_string_vector(row, precision, characters=("|", "|")))
 
     return "\n".join(string)
 
@@ -128,21 +150,23 @@ def print_matrix(matrix: ndarray) -> None:
         :param matrix: The 2D matrix to be printed.
     """
     # Check it's a two dimensional matrix.
-    vparamaters.is_shape_matrix(matrix, (len(matrix[0]), len(matrix)))
+    vparamaters.is_shape_matrix(matrix, (len(matrix), len(matrix[0])))
 
     # Print each row.
     for row in matrix:
-        print("|" + " ".join(f"{x:+.7e}" for x in row) + "|")
+        print(get_string_vector(row, precision=7, characters=("|", "|")))
 
 
-def print_vector(vector: ndarray) -> None:
+def print_vector(vector: ndarray, characters: tuple = None) -> None:
     """
         Prints the given 1D vector.
 
         :param vector: The 1D vector to be printed.
+
+        :param characters: The opening and closing characters.
     """
     # Check it's a two dimensional matrix.
     vparamaters.is_shape_matrix(vector, (len(vector),))
 
     # Print each row.
-    print(get_string_vector(vector, precision=7))
+    print(get_string_vector(vector, precision=7, characters=characters))

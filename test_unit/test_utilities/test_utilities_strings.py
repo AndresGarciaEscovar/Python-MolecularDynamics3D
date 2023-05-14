@@ -29,6 +29,25 @@ class TestUtilitiesStrings(unittest.TestCase):
     # Auxiliary Print Test Methods
     # --------------------------------------------------------------------------
 
+    def print_string_matrix(self):
+        """
+            Tests that printing a matrix works.
+        """
+        # Print a section banner.
+        self.print_banner("Test Printing a Martrix - Indirectly")
+
+        # Define a matrix.
+        matrix = array([[1, 2, 3],[4, 5, 6]], dtype=float)
+
+        ustrings.print_matrix(matrix)
+        print()
+
+        # Print section banner.
+        self.print_banner("Test Printing a Matrix - Directly")
+
+        print(ustrings.get_string_matrix(matrix, precision=7))
+        print()
+
     def print_string_molecule(self):
         """
             Tests that printing the molecule information works.
@@ -53,12 +72,18 @@ class TestUtilitiesStrings(unittest.TestCase):
             Tests that printing an array works.
         """
         # Print a section banner.
-        self.print_banner("Test Printing a Vector")
+        self.print_banner("Test Printing a Vector - Indirectly")
 
         # Define a vector.
         arr = array([1, 2, 3], dtype=float)
 
         ustrings.print_vector(arr)
+        print()
+
+        # Print section banner.
+        self.print_banner("Test Printing a Vector - Directly")
+
+        print(ustrings.get_string_vector(arr, precision=7))
         print()
 
     # --------------------------------------------------------------------------
@@ -89,6 +114,7 @@ class TestUtilitiesStrings(unittest.TestCase):
         """
             Tests to print other strings.
         """
+        self.print_string_matrix()
         self.print_string_molecule()
         self.print_string_vector()
 
