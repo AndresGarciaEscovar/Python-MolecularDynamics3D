@@ -137,7 +137,7 @@ class TestValidationParameters(unittest.TestCase):
                 vparameters.is_negative(value, include=False)
 
         # Must not throw errors.
-        for value in [int(0),int(-1), float(0.0), float(-1.0)]:
+        for value in [int(0), int(-1), float(0.0), float(-1.0)]:
             vparameters.is_negative(value, include=True)
 
     def test_is_not_in_dictionary(self):
@@ -194,7 +194,7 @@ class TestValidationParameters(unittest.TestCase):
                 vparameters.is_positive(value, include=False)
 
         # Must not throw errors.
-        for value in [int(0),int(1), float(0.0), float(1.0)]:
+        for value in [int(0), int(1), float(0.0), float(1.0)]:
             vparameters.is_positive(value, include=True)
 
     def test_is_not_in_dict(self):
@@ -304,4 +304,3 @@ if __name__ == '__main__':
         Runs the main program.
     """
     unittest.main()
-#

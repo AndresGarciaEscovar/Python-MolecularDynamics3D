@@ -350,7 +350,7 @@ class TestUtilitiesMolecule(unittest.TestCase):
         coordinates = array([
             [1, 2, 3],
             [4, 5, 6],
-        ], dtype= float)
+        ], dtype=float)
         radii = array([2, 3], dtype=float)
         shift = array([1, 1, -1], dtype=float)
 

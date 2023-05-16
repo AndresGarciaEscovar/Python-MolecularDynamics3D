@@ -37,7 +37,7 @@ class TestUtilitiesStrings(unittest.TestCase):
         self.print_banner("Test Printing a Martrix - Indirectly")
 
         # Define a matrix.
-        matrix = array([[1, 2, 3],[4, 5, 6]], dtype=float)
+        matrix = array([[1, 2, 3], [4, 5, 6]], dtype=float)
 
         ustrings.print_matrix(matrix)
         print()
@@ -102,7 +102,7 @@ class TestUtilitiesStrings(unittest.TestCase):
         self.assertTrue(True)
 
         print("# " + f"{character}" * 78)
-        print(f"# {title}" )
+        print(f"# {title}")
         print("# " + f"{character}" * 78)
         print()
 

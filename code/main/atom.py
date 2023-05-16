@@ -299,7 +299,7 @@ class Atom:
         return "    ".join([
             self.aname,
             self.atype,
-            f"{sutils.get_string_array(self.coordinates)} \u212B",
+            f"{sutils.get_string_vector(self.coordinates)} \u212B",
             f"{self.radius:.7e} \u212B",
             f"{self.mass:.7e} AMU"
         ])
@@ -313,7 +313,7 @@ class Atom:
         return "\n".join([
             f"Name: {self.aname}",
             f"Type: {self.atype}",
-            f"Coordinates: {sutils.get_string_array(self.coordinates)} \u212B",
+            f"Coordinates: {sutils.get_string_vector(self.coordinates)} \u212B",
             f"Radius: {self.radius:.7e} \u212B",
             f"Mass: {self.mass:.7e} AMU"
         ])

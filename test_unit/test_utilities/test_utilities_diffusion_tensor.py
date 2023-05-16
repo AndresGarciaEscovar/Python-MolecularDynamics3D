@@ -654,7 +654,7 @@ class TestUtilitiesDiffusionTensor(unittest.TestCase):
         # ----------------------------- Validate ----------------------------- #
 
         # Test the shape is correct.
-        self.assertEqual(expected_tensor.shape, (6,6))
+        self.assertEqual(expected_tensor.shape, (6, 6))
         self.assertEqual(expected_tensor.shape, tensor.shape)
 
         # Validate the entries.
