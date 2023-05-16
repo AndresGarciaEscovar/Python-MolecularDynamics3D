@@ -25,6 +25,24 @@ import code.validation.validation_parameters as vparameters
 # ------------------------------------------------------------------------------
 
 
+def get_projection(vector_0: ndarray, vector_1: ndarray) -> ndarray:
+    """
+        Gets the projection of vector_0 along vector 1.
+
+        :param vector_0: The vector to be projected along vector_1.
+
+        :param vector_1: The vector along which vector_0 will be projected.
+
+        :return: The projection of vector_0 along the unit vector defined by
+         vector_1.
+    """
+    # Validate both vectors have the same dimensions.
+    vparameters.is_shape_matrix(vector_0, (len(vector_0),))
+    vparameters.is_shape_matrix(vector_1, (len(vector_0),))
+
+    return dot(vector_0, vector_1) * vector_1 / dot(vector_1, vector_1)
+
+
 def get_skew_symmetric_matrix(vector: ndarray) -> ndarray:
     """
         From the given 3D vector, returns the anti-symmetric matrix with the
