@@ -8,10 +8,8 @@
 
 # General
 import unittest
-import warnings
 
 from numpy import array, pi
-from numpy.linalg import norm
 
 # User defined.
 import code.utilities.utilities_math as umath
