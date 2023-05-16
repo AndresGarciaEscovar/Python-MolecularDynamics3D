@@ -110,7 +110,7 @@ def test_numpy_array_projection() -> None:
         "Define a zero vector:\n\tvector_1 = np.array((0, 0), "
         "dtype=float)."
     )
-    vector_1 = array((0, 0), dtype=float)
+    vector_1 = array((0, -7), dtype=float)
 
     print(
         f"Try to obtain the projection:\n\tprojection = np.dot(vector_0, "
@@ -120,7 +120,7 @@ def test_numpy_array_projection() -> None:
     try:
         snorm = dot(vector_1, vector_1)
         dot(vector_0, vector_1) * vector_1 / snorm
-    except RuntimeWarning:
+    except (RuntimeWarning, ZeroDivisionError):
         print("Cannot make the projection; there is a division by zero.")
     print()
 
@@ -141,7 +141,7 @@ def test_numpy_array_remove() -> None:
 
     print(
         f"Print to see how the array looks:\n\tprint(coordinates) ->\n"
-        f"{coordinates}\ncannot delete elements using the delete command: del "
+        f"{coordinates}\nCannot delete elements using the delete command: del "
         f"coordinate[index] -> FORBIDDEN!\n"
     )
 
