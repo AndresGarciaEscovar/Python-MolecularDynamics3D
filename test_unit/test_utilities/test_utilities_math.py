@@ -8,7 +8,10 @@
 
 # General
 import unittest
+import warnings
+
 from numpy import array, pi
+from numpy.linalg import norm
 
 # User defined.
 import code.utilities.utilities_math as umath
@@ -50,6 +53,49 @@ class TestUtilitiesMath(unittest.TestCase):
             tarray = array([1, 2, 3, 4], dtype=float)
             with self.assertRaises(ValueError):
                 umath.get_skew_symmetric_matrix(tarray)
+
+    def test_get_projection(self):
+        """
+            Tests that the get_projection method is working properly.
+        """
+        # Define two vectors.
+        vector_0 = array([0, 3, 2], dtype=float)
+        vector_1 = array([0, 0, 2], dtype=float)
+
+        # Expected and result.
+        expected = array([0, 0, 2], dtype=float)
+        result = umath.get_projection(vector_0, vector_1)
+
+        # Compare shapes.
+        self.assertEqual(expected.shape, result.shape)
+
+        # ------------------------- Division by Zero ------------------------- #
+
+        # Define two vectors.
+        vector_0 = array([0, 3, 2], dtype=float)
+        vector_1 = array([0, 0, 0], dtype=float)
+
+        # Expected and result.
+        with self.assertRaises(RuntimeWarning):
+            umath.get_projection(vector_0, vector_1)
+
+        # Define two vectors.
+        vector_0 = array([0, 3, 0], dtype=float)
+        vector_1 = array([0, 0, 0], dtype=float)
+
+        # Must throw an exception.
+        with self.assertRaises(RuntimeWarning):
+            umath.get_projection(vector_0, vector_1)
+
+        # ----------------------- Different Size Arrays ---------------------- #
+
+        # Define two vectors.
+        vector_0 = array([0, 3, 0], dtype=float)
+        vector_1 = array([0, 1], dtype=float)
+
+        # Must throw an exception.
+        with self.assertRaises(ValueError):
+            umath.get_projection(vector_0, vector_1)
 
     def test_intersect_spheres(self):
         """

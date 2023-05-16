@@ -8,6 +8,7 @@
 
 # General.
 import copy
+import warnings
 
 from numpy import array, cos, cross, dot, float64, ndarray, sin
 from numpy.linalg import norm
@@ -40,7 +41,11 @@ def get_projection(vector_0: ndarray, vector_1: ndarray) -> ndarray:
     vparameters.is_shape_matrix(vector_0, (len(vector_0),))
     vparameters.is_shape_matrix(vector_1, (len(vector_0),))
 
-    return dot(vector_0, vector_1) * vector_1 / dot(vector_1, vector_1)
+    warnings.filterwarnings("error")
+    projection = dot(vector_0, vector_1) * vector_1 / dot(vector_1, vector_1)
+    warnings.filterwarnings("default")
+
+    return projection
 
 
 def get_skew_symmetric_matrix(vector: ndarray) -> ndarray:
