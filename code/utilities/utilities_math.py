@@ -33,7 +33,7 @@ def get_projection(vector_0: ndarray, vector_1: ndarray) -> ndarray:
 
         :param vector_1: The vector along which vector_0 will be projected.
 
-        :return: The projection of vector_0 along the unit vector defined by
+        :return: The projection of vector_0 along the **unit** vector defined by
          vector_1.
     """
     # Validate both vectors have the same dimensions.
