@@ -47,7 +47,7 @@ class TestContexManagerSWD(unittest.TestCase):
         # Invalid new path.
         new_working = "asaslnsandaibajs"
         with self.assertRaises(FileNotFoundError):
-            with swd.SetWD(new_working) as fl:
+            with swd.SetWD(new_working) as _:
                 pass
 
 # ##############################################################################
