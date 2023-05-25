@@ -130,12 +130,9 @@ class MoleculeManager2D:
             # 6x6 diffusion tensor.
             file.writelines([
                 "diffusion_tensor:\n",
-                f"{indent * 1}- [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]\n",
-                f"{indent * 1}- [0.0, 2.0, 0.0, 0.0, 0.0, 0.0]\n",
-                f"{indent * 1}- [0.0, 0.0, 3.0, 0.0, 0.0, 0.0]\n",
-                f"{indent * 1}- [0.0, 0.0, 0.0, 4.0, 0.0, 0.0]\n",
-                f"{indent * 1}- [0.0, 0.0, 0.0, 0.0, 5.0, 0.0]\n",
-                f"{indent * 1}- [0.0, 0.0, 0.0, 0.0, 0.0, 6.0]\n",
+                f"{indent * 1}- [1.0, 0.0, 0.0]\n",
+                f"{indent * 1}- [0.0, 2.0, 0.0]\n",
+                f"{indent * 1}- [0.0, 0.0, 3.0]\n",
             ])
 
             sq0 = sqrt(2)
@@ -442,7 +439,7 @@ class TestMolecule(unittest.TestCase):
 
         # Check the diffusion tensor.
         dtensor = mol.diffusion_tensor
-        self.assertIs(dtensor, None)
+        self.assertEqual(dtensor.shape, (3, 3))
 
         # Check the dimensionality.
         self.assertEqual(mol.dimensions, len(atoms[0]))
@@ -557,7 +554,7 @@ class TestMolecule(unittest.TestCase):
 
         # Check the diffusion tensor.
         dtensor = mol.diffusion_tensor
-        self.assertIs(dtensor, None)
+        self.assertEqual(dtensor.shape, (3, 3))
 
         # Check the dimensionality.
         self.assertEqual(mol.dimensions, len(atoms[0]))

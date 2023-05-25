@@ -508,12 +508,9 @@ class TestUtilitiesMolecule(unittest.TestCase):
         # Define a dictionary that contains a diffusion tensor + orientation.
         information = {
             "diffusion_tensor": array([
-                [1, 0, 0, 0, 0, 0],
-                [0, 1, 0, 0, 0, 0],
-                [0, 0, 1, 0, 0, 0],
-                [0, 0, 0, 1, 0, 0],
-                [0, 0, 0, 0, 1, 0],
-                [0, 0, 0, 0, 0, 1],
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1],
             ], dtype=float),
 
             "orientation":  array([
@@ -526,8 +523,8 @@ class TestUtilitiesMolecule(unittest.TestCase):
         # Get these from the information.
         dtensor, orient = umolecule.get_dtensor_and_orientation(information, 2)
 
-        # Compare the diffusion tensor.
-        self.assertIsNone(dtensor)
+        # Compare the diffusion tensor shape.
+        self.assertEqual(dtensor.shape, (3, 3))
 
         # Compare the orientation.
         self.assertEqual(identity(2).shape, orient.shape)
