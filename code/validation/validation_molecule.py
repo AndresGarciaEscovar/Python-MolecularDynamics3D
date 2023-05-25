@@ -9,8 +9,7 @@
 # ##############################################################################
 
 # General.
-from numpy import dtype, float64, ndarray
-from typing import Any
+from numpy import ndarray
 
 # User defined.
 import code.validation.validation_parameters as vparameters
