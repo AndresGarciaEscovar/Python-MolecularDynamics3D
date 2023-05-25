@@ -14,6 +14,7 @@ from numpy.linalg import inv, norm
 
 # User defined.
 import code.utilities.utilities_diffusion_tensor as udtensor
+import code.validation.validation_molecule as vmolecules
 import code.validation.validation_parameters as vparameters
 
 # ##############################################################################
@@ -184,10 +185,11 @@ def get_dtensor_and_orientation(information: dict, dimensions: int) -> tuple:
     """
     # Check the diffusion tensor exists.
     dtensor = None
-    if "diffusion_tensor" in information and dimensions == 3:
+    if "diffusion_tensor" in information:
         dtensor = array(information["diffusion_tensor"], dtype=float)
+        vmolecules.is_diffusion_tensor(dimensions, dtensor)
 
-    # Check the orientation exists.
+    # Set the orientation.
     orientation = identity(dimensions)
     if "orientation" in information:
         if len(information["orientation"]) == dimensions:
