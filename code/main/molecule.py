@@ -9,7 +9,7 @@
 # General.
 import yaml
 
-from numpy import append as nappend, array, delete as ndelete, ndarray
+from numpy import append as nappend, array, delete as ndelete, identity, ndarray
 from pathlib import Path
 from typing import Any, Union
 
@@ -467,8 +467,15 @@ class Molecule:
                 self.coordinates, self.masses, -self.com
             )
 
-        # Get the center of diffusion.
-        if self.diffusion_tensor is not None:
+        elif self.__diffusion_tensor is None:
+            dims = self.dimensions
+            entries = 2 * dims if dims > 2 else dims + 1
+            entries = 1 if dims == 1 else entries
+
+            self.__diffusion_tensor = identity(entries)
+
+        # Get the center of diffusion in 3-dimensions.
+        if self.dimensions == 3:
             self.cod = umolecule.get_cod(self.diffusion_tensor) + self.com
 
     # ##########################################################################
@@ -502,7 +509,7 @@ class Molecule:
 
 
 # ##############################################################################
-#
+# TO DELETE
 # ##############################################################################
 
 if __name__ == "__main__":
