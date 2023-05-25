@@ -24,6 +24,7 @@ import code.validation.validation_parameters as vparameters
 # Is Functions
 # ------------------------------------------------------------------------------
 
+
 def is_diffusion_tensor(dimensions: int, diffusion_tensor: ndarray) -> None:
     """
         Checks that the diffusion tensor has valid dimensions, given the number
