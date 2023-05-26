@@ -43,6 +43,13 @@ class TestValidationMolecules(unittest.TestCase):
             with self.assertRaises(ValueError):
                 vmolecules.is_diffusion_tensor(i + 1, dtensor)
 
+        # Negative index or zero.
+        dims = 3
+        dtensor = zeros(dims ** 2, dtype=float).reshape((dims, dims))
+        for i in (0, -1):
+            with self.assertRaises(ValueError):
+                vmolecules.is_diffusion_tensor(i, dtensor)
+
 # ##############################################################################
 # Main Program
 # ##############################################################################
