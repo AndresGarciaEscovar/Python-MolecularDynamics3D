@@ -47,7 +47,7 @@ def is_diffusion_tensor(dimensions: int, diffusion_tensor: ndarray) -> None:
         )
 
     # Intended dimensions of the diffusion tensor.
-    length = 1 if dimensions == 1 else 3
+    length = dimensions if dimensions == 1 else dimensions + 1
     length = 2 * dimensions if dimensions > 2 else length
 
     # Check the shape of the diffusion tensor is consistent.
