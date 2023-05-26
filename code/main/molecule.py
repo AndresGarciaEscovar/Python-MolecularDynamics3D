@@ -474,9 +474,14 @@ class Molecule:
 
             self.__diffusion_tensor = identity(entries)
 
-        # Get the center of diffusion in 3-dimensions.
+        # Get the center of diffusion in 3D.
         if self.dimensions == 3:
             self.cod = umolecule.get_cod(self.diffusion_tensor) + self.com
+
+        # Long and short axes.
+        self.long_axis, self.short_axis = umolecule.get_long_short_axes(
+            self.coordinates, self.radii
+        )
 
     # ##########################################################################
     # Dunder Methods
