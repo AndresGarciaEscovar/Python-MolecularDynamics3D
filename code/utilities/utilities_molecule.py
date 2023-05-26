@@ -2,15 +2,19 @@
     File that contains several utility functions to calculate properties of
     molecules.
 """
+import itertools
 
+import numpy as np
 # ##############################################################################
 # Imports
 # ##############################################################################
 
 # General.
-from numpy import append as nappend, array, dot, identity, ndarray, sum as nsum
-from numpy import zeros
+from numpy import append as nappend, arange, array, cos, dot, identity, ndarray
+from numpy import pi, sin, sum as nsum, zeros
 from numpy.linalg import inv, norm
+
+from itertools import product
 
 # User defined.
 import code.utilities.utilities_diffusion_tensor as udtensor
@@ -196,3 +200,84 @@ def get_dtensor_and_orientation(information: dict, dimensions: int) -> tuple:
             orientation = array(information["orientation"], dtype=float)
 
     return dtensor, orientation
+
+
+def get_long_short_axes(
+    coordinates: ndarray, radii: ndarray, step: float = 1e-3
+) -> tuple:
+    """
+        Gets the long and short axis of the molecule in the given coordinate
+        system.
+
+        :param coordinates: The coordinates of the atoms of the molecule.
+
+        :param radii: The radii of the atoms, in the same order as the
+         coordinates.
+
+        :param step: The incremental step that is used to generate the angles
+         up to the complete solid angle.
+
+        :return: The longest and shortes axes of the molecule, with respect to
+         the given coordinate system.
+    """
+    # Check they are numpy arrays.
+    vparameters.is_shape_matrix(radii, (len(coordinates),))
+    vparameters.is_shape_matrix(
+        coordinates, (len(coordinates), len(coordinates[0]))
+    )
+
+    # Particular case.
+    if (length := len(coordinates[0])) == 1:
+        return array([1], dtype=float), array([1], dtype=float)
+
+    # Collection of angles.
+    rangles = [arange(0, 2 * pi, step)] if length > 2 else [arange(0, pi, step)]
+    for cntr in range(0, length):
+        # Only half sphere is needed.
+        if cntr == length - 2:
+            rangles.append(arange(0, pi / 2, step))
+            break
+
+        # Full sphere is needed.
+        rangles.append(arange(0, pi, step))
+
+    # Make the projections.
+    for value in product(*rangles):
+        # Get the values.
+        vector = list()
+
+        # Get the normal vector.
+        for cntr, angle in enumerate(value):
+            if cntr == 0:
+                vector = array([cos(angle), sin(angle)], dtype=float)
+                continue
+
+            vector = sin(angle) * vector
+            vector = nappend(vector, [cos(angle)])
+
+
+        # TODO: CONTINUE HERE!!!
+
+
+    print(vector)
+
+    return 1, 2
+
+# ##############################################################################
+# TO REMOVE
+# ##############################################################################
+
+
+if __name__ == "__main__":
+
+    import random
+
+    coordi = array([
+        [random.uniform(0, 1) for _ in range(2)] for i in range(3)
+    ], dtype=float)
+    radiei = array([1.0 for i in range(len(coordi))], dtype=float)
+
+    # Get the axes.
+    long, short = get_long_short_axes(coordi, radiei)
+
+    print(long, short)
