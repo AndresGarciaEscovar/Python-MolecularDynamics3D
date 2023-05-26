@@ -47,10 +47,10 @@ def is_diffusion_tensor(dimensions: int, diffusion_tensor: ndarray) -> None:
         )
 
     # Intended dimensions of the diffusion tensor.
-    length = 2 * dimensions if dimensions > 2 else dimensions + 1
-    length = 1 if dimensions == 1 else length
+    length = 1 if dimensions == 1 else 3
+    length = 2 * dimensions if dimensions > 2 else length
 
-    # Check the shape of the diffusion tensor.
+    # Check the shape of the diffusion tensor is consistent.
     try:
         vparameters.is_shape_matrix(diffusion_tensor, (length, length))
 
@@ -58,7 +58,7 @@ def is_diffusion_tensor(dimensions: int, diffusion_tensor: ndarray) -> None:
         raise ValueError(
             f"The diffusion tensor doesn't have the correct dimensions; must "
             f"be {(length, length)} for a {dimensions}D space. Matrix shape "
-            f"validation {e}."
+            f"validation error message: {e}."
         )
 
 
