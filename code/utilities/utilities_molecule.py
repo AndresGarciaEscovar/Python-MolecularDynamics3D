@@ -14,7 +14,8 @@ import numpy as np
 from copy import deepcopy
 
 from numpy import append as nappend, arange, array, cos, dot, identity, inf
-from numpy import ndarray, pi, sin, sum as nsum, zeros
+from numpy import max as nmax, min as nmin, ndarray, pi, sin, sum as nsum
+from numpy import vstack, zeros
 from numpy.linalg import inv, norm
 
 from itertools import product
@@ -257,9 +258,8 @@ def get_long_short_axes(
 
             :return: The array with the directive cosines.
         """
-        base = [(cos(x), sin(x)) for x in arange(0.0, angle, step)]
-        base.append((cos(angle), sin(angle)))
-        return array(base, dtype=float)
+        base = nappend(arange(0.0, angle, step), angle)
+        return vstack((cos(base), sin(base))).T
 
     # //////////////////////////////////////////////////////////////////////////
     # Implementation
@@ -285,10 +285,7 @@ def get_long_short_axes(
 
     # For all possible combinations.
     for rcosine in product(*rcosines):
-        # Reset the variables.
-        tlong, tshor = -inf, inf
-
-        # Get the vector.
+        # Get the unit vector.
         for i, dcosine in enumerate(rcosine, start=1):
             # First one is always the 2D directive cosines.
             if i == 1:
@@ -299,14 +296,9 @@ def get_long_short_axes(
             vector[:i] = dcosine[1] * vector[:i]
             vector[i] = dcosine[0]
 
-        # Get the projection.
-        for coord, rad in zip(coordinates, radii):
-            proj = dot(coord, vector)
-            tlong = max(proj + rad, tlong)
-            tshor = min(proj - rad, tshor)
-
-        # Length of axis.
-        distance = tlong - tshor
+        # Get the projection and length of axis.
+        proj = dot(coordinates, vector)
+        distance = nmax(proj + radii) - nmin(proj - radii)
 
         # Evaluate long distance.
         if long < distance:
@@ -331,13 +323,12 @@ if __name__ == "__main__":
 
     coordeei = array(
         [
-            [0, 0, i] for i in range(0, 26)
+            [1, 1, i] for i in range(0, 26)
         ],
         dtype=float
     )
     coords = len(coordeei)
     dimes = len(coordeei[0])
-
     radiei = array([1 for _ in range(coords)], dtype=float)
 
     print(f"Dimensionality: {dimes}")
@@ -345,7 +336,7 @@ if __name__ == "__main__":
 
     # Get the axes.
     start = datetime.now()
-    longsss, shorsss = get_long_short_axes(coordeei, radiei, step=1e-3)
+    longsss, shorsss = get_long_short_axes(coordeei, radiei, step=1e-4)
     end = datetime.now()
 
     print(f"elapsed time: {(end - start).total_seconds()} seconds")
