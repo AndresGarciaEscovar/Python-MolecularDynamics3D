@@ -3,6 +3,7 @@
     molecules.
 """
 import itertools
+import sys
 
 import numpy as np
 # ##############################################################################
@@ -10,8 +11,10 @@ import numpy as np
 # ##############################################################################
 
 # General.
-from numpy import append as nappend, arange, array, cos, dot, identity, ndarray
-from numpy import pi, sin, sum as nsum, zeros
+from copy import deepcopy
+
+from numpy import append as nappend, arange, array, cos, dot, identity, inf
+from numpy import ndarray, pi, sin, sum as nsum, zeros
 from numpy.linalg import inv, norm
 
 from itertools import product
@@ -203,7 +206,7 @@ def get_dtensor_and_orientation(information: dict, dimensions: int) -> tuple:
 
 
 def get_long_short_axes(
-    coordinates: ndarray, radii: ndarray, step: float = 1e-3
+    coordinates: ndarray, radii: ndarray, step: float = 1e-2
 ) -> tuple:
     """
         Gets the long and short axis of the molecule in the given coordinate
@@ -220,6 +223,48 @@ def get_long_short_axes(
         :return: The longest and shortes axes of the molecule, with respect to
          the given coordinate system.
     """
+
+    # //////////////////////////////////////////////////////////////////////////
+    # Auxiliary Functions
+    # //////////////////////////////////////////////////////////////////////////
+
+    def get_angle_cosines(dimensions: int) -> tuple:
+        """
+            Gets the directional cosines of the angles to inspect.
+
+            :param dimensions: The number of dimensions.
+
+            :return: The angles to be checked.
+        """
+        # Auxiliary variables.
+        cosines = [cosines_array(pi)] * (dimensions - 1)
+
+        # No need to do more.
+        if dimensions == 2:
+            return tuple(cosines)
+
+        # Set the first and last index.
+        cosines[0] = cosines_array(2 * pi)
+        cosines[-1] = cosines_array(pi / 2)
+
+        return tuple(cosines)
+
+    def cosines_array(angle: float) -> ndarray:
+        """
+            Gets the directive cosines from zero to the given angle, in radians.
+
+            :param angle: Upper up to where to get the cosines.
+
+            :return: The array with the directive cosines.
+        """
+        base = [(cos(x), sin(x)) for x in arange(0.0, angle, step)]
+        base.append((cos(angle), sin(angle)))
+        return array(base, dtype=float)
+
+    # //////////////////////////////////////////////////////////////////////////
+    # Implementation
+    # //////////////////////////////////////////////////////////////////////////
+
     # Check they are numpy arrays.
     vparameters.is_shape_matrix(radii, (len(coordinates),))
     vparameters.is_shape_matrix(
@@ -227,41 +272,54 @@ def get_long_short_axes(
     )
 
     # Particular case.
-    if (length := len(coordinates[0])) == 1:
+    if (dims := len(coordinates[0])) == 1:
         return array([1], dtype=float), array([1], dtype=float)
 
     # Collection of angles.
-    rangles = [arange(0, 2 * pi, step)] if length > 2 else [arange(0, pi, step)]
-    for cntr in range(0, length):
-        # Only half sphere is needed.
-        if cntr == length - 2:
-            rangles.append(arange(0, pi / 2, step))
-            break
+    rcosines = get_angle_cosines(dims)
+    vector = zeros((dims,), dtype=float)
 
-        # Full sphere is needed.
-        rangles.append(arange(0, pi, step))
+    # Reset the variables.
+    long, shor = -inf, inf
+    along, ashor = None, None
 
-    # Make the projections.
-    for value in product(*rangles):
-        # Get the values.
-        vector = list()
+    # For all possible combinations.
+    for rcosine in product(*rcosines):
+        # Reset the variables.
+        tlong, tshor = -inf, inf
 
-        # Get the normal vector.
-        for cntr, angle in enumerate(value):
-            if cntr == 0:
-                vector = array([cos(angle), sin(angle)], dtype=float)
+        # Get the vector.
+        for i, dcosine in enumerate(rcosine, start=1):
+            # First one is always the 2D directive cosines.
+            if i == 1:
+                vector[:i + 1] = dcosine
                 continue
 
-            vector = sin(angle) * vector
-            vector = nappend(vector, [cos(angle)])
+            # Multiply by the previous sine.
+            vector[:i] = dcosine[1] * vector[:i]
+            vector[i] = dcosine[0]
 
+        # Get the projection.
+        for coord, rad in zip(coordinates, radii):
+            proj = dot(coord, vector)
+            tlong = max(proj + rad, tlong)
+            tshor = min(proj - rad, tshor)
 
-        # TODO: CONTINUE HERE!!!
+        # Length of axis.
+        distance = tlong - tshor
 
+        # Evaluate long distance.
+        if long < distance:
+            long = deepcopy(distance)
+            along = deepcopy(vector)
 
-    print(vector)
+        # Evaluate short distance.
+        if shor > distance:
+            shor = deepcopy(distance)
+            ashor = deepcopy(vector)
 
-    return 1, 2
+    return (along, long), (ashor, shor)
+
 
 # ##############################################################################
 # TO REMOVE
@@ -269,15 +327,27 @@ def get_long_short_axes(
 
 
 if __name__ == "__main__":
+    from datetime import datetime
 
-    import random
+    coordeei = array(
+        [
+            [0, 0, i] for i in range(0, 26)
+        ],
+        dtype=float
+    )
+    coords = len(coordeei)
+    dimes = len(coordeei[0])
 
-    coordi = array([
-        [random.uniform(0, 1) for _ in range(2)] for i in range(3)
-    ], dtype=float)
-    radiei = array([1.0 for i in range(len(coordi))], dtype=float)
+    radiei = array([1 for _ in range(coords)], dtype=float)
+
+    print(f"Dimensionality: {dimes}")
+    print(f"Number of coordinates: {coords}", end="\n\n")
 
     # Get the axes.
-    long, short = get_long_short_axes(coordi, radiei)
+    start = datetime.now()
+    longsss, shorsss = get_long_short_axes(coordeei, radiei, step=1e-3)
+    end = datetime.now()
 
-    print(long, short)
+    print(f"elapsed time: {(end - start).total_seconds()} seconds")
+    print(longsss, norm(longsss[0]))
+    print(shorsss, norm(shorsss[0]))
