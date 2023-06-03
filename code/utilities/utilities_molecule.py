@@ -207,7 +207,7 @@ def get_dtensor_and_orientation(information: dict, dimensions: int) -> tuple:
 
 
 def get_long_short_axes(
-    coordinates: ndarray, radii: ndarray, step: float = 1e-2
+    coordinates: ndarray, radii: ndarray, step: float = 1e-3
 ) -> tuple:
     """
         Gets the long and short axis of the molecule in the given coordinate
@@ -224,7 +224,6 @@ def get_long_short_axes(
         :return: The longest and shortes axes of the molecule, with respect to
          the given coordinate system.
     """
-
     # //////////////////////////////////////////////////////////////////////////
     # Auxiliary Functions
     # //////////////////////////////////////////////////////////////////////////
@@ -265,6 +264,8 @@ def get_long_short_axes(
     # Implementation
     # //////////////////////////////////////////////////////////////////////////
 
+    import math
+
     # Check they are numpy arrays.
     vparameters.is_shape_matrix(radii, (len(coordinates),))
     vparameters.is_shape_matrix(
@@ -283,8 +284,11 @@ def get_long_short_axes(
     long, shor = -inf, inf
     along, ashor = None, None
 
+    length = math.prod(map(len, rcosines))
+
     # For all possible combinations.
-    for rcosine in product(*rcosines):
+    print(f"\rPercentage Done: {0:.7f} %", end="")
+    for cntr, rcosine in enumerate(product(*rcosines)):
         # Get the unit vector.
         for i, dcosine in enumerate(rcosine, start=1):
             # First one is always the 2D directive cosines.
@@ -309,6 +313,10 @@ def get_long_short_axes(
         if shor > distance:
             shor = deepcopy(distance)
             ashor = deepcopy(vector)
+
+        print(f"\rPercentage Done: {cntr * 100 / length:.7f} %", end="")
+
+    print(f"\rPercentage Done: {100:.7f} %", end="")
 
     return (along, long), (ashor, shor)
 
