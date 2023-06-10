@@ -10,8 +10,7 @@
 # General
 import unittest
 
-from numpy import array, dtype, float64, ndarray, zeros
-from random import uniform
+from numpy import zeros
 
 # User defined.
 import code.validation.validation_molecule as vmolecules

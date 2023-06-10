@@ -387,9 +387,10 @@ class TestUtilitiesMolecule(unittest.TestCase):
         with self.assertRaises(ValueError):
             umolecule.get_dtensor(coordinates, radii, shift)
 
-    def test_dtensor_and_orientation(self):
+    def test_get_dtensor_and_orientation(self):
         """
-            Tests that the dtensor_and_orientation function is working properly.
+            Tests that the get_dtensor_and_orientation function is working
+            properly.
         """
         # Define a dictionary that contains a diffusion tensor + orientation.
         information = {
@@ -533,6 +534,34 @@ class TestUtilitiesMolecule(unittest.TestCase):
             for col0, col1 in zip(row0, row1):
                 self.assertEqual(col0, col1)
 
+    def test_get_long_short_axes(self):
+        """
+            Tests that the get_long_short_axes function is working properly.
+        """
+        # ------------------------------ 3D Test ----------------------------- #
+        # Set the coordinates.
+        coordeei = array(
+            [
+                [1, 1, i] for i in range(0, 26)
+            ],
+            dtype=float
+        )
+        coords = len(coordeei)
+        radiei = array([1 for _ in range(coords)], dtype=float)
+
+        # Get the long and short axis.
+        long_axis, short_axis = umolecule.get_long_short_axes(coordeei, radiei)
+
+        expected_long_axis = array([0, 0, 1], dtype=float)
+        expected_short_axis = array([1, 0, 0], dtype=float)
+
+        for expected, actual in zip(expected_long_axis, long_axis[0]):
+            self.assertAlmostEquals(expected, actual)
+
+        for expected, actual in zip(expected_short_axis, short_axis[0]):
+            self.assertAlmostEquals(expected, actual, delta=1e-2)
+
+        print(short_axis)
 
 # ##############################################################################
 # Main Program

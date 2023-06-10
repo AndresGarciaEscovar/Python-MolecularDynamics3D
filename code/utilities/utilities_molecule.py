@@ -2,10 +2,7 @@
     File that contains several utility functions to calculate properties of
     molecules.
 """
-import itertools
-import sys
 
-import numpy as np
 # ##############################################################################
 # Imports
 # ##############################################################################
@@ -264,8 +261,6 @@ def get_long_short_axes(
     # Implementation
     # //////////////////////////////////////////////////////////////////////////
 
-    import math
-
     # Check they are numpy arrays.
     vparameters.is_shape_matrix(radii, (len(coordinates),))
     vparameters.is_shape_matrix(
@@ -284,11 +279,8 @@ def get_long_short_axes(
     long, shor = -inf, inf
     along, ashor = None, None
 
-    length = math.prod(map(len, rcosines))
-
     # For all possible combinations.
-    print(f"\rPercentage Done: {0:.7f} %", end="")
-    for cntr, rcosine in enumerate(product(*rcosines)):
+    for rcosine in product(*rcosines):
         # Get the unit vector.
         for i, dcosine in enumerate(rcosine, start=1):
             # First one is always the 2D directive cosines.
@@ -313,10 +305,6 @@ def get_long_short_axes(
         if shor > distance:
             shor = deepcopy(distance)
             ashor = deepcopy(vector)
-
-        print(f"\rPercentage Done: {cntr * 100 / length:.7f} %", end="")
-
-    print(f"\rPercentage Done: {100:.7f} %", end="")
 
     return (along, long), (ashor, shor)
 
