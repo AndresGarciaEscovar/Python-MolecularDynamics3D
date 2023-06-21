@@ -556,10 +556,10 @@ class TestUtilitiesMolecule(unittest.TestCase):
         expected_short_axis = array([1, 0, 0], dtype=float)
 
         for expected, actual in zip(expected_long_axis, long_axis[0]):
-            self.assertAlmostEquals(expected, actual)
+            self.assertAlmostEqual(expected, actual)
 
         for expected, actual in zip(expected_short_axis, short_axis[0]):
-            self.assertAlmostEquals(expected, actual, delta=1e-2)
+            self.assertAlmostEqual(expected, actual, delta=1e-2)
 
         print(short_axis)
 
