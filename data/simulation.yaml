@@ -31,6 +31,3 @@ simulation:
   save:
     frequency: 100
     frequency_configuration: 0
-
-
-
