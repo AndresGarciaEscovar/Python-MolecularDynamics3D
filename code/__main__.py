@@ -67,7 +67,7 @@ def get_parameters(filename: str) -> tuple:
     working = parameters["directory"]["working"]
     simulation = parameters["simulation"]
     molecules = tuple(value for value in parameters["molecule"].values())
-
+    
     return simulation, molecules, working
 
 
