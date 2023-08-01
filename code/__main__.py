@@ -10,12 +10,13 @@
 # General.
 import argparse
 import numpy as np
+import yaml
 
 # User defined.
 import code.validation.validation_parameters as vparameters
 
 # Temporary.
-from code.main.atom import Atom
+from code.main.molecule import Molecule
 
 # ##############################################################################
 # Functions
@@ -49,6 +50,27 @@ def get_args() -> list:
     return args.filename
 
 
+def get_parameters(filename: str) -> tuple:
+    """
+        This function is used to get the simulation and molecule parameters.
+
+        :param filename: The full path of the yaml file containing the
+         simulation and molecule parameters.
+
+        :return: The simulation and molecule parameters.
+    """
+    # Get the dictionary of parameters from the yaml file.
+    with open(filename, "r") as file:
+        parameters = yaml.safe_load(file)
+    
+    # Get the simulation parameters.    
+    working = parameters["directory"]["working"]
+    simulation = parameters["simulation"]
+    molecules = tuple(value for value in parameters["molecule"].values())
+
+    return simulation, molecules, working
+
+
 # ##############################################################################
 # Main Function
 # ##############################################################################
@@ -61,10 +83,10 @@ def run_main() -> None:
     # Get the command line arguments.
     args = get_args()
 
-    atom = Atom("C1", "C", 1.0, 12.0, np.array([1.0, 2.0, 3.0]))
+    # Get the molecule and simulation parameters from the yaml file.
+    simulation, molecules, working = get_parameters(args)
 
-    print(atom)
-    
+    molecule = Molecule(molecules[0], working)
 
 
 # ##############################################################################
