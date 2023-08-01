@@ -1,4 +1,15 @@
 #!/bin/ksh
 
 # Run the program with the given conda environment.
-conda run -n mdynamics python -m code  /Users/andres/Documents/Projects/Python/MolecularDynamics/data/simulation.yaml
+if [[ $1 == "mac" ]]
+then
+    fpath="/Users/andres/Documents/Projects/Python/MolecularDynamics/data"
+    fpath="$fpath/simulation.yaml"
+    conda run -n mdynamics python -m code $fpath
+elif [[ $1 == "linux" ]]
+then
+    fpath="/Users/andres/Documents/Projects/Python/MolecularDynamics/code"
+    conda run -n mdynamics python -m code $fpath
+else
+    echo "Please specify the operating system: linux or mac"
+fi
