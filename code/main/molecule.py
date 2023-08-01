@@ -104,8 +104,12 @@ class Molecule:
             Loads the different centers of the molecule.
         """
         self.cod = umolecule.get_cod(self.dtensor)
-        # self.cog = umolecule.get_cog(self.atoms)
-        # self.com = umolecule.get_com(self.atoms)
+        self.cog = umolecule.get_cog(self.atoms)
+        self.com = umolecule.get_com(self.atoms)
+        
+        print(f"cod = {self.cod}")
+        print(f"cog = {self.cog}")
+        print(f"com = {self.com}")
 
     # --------------------------------------------------------------------------
     # Rotate Methods
