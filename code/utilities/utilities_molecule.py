@@ -9,6 +9,7 @@
 
 
 # General.
+import itertools
 import numpy as np
 import yaml
 
@@ -26,6 +27,36 @@ import code.validation.validation_parameters as vparameters
 # Get Functions
 # ------------------------------------------------------------------------------
 
+def get_axes(atoms: list, step: float = 1.0e-3) -> tuple:
+    """
+        Gets the longest and shortest axis of the molecule.
+
+        :param atoms: The list of atoms.
+
+        :param references: The reference point to use to calculate the a
+
+        :param step: The step to use to calculate the angles.
+
+        :return: A tuple with the longest and shortest axis of the molecule.
+    """
+    # Define the longest and shortest axis.
+    azimuthal = np.arange(0.0, step + np.pi * 0.5, step=step)
+    polar = np.arange(0.0, step + np.pi, step=step)
+
+    # Get the directive cosines.
+    cazimuthal = np.cos(azimuthal)
+    cpolar = np.cos(polar)
+
+    # Get the directive sines.
+    sazimuthal = np.sin(azimuthal)
+    spolar = np.sin(polar)
+
+    # No need to store these.
+    del azimuthal
+    del polar
+
+    print(spolar)
+
 
 def get_cod(diffusion_tensor: np.ndarray) -> np.ndarray:
     """
@@ -36,8 +67,27 @@ def get_cod(diffusion_tensor: np.ndarray) -> np.ndarray:
 
         :return: The center of diffusion, given the diffusion tensor.
     """
-    print("get_cod needs to be implemented.")
-    return np.zeros(3, dtype=float)
+    # Get the tensors.
+    rr = diffusion_tensor[3:6, 3:6]
+    tr = diffusion_tensor[3:6, 0:3]
+
+    # Matrix with rotation-rotation
+    matrix = np.linalg.inv(np.array(
+        [
+            [rr[1, 1] + rr[2, 2], -rr[0, 1], -rr[0, 2]],
+            [-rr[1, 0], rr[0, 0] + rr[2, 2], -rr[1, 2]],
+            [-rr[2, 0], -rr[2, 1], rr[0, 0] + rr[1, 1]],
+        ],
+        dtype=float
+    ))
+
+    # Vector from translation-rotation coupling.
+    vector = np.array(
+        [tr[1, 2] - tr[2, 1], tr[2, 0] - tr[0, 2], tr[0, 1] - tr[1, 0]],
+        dtype=float
+    )
+
+    return matrix @ vector
 
 
 def get_cog(atoms: list) -> np.ndarray:
@@ -71,7 +121,7 @@ def get_cog(atoms: list) -> np.ndarray:
     return (cmax + cmin) * 0.5
 
 
-def get_com(atoms: atom.Atom) -> np.ndarray:
+def get_com(atoms: list) -> np.ndarray:
     """
         This function is used to get the center of mass from the atom 
         coordinates.

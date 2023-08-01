@@ -72,7 +72,7 @@ class Molecule:
     # Load Methods
     # --------------------------------------------------------------------------
 
-    def load(self):
+    def load(self) -> None:
         """
             Loads the molecule from the file.
         """
@@ -99,17 +99,22 @@ class Molecule:
         vparameters.is_matrix(self.dtensor, (6, 6), "diffusion tensor")
         vparameters.is_matrix(self.orientation, (3, 3), "orientation")
 
-    def load_centers(self):
+    def load_axes(self) -> None:
+        """
+            Loads the longest and shortest axes of the molecule.
+        """
+        # Get the longest and shortest axes.
+        axes = umolecule.get_axes(self.atoms, step=1.0e-3)
+
+        raise Exception("Continue here!")
+
+    def load_centers(self) -> None:
         """
             Loads the different centers of the molecule.
         """
         self.cod = umolecule.get_cod(self.dtensor)
         self.cog = umolecule.get_cog(self.atoms)
         self.com = umolecule.get_com(self.atoms)
-        
-        print(f"cod = {self.cod}")
-        print(f"cog = {self.cog}")
-        print(f"com = {self.com}")
 
     # --------------------------------------------------------------------------
     # Rotate Methods
@@ -160,6 +165,9 @@ class Molecule:
         # Load the molecule.
         self.load()
         self.load_centers()
+
+        # Load the long and short axes.
+        self.load_axes()
 
     # ##########################################################################
     # Dunder Methods

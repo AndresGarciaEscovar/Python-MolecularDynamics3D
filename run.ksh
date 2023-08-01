@@ -8,7 +8,7 @@ then
     conda run -n mdynamics python -m code $fpath
 elif [[ $1 == "linux" ]]
 then
-    fpath="/Users/andres/Documents/Projects/Python/MolecularDynamics/data"
+    fpath="/home/hp/Projects/Programming/Python/MolecularDynamics/data"
     fpath="$fpath/simulation_linux.yaml"
     conda run -n mdynamics python -m code $fpath
 else
