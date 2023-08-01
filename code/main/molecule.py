@@ -7,9 +7,9 @@
 # ##############################################################################
 
 # General.
+import numpy as np
 import yaml
 
-from numpy import append as nappend, array, delete as ndelete, identity, ndarray
 from pathlib import Path
 from typing import Any, Union
 
@@ -71,7 +71,7 @@ class Molecule:
     # ------------------------------------------------------------------------ #
 
     @property
-    def cod(self) -> Union[None, ndarray]:
+    def cod(self) -> Union[None, np.ndarray]:
         """
             Returns the numpy array that represents the center of diffusion of
             the molecule.
@@ -82,7 +82,7 @@ class Molecule:
         return self.__cod[0]
 
     @cod.setter
-    def cod(self, cod: ndarray) -> None:
+    def cod(self, cod: np.ndarray) -> None:
         """
             Sets the center of diffusion.
 
@@ -96,7 +96,7 @@ class Molecule:
     # ------------------------------------------------------------------------ #
 
     @property
-    def cog(self) -> ndarray:
+    def cog(self) -> np.ndarray:
         """
             Returns the numpy array that represents the center of geometry of
             the molecule.
@@ -107,7 +107,7 @@ class Molecule:
         return self.__com[0]
 
     @cog.setter
-    def cog(self, cog: ndarray) -> None:
+    def cog(self, cog: np.ndarray) -> None:
         """
             Sets the center of geometry.
 
@@ -121,7 +121,7 @@ class Molecule:
     # ------------------------------------------------------------------------ #
 
     @property
-    def com(self) -> ndarray:
+    def com(self) -> np.ndarray:
         """
             Returns the numpy array that represents the center of mass of the
             molecule.
@@ -132,7 +132,7 @@ class Molecule:
         return self.__com[0]
 
     @com.setter
-    def com(self, com: ndarray) -> None:
+    def com(self, com: np.ndarray) -> None:
         """
             Sets the center of mass.
 
@@ -146,7 +146,7 @@ class Molecule:
     # ------------------------------------------------------------------------ #
 
     @property
-    def coordinates(self) -> ndarray:
+    def coordinates(self) -> np.ndarray:
         """
             Returns the coordinates of all the atoms in the molecule.
 
@@ -158,7 +158,7 @@ class Molecule:
     # ------------------------------------------------------------------------ #
 
     @property
-    def diffusion_tensor(self) -> ndarray:
+    def diffusion_tensor(self) -> np.ndarray:
         """
             The diffusion tensor, only exists for 3D molecules.
 
@@ -182,7 +182,7 @@ class Molecule:
     # ------------------------------------------------------------------------ #
 
     @property
-    def masses(self) -> ndarray:
+    def masses(self) -> np.ndarray:
         """
             Returns the masses of all the atoms in the molecule.
 
@@ -218,7 +218,7 @@ class Molecule:
     # ------------------------------------------------------------------------ #
 
     @property
-    def orientation(self) -> ndarray:
+    def orientation(self) -> np.ndarray:
         """
             Returns the numpy array that represents the orientation of the
             molecule, with respect to the center of mass.
@@ -229,7 +229,7 @@ class Molecule:
         return self.__orientation
 
     @orientation.setter
-    def orientation(self, orientation: ndarray) -> None:
+    def orientation(self, orientation: np.ndarray) -> None:
         """
             Sets the orientaiton of the molecule.
 
@@ -246,7 +246,7 @@ class Molecule:
     # ------------------------------------------------------------------------ #
 
     @property
-    def radii(self) -> ndarray:
+    def radii(self) -> np.ndarray:
         """
             Returns the radius of all the atoms in the molecule.
 
