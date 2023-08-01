@@ -4,6 +4,17 @@
 # Atom type (atype) is not a mandatory field; set to '---' by default.
 # The diffusion tensor is ALWAYS given with respect to the center of mass.
 molecule_name: 44npnb
+orientation:
+  - [1.0, 0.0, 0.0]
+  - [0.0, 1.0, 0.0]
+  - [0.0, 0.0, 1.0]
+diffusion_tensor:
+  - [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+  - [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+  - [0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+  - [0.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+  - [0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
 atoms:
     atom_1:
         coordinates: [-2.0505278456,0.7233636485,8.8909238211]
