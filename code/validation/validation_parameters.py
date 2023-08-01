@@ -9,7 +9,7 @@
 # ##############################################################################
 
 # General.
-from numpy import dtype, float64, ndarray
+import numpy as np
 from typing import Any
 
 # ##############################################################################
@@ -33,27 +33,29 @@ def is_float(number: Any) -> None:
          or an integer.
     """
     # Check the object is a valid float.
-    if not isinstance(number, (float, dtype("float64").type, int)):
+    if not isinstance(number, (float, np.dtype("float64").type, int)):
         raise TypeError(f"The given object is not a real number.")
 
 
-def is_length(array: ndarray, length: int) -> None:
+def is_matrix(array: np.ndarray, shape: tuple, message: str = None) -> None:
     """
-        Validates that the given numpy array has the proper length.
+        Validates that the given numpy array has the proper shape.
 
-        :param array: The array whose length is going to be validated.
+        :param array: The array whose shape is going to be validated.
 
-        :param length: The expected length of the array.
+        :param shape: The expected shape of the array.
 
-        :raise TypeError: If the length of the numpy array doesn't match the
-         expected length.
+        :param message: The message to be displayed if the shape is not correct.
+         Default is None.
     """
+    # Check the shape of the array.
+    if array.shape != shape:
+        # Format the message.
+        message = " " if message is None else f", {message}, "
 
-    # Customize the name if needed.
-    if len(array) != length:
         raise ValueError(
-            f"The numpy array is not of the proper length. The current number "
-            f"of entries is {len(array)} and it should have {length}."
+            f"The numpy array{message}is not of the proper shape. The current"
+            f"shape is {array.shape} and it should be {shape}."
         )
 
 
