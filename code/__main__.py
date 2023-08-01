@@ -9,9 +9,13 @@
 
 # General.
 import argparse
+import numpy as np
 
 # User defined.
 import code.validation.validation_parameters as vparameters
+
+# Temporary.
+from code.main.atom import Atom
 
 # ##############################################################################
 # Functions
@@ -57,7 +61,10 @@ def run_main() -> None:
     # Get the command line arguments.
     args = get_args()
 
-    print(args)
+    atom = Atom("C1", "C", 1.0, 12.0, np.array([1.0, 2.0, 3.0]))
+
+    print(atom)
+    
 
 
 # ##############################################################################
