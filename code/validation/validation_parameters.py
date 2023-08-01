@@ -37,42 +37,7 @@ def is_float(number: Any) -> None:
         raise TypeError(f"The given object is not a real number.")
 
 
-def is_ndarray(array: ndarray, atype: type, length: int) -> None:
-    """
-        Validates all the features of the ndarray.
-
-        :param array: The object to be validated as the numpy array.
-
-        :param atype: The expected type of the array.
-
-        :param length: The expected length of the array.
-    """
-
-    # Validate the three features.
-    is_ndarray_type(array)
-    is_ndarray_dtype(array, atype)
-    is_ndarray_length(array, length)
-
-
-def is_ndarray_dtype(array: ndarray, atype: type) -> None:
-    """
-        Validates that the entries of the given array are all of the same type.
-
-        :param array: The array whose type is going to be validated.
-
-        :param atype: The expected type of the array.
-
-        :raise TypeError: If the elements in the ndarray do not match the
-         required type.
-    """
-    if array.dtype.type is not atype:
-        raise TypeError(
-            f"The numpy array is not of the proper type. It's entries are of "
-            f"type {array.dtype}, but must be of type {atype}."
-        )
-
-
-def is_ndarray_length(array: ndarray, length: int) -> None:
+def is_length(array: ndarray, length: int) -> None:
     """
         Validates that the given numpy array has the proper length.
 
@@ -92,166 +57,61 @@ def is_ndarray_length(array: ndarray, length: int) -> None:
         )
 
 
-def is_ndarray_type(array: Any) -> None:
+def is_negative(number: Any, zero: bool = False) -> None:
     """
-        Validates that the array is an ndarray.
+        Validates that the given number is negative.
 
-        :param array: The object to be validated as the numpy array.
+        :param number: The number to be validated.
 
-        :raise TypeError: If array object is not an ndarray.
+        :param zero: If True, the number is allowed to be zero; False otherwise.
+         Default is False.
+
+        :raise ValueError: If the given number is not negative.
     """
-    if not isinstance(array, ndarray):
-        raise TypeError(
-            f"The given object is not a numpy array; it should be a numpy "
-            f"array."
-        )
-
-
-def is_negative(number: Any, include: bool = False) -> None:
-    """
-        Validates if the given number is a negative floating point number, i.e.,
-        a float, and it's greater than zero.
-
-        :param number: The number to be tested.
-
-        :param include: If zero must be included.
-
-        :raise ValueError: If the number is not a negative number.
-    """
-    # Check it's a float.
+    # Check the object is a valid float.
     is_float(number)
 
-    if not include and not number < 0.0:
-        raise ValueError(
-            f"The given floating point number is a positive number; it should "
-            f"be a negative number and non-zero."
-        )
-
-    # Check if the number is not negative or zero.
-    if include and not number <= 0.0:
-        raise ValueError(
-            f"The given floating point number is a positive number; it should "
-            f"be a negative number, or zero."
-        )
+    # Check the number is positive.
+    if (number > 0.0 if zero else number >= 0.0):
+        raise ValueError(f"The given number is not negative.")
 
 
-def is_not_in_dictionary(attribute: Any, dictionary: dict) -> None:
+def is_positive(number: Any, zero: bool = False) -> None:
     """
-        Checks that the given parameter exists in the dictionary, otherwise it
-        raises an error.
+        Validates that the given number is positive.
 
-        :param attribute: The attribute name to be checked.
+        :param number: The number to be validated.
 
-        :param dictionary: The dictionary that potentiall contains the
-         parameter.
+        :param zero: If True, the number is allowed to be zero; False otherwise.
+         Default is False.
 
-        :raise AttributeError: If the attribute is not in the given dictionary.
+        :raise ValueError: If the given number is not positive.
     """
-    # Check the key is NOT in the dictionary.
-    if attribute in dictionary.keys():
-        raise AttributeError(
-            f"The attibute '{attribute}' already exists and can only be "
-            f"initialized once."
-        )
-
-
-def is_not_none(tobject: Any) -> None:
-    """
-        Validates that the given parameter is not noea string.
-
-        :param tobject: The object whose type is to be examined.
-
-        :raise TypeError: If the given object is None.
-    """
-    # Check the object is not None.
-    if tobject is None:
-        raise TypeError(
-            f"The given object is None; it must take a non-None value."
-        )
-
-
-def is_positive(number: Any, include: bool = False) -> None:
-    """
-        Validates if the given number is a floating point number, i.e., a float.
-        and it's greater than zero.
-
-        :param number: The number to be tested.
-
-        :param include: If zero must be included.
-
-        :raise ValueError: If the number is not a positive number.
-    """
-    # Check it's a float.
+    # Check the object is a valid float.
     is_float(number)
 
-    # Check if it's a negative number.
-    if not include and not number > 0.0:
-        raise ValueError(
-            f"The given floating point number is a positive number; it should "
-            f"be a positive number and non-zero."
-        )
-
-    # Check if the number is not postive or zero.
-    if include and not number >= 0.0:
-        raise ValueError(
-            f"The given floating point number is a negative number; it should "
-            f"be a positive number, or zero."
-        )
+    # Check the number is positive.
+    if (number < 0.0 if zero else number <= 0.0):
+        raise ValueError(f"The given number is not positive.")
 
 
-def is_shape_matrix(matrix: Any, dimensions: tuple) -> None:
+def is_string_empty(string: Any, empty: bool =True) -> None:
     """
-        Validates that the given matrix has the proper shape and it's a
-        numerical matrix.
-
-        :param matrix: The matrix to be validated.
-
-        :param dimensions: The expected dimensions of the numpy array.
-
-        :raise ValueError: If the given string is not an empty string.
-
-        :raise TypeError: If the given object is not a string.
-    """
-
-    # Check it's a numpy array and has the proper type.
-    is_ndarray_type(matrix)
-    is_ndarray_dtype(matrix, float64)
-
-    # Check the right dimensions.
-    if matrix.shape != dimensions:
-        raise ValueError(
-            f"The given matrix has the wrong shape. Expected shape: "
-            f"{dimensions}, current shape: {matrix.shape}."
-        )
-
-
-def is_string(string: Any, strip: bool = False, empty: bool = False) -> None:
-    """
-        Validates that the given string representation of the string is an empty
-        string.
+        Validates that the given string representation of the string is not an
+        empty string.
 
         :param string: The string to be validated.
 
-        :param strip: A boolean flag indicating if the string must be stripped
-         before making the comparison. True  if the string must be stripped
-         before making the comparison; False, otherwise. True by default.
-
-        :param empty: A boolean flag that indicates if the string is to be
-         checked to be empty. True, if the string cannot be empty; False,
-         otherwise.
-
-        :raise ValueError: If the given string is not an empty string.
-
-        :raise TypeError: If the given object is not a string.
+        :param not_empty: If True, the string is not allowed to be empty; False
+         otherwise. Default is False.
     """
-    # Check the object is a string.
+    # Check the object is a valid string.
     if not isinstance(string, str):
         raise TypeError(f"The given object is not a string.")
 
     # Check the string is not empty.
-    tstring = string.strip() if strip else string
-    if empty and tstring == "":
-        raise ValueError("The string should not be an empty string.")
+    if empty and string.strip() == "":
+        raise ValueError(f"The given string is empty. It must not be empty.")
 
 
 def is_yaml(path: str) -> None:
@@ -263,7 +123,7 @@ def is_yaml(path: str) -> None:
         :raise TypeError: If the given string does not represent a yaml file.
     """
     # Validate it's a string.
-    is_string(path)
+    is_string_empty(path)
 
     # Check it is a yaml file.
     if not (path.endswith(".yaml") or path.endswith(".yml")):

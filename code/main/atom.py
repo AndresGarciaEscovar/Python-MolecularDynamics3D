@@ -7,14 +7,15 @@
 # ##############################################################################
 
 # General.
+import copy
 import mendeleev
+import numpy as np
 
-from numpy import append as nappend, array, delete as ndelete, ndarray, zeros
 from sqlalchemy.orm.exc import NoResultFound
 from warnings import warn
 
 # User defined.
-import code.utilities.utilities_strings as sutils
+import code.utilities.utilities_strings as ustrings
 import code.validation.validation_parameters as vparameters
 
 # ##############################################################################
@@ -76,9 +77,10 @@ class Atom:
 
             :param aname: The new name of the atom.
         """
-        # Validate it's a string.
-        vparameters.is_string(aname, strip=True, empty=True)
+        # Validate it's a non-empty string.
+        vparameters.is_string_empty(aname, empty=True)
 
+        # Must be a string.
         self.__aname = aname.strip()
 
     # ------------------------------------------------------------------------ #
@@ -101,34 +103,34 @@ class Atom:
             :param atype: The new type of the atom.
         """
         # Validate it's a string.
-        vparameters.is_string(atype, strip=True, empty=True)
+        vparameters.is_string_empty(atype, empty=True)
 
         self.__atype = atype.strip()
 
     # ------------------------------------------------------------------------ #
 
     @property
-    def coordinates(self) -> ndarray:
+    def coordinates(self) -> np.ndarray:
         """
             Returns a copy of the coordinates of the atom.
 
             :return: Returns a copy of the coordinates of the atom.
         """
-        return self.__coordinates[0]
+        return copy.deepcopy(self.__coordinates)
 
     @coordinates.setter
-    def coordinates(self, coordinates: ndarray) -> None:
+    def coordinates(self, coordinates: np.ndarray) -> None:
         """
             Sets the coordinates of the atom.
 
             :param coordinates: The new coordinates of the atom. Must be a
              1-dimensional numpy array of floats.
         """
+        # Create the coordinates.
+        self.__coordinates = np.array(coordinates, dtype=float)
 
-        # Gurantees same dimensions and type.
-        coords = array(coordinates, dtype=float)
-        self.__coordinates = nappend(self.__coordinates, [coords], axis=0)
-        self.__coordinates = ndelete(self.__coordinates, 0, axis=0)
+        # Validate the coordinates.
+        vparameters.is_length(self.__coordinates, 3)
 
     # ------------------------------------------------------------------------ #
 
@@ -164,9 +166,9 @@ class Atom:
             :param mass: The floating point number that represents the mass of
              the atom.
         """
-
         # Validate the mass.
-        vparameters.is_positive(mass, include=False)
+        vparameters.is_positive(mass, zero=False)
+        vparameters.is_negative(self.__mass, zero=True)
 
         self.__mass = float(mass)
 
@@ -192,7 +194,8 @@ class Atom:
              radius of the atom.
         """
         # Validate the radius.
-        vparameters.is_positive(radius, include=False)
+        vparameters.is_positive(radius, zero=False)
+        vparameters.is_negative(self.__radius, zero=True)
 
         self.__radius = float(radius)
 
@@ -213,10 +216,10 @@ class Atom:
             :raises ElementWarning: If the user attempts to setup an atom from
              the periodic table that does not exist.
         """
-
         # Try to get the element.
         try:
             element = mendeleev.element(self.atype)
+
         except NoResultFound:
             warn(
                 f"Setting up an atom's mass and radius according to the "
@@ -237,21 +240,26 @@ class Atom:
             return
 
         # Setup the values.
-        self.mass = element.mass
-        self.radius = element.vdw_radius / 100.0
+        self.__mass = element.mass
+        self.__radius = element.vdw_radius / 100.0
 
     # //////////////////////////////////////////////////////////////////////////
     # Constructor
     # //////////////////////////////////////////////////////////////////////////
 
     def __init__(
-        self, radius: float, mass: float, coordinates: ndarray,
-        atype: str = None, aname: str = None
+        self, aname: str, atype: str, radius: float, mass: float,
+        coordinates: np.ndarray,
+        
     ):
         """
             Constructs a new instance of an atom. Once created, the mass and the
             radius of the atom cannot be changed.
 
+            :param aname: The name of the atom.
+
+            :param atype: The type of the atom.
+            
             :param radius: A positive floating point number that represents the
              radius of the spherical atom.
 
@@ -260,23 +268,24 @@ class Atom:
 
             :param coordinates: A 1D numpy array of n-entries that represents
              the position of the sphere in n-dimensional space.
-
-            :param atype: The type of the atom, can be set at any point.
-
-            :param aname: The type of the atom, can be set at any point.
         """
-
         # Set the atom names and type.
-        self.aname = "---" if aname is None else aname
-        self.atype = "---" if atype is None else atype
+        self.aname = aname
+        self.atype = atype
 
         # Set the other parameters.
+        self.__mass = 0.0
         self.mass = mass
+
+        self.__radius = 0.0
         self.radius = radius
 
         # Easy way of setting up the coordinates.
-        self.__coordinates = zeros((1, len(coordinates)), dtype=float)
+        self.__coordinates = None
         self.coordinates = coordinates
+
+        # Set the mass and radius from the periodic table.
+        self.set_from_elements()
 
     # //////////////////////////////////////////////////////////////////////////
     # Dunder Methods
@@ -300,10 +309,13 @@ class Atom:
 
             :return: A string with a quick representation of the atom.
         """
+        # Auxiliary variables.
+        get_string_vector = ustrings.get_string_vector
+
         return "    ".join([
             self.aname,
             self.atype,
-            f"{sutils.get_string_vector(self.coordinates)} \u212B",
+            f"{get_string_vector(self.coordinates)} \u212B",
             f"{self.radius:.7e} \u212B",
             f"{self.mass:.7e} AMU"
         ])
@@ -314,10 +326,13 @@ class Atom:
 
             :return: A string with a detailed representation of the atom.
         """
+        # Auxiliary variables.
+        get_string_vector = ustrings.get_string_vector
+
         return "\n".join([
             f"Name: {self.aname}",
             f"Type: {self.atype}",
-            f"Coordinates: {sutils.get_string_vector(self.coordinates)} \u212B",
+            f"Coordinates: {get_string_vector(self.coordinates)} \u212B",
             f"Radius: {self.radius:.7e} \u212B",
             f"Mass: {self.mass:.7e} AMU"
         ])
