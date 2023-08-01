@@ -33,8 +33,6 @@ def get_axes(atoms: list, step: float = 1.0e-3) -> tuple:
 
         :param atoms: The list of atoms.
 
-        :param references: The reference point to use to calculate the a
-
         :param step: The step to use to calculate the angles.
 
         :return: A tuple with the longest and shortest axis of the molecule.
@@ -55,7 +53,7 @@ def get_axes(atoms: list, step: float = 1.0e-3) -> tuple:
     del azimuthal
     del polar
 
-    print(spolar)
+    return tuple()
 
 
 def get_cod(diffusion_tensor: np.ndarray) -> np.ndarray:
