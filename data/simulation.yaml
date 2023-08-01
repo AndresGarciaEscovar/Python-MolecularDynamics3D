@@ -1,0 +1,36 @@
+# Parameters for the simulation.
+#  - directory:
+#    - working: Path to the working directory.
+#  - molecule:
+#    - file_path1: Path to the first molecule.
+#    - file_path2: Path to the second molecule.
+#  - simulation:
+#    - pore_radius: Radius of the pore in angstrom.
+#    - time_step: Time step in seconds.
+#    - trials: Total number of trials.
+#    - trials_initial: Number of trials to be set as initial.
+#    - trials_sucessful: Number of current sucessful trials.
+#    - save:
+#      - frequency: Frequency of saving the simulation data.
+#      - frequency_configuration: Frequency of saving the configuration of the
+#        molecules.
+#
+# All of the parameters are mandatory.
+#
+directory:
+  working:  
+molecule:
+  file_path1: data/reactant.yaml
+  file_path2: data/product.yaml
+simulation:
+  pore_radius: 0.5
+  time_step: 0.001
+  trials: 1000
+  trials_initial: 0
+  trials_sucessful: 0
+  save:
+    frequency: 100
+    frequency_configuration: 0
+
+
+
