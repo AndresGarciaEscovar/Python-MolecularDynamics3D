@@ -4,11 +4,12 @@
 if [[ $1 == "mac" ]]
 then
     fpath="/Users/andres/Documents/Projects/Python/MolecularDynamics/data"
-    fpath="$fpath/simulation.yaml"
+    fpath="$fpath/simulation_mac.yaml"
     conda run -n mdynamics python -m code $fpath
 elif [[ $1 == "linux" ]]
 then
-    fpath="/Users/andres/Documents/Projects/Python/MolecularDynamics/code"
+    fpath="/Users/andres/Documents/Projects/Python/MolecularDynamics/data"
+    fpath="$fpath/simulation_linux.yaml"
     conda run -n mdynamics python -m code $fpath
 else
     echo "Please specify the operating system: linux or mac"
