@@ -8,6 +8,7 @@
 
 # General.
 import numpy as np
+import sys
 import yaml
 
 from pathlib import Path
@@ -15,6 +16,8 @@ from typing import Any, Union
 
 # User defined.
 import code.main.atom as atom
+import code.utilities.utilities_molecule as umolecule
+import code.validation.validation_parameters as vparameters
 
 # ##############################################################################
 # Classes
@@ -66,8 +69,43 @@ class Molecule:
     # --------------------------------------------------------------------------
 
     # --------------------------------------------------------------------------
-    # Load an Save Methods
+    # Load Methods
     # --------------------------------------------------------------------------
+
+    def load(self):
+        """
+            Loads the molecule from the file.
+        """
+        # Auxiliary variables.
+        atoms = None
+        
+        # Get the parameters from the yaml file.
+        parameters = umolecule.get_parameters(self.filename)
+
+        # Get the molecule parameters.
+        self.dtensor = np.array(parameters["diffusion_tensor"], dtype=float)
+        self.orientation = np.array(parameters["orientation"], dtype=float)
+        atoms = parameters["atoms"]
+
+        # Load the atoms.
+        for name, information in atoms.items():
+            coords = np.array(information["coordinates"], dtype=float)
+            atype = information["atype"]
+            mass = information["mass"]
+            radius = information["radius"]
+            self.atoms.append(atom.Atom(name, atype, mass, radius, coords))
+        
+        # Validate the matrices.
+        vparameters.is_matrix(self.dtensor, (6, 6), "diffusion tensor")
+        vparameters.is_matrix(self.orientation, (3, 3), "orientation")
+
+    def load_centers(self):
+        """
+            Loads the different centers of the molecule.
+        """
+        self.cod = umolecule.get_cod(self.dtensor)
+        # self.cog = umolecule.get_cog(self.atoms)
+        # self.com = umolecule.get_com(self.atoms)
 
     # --------------------------------------------------------------------------
     # Rotate Methods
@@ -94,10 +132,30 @@ class Molecule:
             :param working: The name of the directory where the simulation
              output is being saved.
         """
+        # Initialize the molecule properties.
+        self.dtensor = None
+        self.orientation = None
+        self.atoms = []
+
+        # Molecule centers, cod = center of diffusion, cog = center of geometry
+        # and com = center of mass.
+        self.cod = None
+        self.cog = None
+        self.com = None
+
+        self.longest_axis = None
+        self.longest_axis_lenght = None
+
+        self.shortest_axis = None
+        self.shortest_axis_lenght = None
+
         # Set the file name and get the working directory.
         self.filename = f"{Path(filename).resolve()}"
         self.working = f"{Path(working).resolve()}"
-        
+
+        # Load the molecule.
+        self.load()
+        self.load_centers()
 
     # ##########################################################################
     # Dunder Methods
