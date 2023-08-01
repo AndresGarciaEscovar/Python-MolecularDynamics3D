@@ -130,7 +130,7 @@ class Atom:
         self.__coordinates = np.array(coordinates, dtype=float)
 
         # Validate the coordinates.
-        vparameters.is_length(self.__coordinates, 3)
+        vparameters.is_matrix(self.__coordinates, (3,), "coordinates")
 
     # ------------------------------------------------------------------------ #
 
@@ -283,9 +283,6 @@ class Atom:
         # Easy way of setting up the coordinates.
         self.__coordinates = None
         self.coordinates = coordinates
-
-        # Set the mass and radius from the periodic table.
-        self.set_from_elements()
 
     # //////////////////////////////////////////////////////////////////////////
     # Dunder Methods
