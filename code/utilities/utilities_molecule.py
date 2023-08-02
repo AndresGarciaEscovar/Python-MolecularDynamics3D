@@ -2,19 +2,17 @@
     File that contains several utility functions to calculate properties of
     molecules.
 """
-
+import copy
 # ##############################################################################
 # Imports
 # ##############################################################################
 
 
 # General.
-import itertools
 import numpy as np
 import yaml
 
 # User defined.
-import code.main.atom as atom
 import code.validation.validation_parameters as vparameters
 
 
@@ -27,6 +25,7 @@ import code.validation.validation_parameters as vparameters
 # Get Functions
 # ------------------------------------------------------------------------------
 
+
 def get_axes(atoms: list, step: float = 1.0e-3) -> tuple:
     """
         Gets the longest and shortest axis of the molecule.
@@ -37,6 +36,10 @@ def get_axes(atoms: list, step: float = 1.0e-3) -> tuple:
 
         :return: A tuple with the longest and shortest axis of the molecule.
     """
+    # Get the coordinates of the atoms.
+    coordinates = np.array([atom.coordinates for atom in atoms], dtype=float)
+    radii = np.array([atom.radius for atom in atoms], dtype=float)
+
     # Define the longest and shortest axis.
     azimuthal = np.arange(0.0, step + np.pi * 0.5, step=step)
     polar = np.arange(0.0, step + np.pi, step=step)
@@ -49,11 +52,52 @@ def get_axes(atoms: list, step: float = 1.0e-3) -> tuple:
     sazimuthal = np.sin(azimuthal)
     spolar = np.sin(polar)
 
+    lenght_azimuth = len(azimuthal)
+    lenght_polar = len(polar)
+
     # No need to store these.
     del azimuthal
     del polar
 
-    return tuple()
+    # Max final.
+    max_final = -np.inf
+    max_vector = None
+
+    # Min final.
+    min_final = np.inf
+    min_vector = None
+
+    # Iterate over the angles.
+    for i in range(lenght_polar):
+        for j in range(lenght_azimuth):
+            # Get the unit vector.
+            vector = np.array([
+                cpolar[i] * sazimuthal[j],
+                spolar[i] * sazimuthal[j],
+                cazimuthal[j]
+            ])
+
+            # Get the projections.
+            projections = np.dot(coordinates, vector)
+
+            # Get  the maximum and minimum points.
+            max_point = (projections + radii).max(initial=None)
+            min_point = (projections - radii).min(initial=None)
+
+            # Difference between the maximum and minimum points, along the axis.
+            difference = (max_point - min_point)
+
+            # Longest axis.
+            if difference > max_final:
+                max_final = difference
+                max_vector = copy.deepcopy(vector)
+
+            # Shortest axis.
+            if difference < min_final:
+                min_final = difference
+                min_vector = copy.deepcopy(vector)
+
+    return (max_final, max_vector), (min_final, min_vector)
 
 
 def get_cod(diffusion_tensor: np.ndarray) -> np.ndarray:
@@ -109,8 +153,8 @@ def get_cog(atoms: list) -> np.ndarray:
     mrange = len(coords[0])
 
     # Get the maximum and minimum coordinates for each axis.
-    cmax = [pcoords[:,i].max(initial=None) for i in range(mrange)]
-    cmin = [ncoords[:,i].min(initial=None) for i in range(mrange)]
+    cmax = [pcoords[:, i].max(initial=None) for i in range(mrange)]
+    cmin = [ncoords[:, i].min(initial=None) for i in range(mrange)]
     
     # Convert the lists to numpy arrays.
     cmax = np.array(cmax, dtype=float)

@@ -8,11 +8,8 @@
 
 # General.
 import numpy as np
-import sys
-import yaml
 
 from pathlib import Path
-from typing import Any, Union
 
 # User defined.
 import code.main.atom as atom
@@ -76,9 +73,6 @@ class Molecule:
         """
             Loads the molecule from the file.
         """
-        # Auxiliary variables.
-        atoms = None
-        
         # Get the parameters from the yaml file.
         parameters = umolecule.get_parameters(self.filename)
 
@@ -106,7 +100,13 @@ class Molecule:
         # Get the longest and shortest axes.
         axes = umolecule.get_axes(self.atoms, step=1.0e-3)
 
-        raise Exception("Continue here!")
+        # Get the longest axis.
+        self.longest_axis_lenght = axes[0][0]
+        self.longest_axis = axes[0][1]
+
+        # Get the shortest axis.
+        self.shortest_axis_lenght = axes[1][0]
+        self.shortest_axis = axes[1][1]
 
     def load_centers(self) -> None:
         """
