@@ -52,8 +52,8 @@ def get_axes(atoms: list, step: float = 1.0e-3) -> tuple:
     sazimuthal = np.sin(azimuthal)
     spolar = np.sin(polar)
 
-    lenght_azimuth = len(azimuthal)
-    lenght_polar = len(polar)
+    length_azimuth = len(azimuthal)
+    length_polar = len(polar)
 
     # No need to store these.
     del azimuthal
@@ -68,8 +68,8 @@ def get_axes(atoms: list, step: float = 1.0e-3) -> tuple:
     min_vector = None
 
     # Iterate over the angles.
-    for i in range(lenght_polar):
-        for j in range(lenght_azimuth):
+    for i in range(length_polar):
+        for j in range(length_azimuth):
             # Get the unit vector.
             vector = np.array([
                 cpolar[i] * sazimuthal[j],
