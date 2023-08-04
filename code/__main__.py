@@ -9,6 +9,8 @@
 
 # General.
 import argparse
+import os
+
 import numpy as np
 import yaml
 
@@ -86,8 +88,10 @@ def run_main() -> None:
     # Get the molecule and simulation parameters from the yaml file.
     simulation, molecules, working = get_parameters(filename)
 
-    molecule_0 = Molecule(molecules[0], working)
-    molecule_1 = Molecule(molecules[1], working)
+    print(os.cpu_count())
+
+    # molecule_0 = Molecule(molecules[0], working)
+    # molecule_1 = Molecule(molecules[1], working)
 
 
 # ##############################################################################
