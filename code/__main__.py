@@ -81,10 +81,10 @@ def run_main() -> None:
         This function is used to run the main program.
     """
     # Get the command line arguments.
-    args = get_args()
+    filename = get_args()
 
     # Get the molecule and simulation parameters from the yaml file.
-    simulation, molecules, working = get_parameters(args)
+    simulation, molecules, working = get_parameters(filename)
 
     molecule_0 = Molecule(molecules[0], working)
     molecule_1 = Molecule(molecules[1], working)
