@@ -23,7 +23,7 @@ from code.main.molecule import Molecule
 # ##############################################################################
 
 
-def get_args() -> list:
+def get_args() -> str:
     """
         Returns function is used to get the command line arguments.
     """
@@ -86,7 +86,8 @@ def run_main() -> None:
     # Get the molecule and simulation parameters from the yaml file.
     simulation, molecules, working = get_parameters(args)
 
-    molecule = Molecule(molecules[0], working)
+    molecule_0 = Molecule(molecules[0], working)
+    molecule_1 = Molecule(molecules[1], working)
 
 
 # ##############################################################################
