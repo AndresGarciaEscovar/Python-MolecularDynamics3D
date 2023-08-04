@@ -2,13 +2,14 @@
     File that contains several utility functions to calculate properties of
     molecules.
 """
-import copy
+
 # ##############################################################################
 # Imports
 # ##############################################################################
 
 
 # General.
+import copy
 import numpy as np
 import yaml
 
