@@ -8,6 +8,8 @@
 
 # General.
 import copy
+import sys
+
 import numpy as np
 
 from pathlib import Path
@@ -205,8 +207,25 @@ class Molecule:
             the current coordinate, radius and mass of each atom.
         """
         # Set the basic variables.
-        string = f"{self.name} ({self.filename})\n"
-
+        string = copy.deepcopy(Molecule.__info).strip() + "\n"
+        string += f"molecule_name: \"{self.name}\"\n"
+        string += f"orientation:\n"
+        for ori in self.orientation:
+            ori = ', '.join([f"{o:+.7e}" for o in ori])
+            string += f"  - [{ori}]\n"
+        string += f"diffusion_tensor:\n"
+        for ent in self.dtensor:
+            ent = ', '.join([f"{o:+.7e}" for o in ent])
+            string += f"  - [{ent}]\n"
+        string += f"atoms:\n"
+        for tatom in self.atoms:
+            astring = f"{repr(tatom)}".replace("\u212B", "").replace("AMU", "")
+            astring = astring.replace("(", "[").replace(")", "]").split("    ")
+            string += f"    {astring[0].strip()}:\n"
+            string += f"        coordinates: {astring[2].replace(' ', '')}\n"
+            string += f"        mass: {astring[3].strip()}\n"
+            string += f"        radius: {astring[4].strip()}\n"
+            string += f"        atype: {astring[1].strip()}\n"
         return string
 
     def __str__(self):
@@ -217,7 +236,6 @@ class Molecule:
             diffusion tensor; the latter with respect to the center of mass.
         """
         # Set the basic variables.
-        string = copy.deepcopy(Molecule.__info)
-        string += f"molecule: {self.name} ({self.filename})\n"
+        string = f"molecule: {self.name} ({self.filename})\n"
 
         return string
