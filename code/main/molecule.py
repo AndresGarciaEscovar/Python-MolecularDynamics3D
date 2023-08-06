@@ -7,6 +7,7 @@
 # ##############################################################################
 
 # General.
+import copy
 import numpy as np
 
 from pathlib import Path
@@ -26,6 +27,18 @@ class Molecule:
         Class that represents a rigid molecule made of spheres. A file with the
         molecule information can be provided to load the molecule.
     """
+
+    # ##########################################################################
+    # Constants
+    # ##########################################################################
+
+    __info = (
+        "# Coordinates are in Angstrom.\n# Mass is in Dalton.\n# Radius is in "
+        "Angstrom.\n# Atom type (atype) is not a mandatory field; set to '---' "
+        "by default.\n# The diffusion tensor as ALWAYS given with respect to "
+        "the center of mass.\n# The orientation is always given with respect "
+        "to the center of mass.\n\n"
+    )
 
     # ##########################################################################
     # Properties
@@ -75,6 +88,9 @@ class Molecule:
         """
         # Get the parameters from the yaml file.
         parameters = umolecule.get_parameters(self.filename)
+
+        # Name of the molecule.
+        self.name = parameters["molecule_name"]
 
         # Get the molecule parameters.
         self.dtensor = np.array(parameters["diffusion_tensor"], dtype=float)
@@ -142,9 +158,10 @@ class Molecule:
              output is being saved.
         """
         # Initialize the molecule properties.
-        self.dtensor = None
-        self.orientation = None
         self.atoms = []
+        self.dtensor = None
+        self.name = None
+        self.orientation = None
 
         # Molecule centers, cod = center of diffusion, cog = center of geometry
         # and com = center of mass.
@@ -180,14 +197,17 @@ class Molecule:
 
             :return: Number of atoms in the molecule.
         """
-        return 0
+        return len(self.atoms)
 
     def __repr__(self):
         """
             Returns a string with a quick represenation of the molecule, i.e.,
             the current coordinate, radius and mass of each atom.
         """
-        return ""
+        # Set the basic variables.
+        string = f"{self.name} ({self.filename})\n"
+
+        return string
 
     def __str__(self):
         """
@@ -196,4 +216,8 @@ class Molecule:
             center of diffusion, center of geometry, center of mass and
             diffusion tensor; the latter with respect to the center of mass.
         """
-        return ""
+        # Set the basic variables.
+        string = copy.deepcopy(Molecule.__info)
+        string += f"molecule: {self.name} ({self.filename})\n"
+
+        return string
