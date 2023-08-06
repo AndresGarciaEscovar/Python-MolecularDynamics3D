@@ -88,11 +88,8 @@ def run_main() -> None:
     # Get the molecule and simulation parameters from the yaml file.
     simulation, molecules, working = get_parameters(filename)
 
-    print(os.cpu_count())
-
-    # molecule_0 = Molecule(molecules[0], working)
-    # molecule_1 = Molecule(molecules[1], working)
-
+    print(molecule_0 := Molecule(molecules[0], working))
+    # print(molecule_1 := Molecule(molecules[1], working))
 
 # ##############################################################################
 # Main Program
