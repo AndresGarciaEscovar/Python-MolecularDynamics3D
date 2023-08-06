@@ -6,10 +6,9 @@
 # Imports
 # ##############################################################################
 
+
 # General.
 import copy
-import sys
-
 import numpy as np
 
 from pathlib import Path
@@ -18,6 +17,7 @@ from pathlib import Path
 import code.main.atom as atom
 import code.utilities.utilities_molecule as umolecule
 import code.validation.validation_parameters as vparameters
+
 
 # ##############################################################################
 # Classes
@@ -219,13 +219,15 @@ class Molecule:
             string += f"  - [{ent}]\n"
         string += f"atoms:\n"
         for tatom in self.atoms:
-            astring = f"{repr(tatom)}".replace("\u212B", "").replace("AMU", "")
+            astring = f"{repr(tatom)}".replace("\u212B", "")
+            astring = astring.replace("Dalton", "")
             astring = astring.replace("(", "[").replace(")", "]").split("    ")
             string += f"    {astring[0].strip()}:\n"
             string += f"        coordinates: {astring[2].replace(' ', '')}\n"
             string += f"        mass: {astring[3].strip()}\n"
             string += f"        radius: {astring[4].strip()}\n"
             string += f"        atype: {astring[1].strip()}\n"
+
         return string
 
     def __str__(self):
@@ -235,7 +237,45 @@ class Molecule:
             center of diffusion, center of geometry, center of mass and
             diffusion tensor; the latter with respect to the center of mass.
         """
-        # Set the basic variables.
-        string = f"molecule: {self.name} ({self.filename})\n"
+        # Atom variables.
+        variables = [[
+            "#", "Name", "Type", "Coordinates (x,y,z) - \u212B",
+            "Mass - Dalton", "Radius - \u212B"
+        ]]
+
+        # Molecule name.
+        string = copy.deepcopy(Molecule.__info).strip() + "\n"
+        string += f"molecule_name: \"{self.name}\"\n"
+        string += f"location: \"{self.filename}\"\n"
+
+        # Atoms.
+        string += f"atoms: \"{self.name}\"\n"
+        for i, tatom in enumerate(self.atoms, start=1):
+            astring = f"{repr(tatom)}".replace("\u212B", "")
+            astring = astring.replace("Dalton", "")
+            astring = [f"{i}"] + [x.strip() for x in astring.split("    ")]
+
+            # Atom properties.
+            variables = variables + [astring]
+
+        # Get the maximum length of each column.
+        max_length = [max(map(len, col)) for col in zip(*variables)]
+
+        # Format the strings.
+        for i, row in enumerate(variables):
+            just = "^" if i == 0 else "<"
+            row = "   ".join([
+                f"{str(val):{just}{dst}}" for dst, val in zip(max_length, row)
+            ])
+            string += f"    {row}\n"
+
+        string += f"orientation:\n"
+        for ori, crd in zip(self.orientation, ("x'", "y'", "z'")):
+            ori = ', '.join([f"{o:+.7e}" for o in ori])
+            string += f"    {crd}: [{ori}]\n"
+        string += f"diffusion_tensor:\n"
+        for ent in self.dtensor:
+            ent = '  '.join([f"{o:+.7e}" for o in ent])
+            string += f"    |{ent}|\n"
 
         return string
