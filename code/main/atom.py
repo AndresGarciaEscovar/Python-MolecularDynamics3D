@@ -314,7 +314,7 @@ class Atom:
             self.atype,
             f"{get_string_vector(self.coordinates)} \u212B",
             f"{self.radius:.7e} \u212B",
-            f"{self.mass:.7e} AMU"
+            f"{self.mass:.7e} Dalton"
         ])
 
     def __str__(self) -> str:
