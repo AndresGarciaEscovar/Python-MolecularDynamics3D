@@ -77,11 +77,72 @@ class Molecule:
     # --------------------------------------------------------------------------
 
     # --------------------------------------------------------------------------
-    # Clean Methods
+    # 'get' Methods
     # --------------------------------------------------------------------------
 
+    def get_atoms_string(self, yaml: bool = False) -> str:
+        """
+            Gets the string with the atoms information, set in a proper table;
+            or in a yaml style formatted string.
+
+            :param yaml: A boolean flag that indicates if the string format must
+             be yaml style. If True, the string will be formatted in a yaml
+             style; False, otherwise.
+
+            :return: String with the atoms information.
+        """
+        # //////////////////////////////////////////////////////////////////////
+        # Auxiliar Functions
+        # //////////////////////////////////////////////////////////////////////
+
+        def get_table() -> str:
+            """
+                Gets the string in table form.
+            """
+            # Auxiliary variables.
+            header = [(
+                "#", "Name", "Type", "Coordinates (x,y,z) - \u212B",
+                "Mass - Dalton", "Radius - \u212B"
+            )]
+            atoms = header + [
+                (i + 1, *x.get_information()) for i, x in enumerate(self.atoms)
+            ]
+
+            # Length of the strings.
+            length = list(map(len, header[0]))
+
+            # Get the lengths.
+            for i, tatom in enumerate(atoms):
+                for j, value in enumerate(tatom):
+                    length[j] = max(length[j], len(str(value)))
+
+            # Get the string.
+            string = ""
+            for i, tatom in enumerate(atoms):
+                align = "^" if i == 0 else "<"
+                for j, value in enumerate(tatom):
+                    string += f"{value:{align}{length[j]}}   "
+                string += "\n"
+
+            return string
+
+        def get_yaml() -> str:
+            """
+                Gets the string in yaml form.
+            """
+
+        # //////////////////////////////////////////////////////////////////////
+        # Implementation
+        # //////////////////////////////////////////////////////////////////////
+
+        # Return the yaml formatted string.
+        if yaml:
+            return get_yaml()
+
+        return get_table()
+
     # --------------------------------------------------------------------------
-    # Load Methods
+    # 'load' Methods
     # --------------------------------------------------------------------------
 
     def load(self) -> None:
@@ -250,24 +311,7 @@ class Molecule:
 
         # Atoms.
         string += f"atoms: \"{self.name}\"\n"
-        for i, tatom in enumerate(self.atoms, start=1):
-            astring = f"{repr(tatom)}".replace("\u212B", "")
-            astring = astring.replace("Dalton", "")
-            astring = [f"{i}"] + [x.strip() for x in astring.split("    ")]
-
-            # Atom properties.
-            variables = variables + [astring]
-
-        # Get the maximum length of each column.
-        max_length = [max(map(len, col)) for col in zip(*variables)]
-
-        # Format the strings.
-        for i, row in enumerate(variables):
-            just = "^" if i == 0 else "<"
-            row = "   ".join([
-                f"{str(val):{just}{dst}}" for dst, val in zip(max_length, row)
-            ])
-            string += f"    {row}\n"
+        string += self.get_atoms_string(yaml=False)
 
         string += f"orientation:\n"
         for ori, crd in zip(self.orientation, ("x'", "y'", "z'")):
