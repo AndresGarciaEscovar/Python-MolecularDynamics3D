@@ -290,14 +290,20 @@ class Molecule:
         # Set the basic variables.
         string = copy.deepcopy(Molecule.__info).strip() + "\n"
         string += f"molecule_name: \"{self.name}\"\n"
+
+        # Orientation.
         string += f"orientation:\n"
         for ori in self.orientation:
             ori = ', '.join([f"{o:+.7e}" for o in ori])
             string += f"  - [{ori}]\n"
+
+        # Diffusion tensor.
         string += f"diffusion_tensor:\n"
         for ent in self.dtensor:
             ent = ', '.join([f"{o:+.7e}" for o in ent])
             string += f"  - [{ent}]\n"
+
+        # Atoms.
         string += f"atoms:\n  "
         string += self.get_atoms_string(yaml=True).replace("\n", "\n  ")
 
@@ -325,10 +331,13 @@ class Molecule:
         string += f"atoms: \"{self.name}\"\n"
         string += self.get_atoms_string(yaml=False)
 
+        # Orientation.
         string += f"orientation:\n"
         for ori, crd in zip(self.orientation, ("x'", "y'", "z'")):
             ori = ', '.join([f"{o:+.7e}" for o in ori])
-            string += f"    {crd}: [{ori}]\n"
+            string += f"    {crd}: [{ori}]\n"\
+
+        # Diffusion tensor.
         string += f"diffusion_tensor:\n"
         for ent in self.dtensor:
             ent = '  '.join([f"{o:+.7e}" for o in ent])
