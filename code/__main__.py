@@ -92,7 +92,8 @@ def run_main() -> None:
     # print(str(molecule_1 := Molecule(molecules[1], working)))
 
     molecule_1 = Molecule(molecules[1], working)
-    print(str(molecule_1))
+    # print(str(molecule_1))
+    print(repr(molecule_1))
 
 
 
