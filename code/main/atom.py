@@ -207,7 +207,6 @@ class Atom:
     # 'get' Methods
     # --------------------------------------------------------------------------
 
-
     def get_information(self) -> tuple:
         """
             Gets a tuple with the atom information.
