@@ -204,7 +204,27 @@ class Atom:
     # //////////////////////////////////////////////////////////////////////////
 
     # --------------------------------------------------------------------------
-    # Set Methods
+    # 'get' Methods
+    # --------------------------------------------------------------------------
+
+
+    def get_information(self) -> tuple:
+        """
+            Gets a tuple with the atom information.
+
+            :return: A tuple with the atom information, in the following order:
+                name, type, coordinates, mass, radius.
+        """
+        # Function alias.
+        function = ustrings.get_string_vector
+
+        return (
+            self.aname, self.atype, function(self.coordinates),
+            f"{self.mass:.7e}", f"{self.radius:.7e}"
+        )
+
+    # --------------------------------------------------------------------------
+    # 'set' Methods
     # --------------------------------------------------------------------------
 
     def set_from_elements(self) -> None:
@@ -248,7 +268,7 @@ class Atom:
     # //////////////////////////////////////////////////////////////////////////
 
     def __init__(
-        self, aname: str, atype: str, radius: float, mass: float,
+        self, aname: str, atype: str, mass: float, radius: float,
         coordinates: np.ndarray,
         
     ):
@@ -259,12 +279,12 @@ class Atom:
             :param aname: The name of the atom.
 
             :param atype: The type of the atom.
-            
-            :param radius: A positive floating point number that represents the
-             radius of the spherical atom.
 
             :param mass: A positive floating point number that represents the
              mass of the atom.
+
+             :param radius: A positive floating point number that represents the
+              radius of the spherical atom.
 
             :param coordinates: A 1D numpy array of n-entries that represents
              the position of the sphere in n-dimensional space.
@@ -331,5 +351,5 @@ class Atom:
             f"Type: {self.atype}",
             f"Coordinates: {get_string_vector(self.coordinates)} \u212B",
             f"Radius: {self.radius:.7e} \u212B",
-            f"Mass: {self.mass:.7e} AMU"
+            f"Mass: {self.mass:.7e} Dalton"
         ])
