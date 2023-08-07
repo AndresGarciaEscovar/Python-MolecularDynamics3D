@@ -316,12 +316,6 @@ class Molecule:
             center of diffusion, center of geometry, center of mass and
             diffusion tensor; the latter with respect to the center of mass.
         """
-        # Atom variables.
-        variables = [[
-            "#", "Name", "Type", "Coordinates (x,y,z) - \u212B",
-            "Mass - Dalton", "Radius - \u212B"
-        ]]
-
         # Molecule name.
         string = copy.deepcopy(Molecule.__info).strip() + "\n"
         string += f"molecule_name: \"{self.name}\"\n"
