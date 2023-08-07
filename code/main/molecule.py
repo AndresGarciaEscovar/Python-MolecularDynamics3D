@@ -98,6 +98,8 @@ class Molecule:
         def get_table() -> str:
             """
                 Gets the string in table form.
+
+                :return: String with the atoms information in table form.
             """
             # Auxiliary variables.
             header = [(
@@ -129,7 +131,25 @@ class Molecule:
         def get_yaml() -> str:
             """
                 Gets the string in yaml form.
+
+                :return: String with the atoms information in yaml form.
             """
+            string = ""
+            atoms = [
+                x.get_information() for i, x in enumerate(self.atoms)
+            ]
+
+            # Get the string.
+            for tatom in atoms:
+                string += f"{tatom[0]}:\n"
+                string += (
+                    f"  coordinates: {tatom[2]}\n".replace("(", "[")
+                ).replace(")", "]")
+                string += f"  mass: {tatom[3]}\n"
+                string += f"  radius: {tatom[4]}\n"
+                string += f"  atype: {tatom[1]}\n"
+
+            return string
 
         # //////////////////////////////////////////////////////////////////////
         # Implementation
@@ -278,16 +298,8 @@ class Molecule:
         for ent in self.dtensor:
             ent = ', '.join([f"{o:+.7e}" for o in ent])
             string += f"  - [{ent}]\n"
-        string += f"atoms:\n"
-        for tatom in self.atoms:
-            astring = f"{repr(tatom)}".replace("\u212B", "")
-            astring = astring.replace("Dalton", "")
-            astring = astring.replace("(", "[").replace(")", "]").split("    ")
-            string += f"    {astring[0].strip()}:\n"
-            string += f"        coordinates: {astring[2].replace(' ', '')}\n"
-            string += f"        mass: {astring[3].strip()}\n"
-            string += f"        radius: {astring[4].strip()}\n"
-            string += f"        atype: {astring[1].strip()}\n"
+        string += f"atoms:\n  "
+        string += self.get_atoms_string(yaml=True).replace("\n", "\n  ")
 
         return string
 
