@@ -1,4 +1,4 @@
-name: mdynamics
+name: env_molecular_dynamics_3d
 channels:
   - conda-forge
   - anaconda
@@ -7,5 +7,5 @@ dependencies:
   - mendeleev=0.13.1
   - numpy=1.24.3
   - pip=23.1.2
-  - python=3.11.*
-  - pyyaml=6.0
+  - python=3.11.8
+  - pyyaml=6.0.1
