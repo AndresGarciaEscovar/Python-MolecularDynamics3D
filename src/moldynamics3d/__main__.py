@@ -2,27 +2,30 @@
     This file is used to run the code as a module.
 """
 
+
 # ##############################################################################
 # Imports
 # ##############################################################################
 
 
-# General.
+# Standard library.
 import argparse
 import os
 
+# Third party.
 import numpy as np
 import yaml
 
-# User defined.
+# User.
 import code.validation.validation_parameters as vparameters
 
-# Temporary.
+# TO REMOVE!
 from code.main.molecule import Molecule
 
-# ##############################################################################
+
+# #############################################################################
 # Functions
-# ##############################################################################
+# #############################################################################
 
 
 def get_args() -> str:
@@ -64,21 +67,21 @@ def get_parameters(filename: str) -> tuple:
     # Get the dictionary of parameters from the yaml file.
     with open(filename, "r") as file:
         parameters = yaml.safe_load(file)
-    
-    # Get the simulation parameters.    
+
+    # Get the simulation parameters.
     working = parameters["directory"]["working"]
     simulation = parameters["simulation"]
     molecules = tuple(value for value in parameters["molecule"].values())
-    
+
     return simulation, molecules, working
 
 
-# ##############################################################################
+# #############################################################################
 # Main Function
-# ##############################################################################
+# #############################################################################
 
 
-def run_main() -> None:
+def main() -> None:
     """
         This function is used to run the main program.
     """
@@ -94,14 +97,3 @@ def run_main() -> None:
     molecule_1 = Molecule(molecules[1], working)
     # print(str(molecule_1))
     print(repr(molecule_1))
-
-# ##############################################################################
-# Main Program
-# ##############################################################################
-
-
-if __name__ == "__main__":
-    """
-        This is the main program.
-    """
-    run_main()
