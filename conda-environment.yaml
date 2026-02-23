@@ -1,7 +1,6 @@
 name: env_molecular_dynamics_3d
 channels:
   - conda-forge
-  - anaconda
   - default
 dependencies:
   - python=3.11.8
